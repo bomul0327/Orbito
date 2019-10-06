@@ -47,5 +47,13 @@ namespace OrbitoEvent
                 listenerList[i].OnEvent(evt);
             }
         }
+
+        /// <summary>
+        /// 특정 리스너에게 이벤트를 발송
+        /// </summary>
+        public static void Notify(IEventListener listener, IEvent evt)
+        {
+            listener.OnEvent(evt);
+        }
     }
 }
