@@ -14,8 +14,14 @@ public class UnityObjectPool : MonoBehaviour
 
     // 필요할만한 변수
     // 이 풀에서 관리하는 asset의 이름
+    public string assetName;
     // 이 풀에서 Instantiate를 할 오브젝트
+    public PooledUnityObject pooledPrefab;
+    public GameObject prefab;
+
     // 풀링이 되고 있는 오브젝트를 관리할 리스트 혹은 배열 (배열로 한다면, Resize를 할 수 있도록 고려를 해야합니다.)
+    public List<PooledUnityObject> objectPool = new List<PooledUnityObject>();
+    public int poolCount = 0;
 
     // 추후에 필요할만한 변수
     // 이 풀이 max count를 넘으면 확장될 것인지를 결정하는 enum
@@ -37,7 +43,21 @@ public class UnityObjectPool : MonoBehaviour
     /// <param name="rot">Instantiate될 때, 오브젝트의 회전값</param>
     public PooledUnityObject Instantiate (Vector3 pos, Quaternion rot)
     {
-        return null;
+        for (int i = 0; i < poolCount; i++)
+        {
+            PooledUnityObject obj = Instantiate<PooledUnityObject>(pooledPrefab, pos, rot, transform);
+            objectPool.Add(obj);
+            obj.SetActive(assetName, prefab, false);
+        }
+        //★poolCount 초과 시 새로 만들고 List에 추가하는 내용
+        //서치를 해보니 Allocate 함수와 Pop 함수를 구분해서
+        //Allocate가 Instantiate에 가까워 보이며
+        //Pop에서 objectPool.count가 0보다 작을 때 Allocate(필요한 수)를 하는 방식이던데
+        //그런식으로 구현을 해야 하나요?
+        //참고) https://youngchangoon.tistory.com/21
+
+        return null; 
+        //★return값 null이 맞나요? 뭘 넣어도 에러가 나서 일단 null로 해놨습니다.
     }
 
     /// <summary>
@@ -46,7 +66,8 @@ public class UnityObjectPool : MonoBehaviour
     /// <param name="obj">반환할 오브젝트</param>
     public void Return (PooledUnityObject obj)
     {
-
+        obj.SetActive(assetName, prefab, false);
+        objectPool.Add(obj);
     }
 
     /// <summary>
@@ -54,7 +75,19 @@ public class UnityObjectPool : MonoBehaviour
     /// </summary>
     public void ReturnAll ()
     {
+        if (objectPool == null)
+            return;
 
+        for(int i = 0; i< objectPool.Count; i++)
+        {
+            PooledUnityObject pooledObj = objectPool[i];
+
+            if(pooledObj != null)
+            {
+                Return(pooledObj);
+            }
+            
+        }
     }
 
     /// <summary>
@@ -63,6 +96,15 @@ public class UnityObjectPool : MonoBehaviour
     /// </summary>
     public void Dispose ()
     {
+        if (objectPool == null)
+            return;
+
+        for(int i = 0; i< objectPool.Count; i++)
+        {
+            PooledUnityObject obj = objectPool[i];
+            GameObject.Destroy(obj.gameObject);
+        }
+        objectPool = null;
 
     }
 
@@ -72,6 +114,26 @@ public class UnityObjectPool : MonoBehaviour
     /// <param name="assetName"></param>
     public static UnityObjectPool GetOrCreate (string assetName)
     {
-        return null;
+        //★poolDict.TryGetKey 써보려고 했는데 에러가 납니다.
+        //System.Collections.Immutable?? 이걸 using해야되는 건가요? (using하면 에러남) 
+        //https://docs.microsoft.com/ko-kr/dotnet/api/system.collections.immutable.iimmutabledictionary-2.trygetkey?view=netcore-3.0
+        
+        if (poolDict.ContainsKey(assetName))
+        {
+            //인스턴스를 가져온다.
+            UnityObjectPool unityObjectPool = new UnityObjectPool();
+            unityObjectPool = FindObjectOfType<UnityObjectPool>();
+        }
+        else
+        {
+            //UnityObjectPool을 만든다
+            UnityObjectPool unityObjectPool = new UnityObjectPool();
+            GameObject container = new GameObject(assetName + "_objectPool");
+            container.AddComponent<UnityObjectPool>();
+
+            poolDict.Add(assetName, unityObjectPool);
+        }
+        
+        return null; //★여기도 return값 뭘로 설정해야 하나요?
     }
 }
