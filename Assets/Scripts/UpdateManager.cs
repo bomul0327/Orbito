@@ -13,36 +13,36 @@ public class UpdateManager : Singleton<UpdateManager>
 
     private List<ILateUpdatable> lateList = new List<ILateUpdatable>();
 
-    private void Awake ()
+    private void Awake()
     {
-        
+
     }
 
-    private void Update ()
+    private void Update()
     {
-        foreach(var item in updatableList)
+        foreach (var item in updatableList)
         {
             item.OnUpdate(Time.deltaTime);
         }
     }
 
-    private void FixedUpdate ()
+    private void FixedUpdate()
     {
-        foreach(var item in fixedList)
+        foreach (var item in fixedList)
         {
             item.OnFixedUpdate(Time.deltaTime);
         }
     }
 
-    private void LateUpdate ()
+    private void LateUpdate()
     {
-        foreach(var item in lateList)
+        foreach (var item in lateList)
         {
             item.OnLateUpdate(Time.deltaTime);
         }
     }
 
-    public void AddUpdatable (IUpdatable updatable)
+    public void AddUpdatable(IUpdatable updatable)
     {
         if (!updatableList.Contains(updatable))
         {
@@ -74,7 +74,7 @@ public class UpdateManager : Singleton<UpdateManager>
         }
     }
 
-    public void RemoveFixedUpdatable (IFixedUpdatable updatable)
+    public void RemoveFixedUpdatable(IFixedUpdatable updatable)
     {
         if (fixedList.Contains(updatable))
         {
@@ -82,7 +82,7 @@ public class UpdateManager : Singleton<UpdateManager>
         }
     }
 
-    public void RemoveLateUpdatable (ILateUpdatable updatable)
+    public void RemoveLateUpdatable(ILateUpdatable updatable)
     {
         if (lateList.Contains(updatable))
         {
