@@ -19,6 +19,20 @@ public class Character : FieldObject
         private set;
     }
 
+    public int CurrentHP;
+
+    public int MaxHP;
+
+    public float CurrentFuel;
+
+    public float MaxFuel;
+
+    public float FuelReductionRatio;
+
+    public float Defense;
+
+    public float MoveSpeed;
+
     private void Awake()
     {
         // Get Controller and Behaviour by something.
