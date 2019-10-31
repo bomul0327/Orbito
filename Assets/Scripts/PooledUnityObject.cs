@@ -20,8 +20,8 @@ public class PooledUnityObject : MonoBehaviour
     /// Parameter들은 본인의 입맛에 추가하세요.
     /// 추천드리는 것은 Instantiate를 할 때, 필요한 것들입니다.
     /// </summary>
-    public void SetActive(string itemName, GameObject obj, bool active)
+    public void SetActive(string itemName, bool active)
     {
-        obj.SetActive(active);
+
     }
 }
