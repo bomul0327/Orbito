@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,7 +7,7 @@ using UnityEngine;
 /// 작은 사이즈의 클래스들을 풀링
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class TinyObjectPool<T> : MonoBehaviour where T : new()
+public class TinyObjectPool<T> where T : class, IDisposable, new()
 {
     private Queue<T> availableObjects = new Queue<T>();
     private List<T> inUseObjects = new List<T>();
@@ -17,7 +18,7 @@ public class TinyObjectPool<T> : MonoBehaviour where T : new()
     public T GetOrCreate()
     {
         T obj;
-        if(availableObjects.Count != 0)
+        if (availableObjects.Count != 0)
         {
             obj = availableObjects.Dequeue();
         }
@@ -38,7 +39,6 @@ public class TinyObjectPool<T> : MonoBehaviour where T : new()
         if (inUseObjects.Contains(obj))
         {
             inUseObjects.Remove(obj);
-            //obj.init() obj초기화?
             availableObjects.Enqueue(obj);
         }
     }
@@ -50,7 +50,7 @@ public class TinyObjectPool<T> : MonoBehaviour where T : new()
     {
         if (inUseObjects.Count == 0) return;
 
-        for(int i = inUseObjects.Count - 1; i >= 0; --i)
+        for (int i = inUseObjects.Count - 1; i >= 0; --i)
         {
             Return(inUseObjects[i]);
         }
@@ -62,9 +62,12 @@ public class TinyObjectPool<T> : MonoBehaviour where T : new()
     public void Dispose()
     {
         ReturnAll();
-        while(availableObjects.Count != 0)
+
+        while (availableObjects.Count != 0)
         {
-            //availableObjects.Dequeue().Dispose; 해당 메모리 할당 해제(IDisposable에서 구현?)
+            var obj = availableObjects.Dequeue();
+            obj.Dispose();
+            obj = null;
         }
         inUseObjects = null;
         availableObjects = null;
