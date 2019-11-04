@@ -2,6 +2,6 @@ using System;
 
 public interface IState
 {
-    void OnEnter(IState state);
-    void OnExit(IState state);
+    void OnEnter(IState prevState);
+    void OnExit(IState nextState);
 }

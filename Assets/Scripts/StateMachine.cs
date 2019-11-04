@@ -1,18 +1,28 @@
 using System;
 
-public class StateMachine
+public class StateMachine : IDisposable
 {
-    public IState CurrentState{get; private set;}
+    public IState CurrentState { get; private set; }
 
     public StateMachine()
     {
-        CurrentState = new IdleState();
+        CurrentState = new NoneState();
     }
 
-    public void ToState(IState NextState)
+    public void ChangeTo(IState nextState)
     {
-        CurrentState.OnExit(NextState);
-        NextState.OnEnter(CurrentState);
-        CurrentState = NextState;
+        if (nextState == CurrentState)
+        {
+            return;
+        }
+
+        CurrentState.OnExit(nextState);
+        nextState.OnEnter(CurrentState);
+        CurrentState = nextState;
+    }
+
+    void IDisposable.Dispose()
+    {
+        CurrentState = null;
     }
 }
