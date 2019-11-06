@@ -12,4 +12,9 @@ public class IdleState : IState
     {
         
     }
+
+    void IUpdatable.OnUpdate(float dt)
+    {
+        // 업데이트 될때 해당 State가 할 일
+    }
 }
