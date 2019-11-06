@@ -17,7 +17,11 @@ public class StateMachine : IDisposable
         }
 
         CurrentState.OnExit(nextState);
+        UpdateManager.Instance.RemoveUpdatable(CurrentState);
+
         nextState.OnEnter(CurrentState);
+        UpdateManager.Instance.AddUpdatable(nextState);
+
         CurrentState = nextState;
     }
 
