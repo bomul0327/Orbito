@@ -1,6 +1,6 @@
 using System;
 
-public interface IState : IUpdatable
+public interface IState
 {
     void OnEnter(IState prevState);
     void OnExit(IState nextState);

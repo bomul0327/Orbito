@@ -7,7 +7,6 @@ public class StateMachine : IDisposable
     public StateMachine()
     {
         CurrentState = new NoneState();
-        UpdateManager.Instance.AddUpdatable(CurrentState);
     }
 
     public void ChangeTo(IState nextState)
@@ -18,10 +17,18 @@ public class StateMachine : IDisposable
         }
 
         CurrentState.OnExit(nextState);
-        UpdateManager.Instance.RemoveUpdatable(CurrentState);
+
+        if ( CurrentState is IUpdatable )
+        {
+            UpdateManager.Instance.RemoveUpdatable( (IUpdatable) CurrentState);
+        }
 
         nextState.OnEnter(CurrentState);
-        UpdateManager.Instance.AddUpdatable(nextState);
+
+        if ( nextState is IUpdatable )
+        {
+            UpdateManager.Instance.AddUpdatable( (IUpdatable) nextState);
+        }
 
         CurrentState = nextState;
     }

@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class IdleState : IState
+public class IdleState : IState, IUpdatable
 {
     void IState.OnEnter(IState prevState)
     {
@@ -15,6 +15,6 @@ public class IdleState : IState
 
     void IUpdatable.OnUpdate(float dt)
     {
-        // 업데이트 될때 해당 State가 할 일
+        
     }
 }
