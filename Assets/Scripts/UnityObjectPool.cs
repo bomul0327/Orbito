@@ -14,16 +14,16 @@ public class UnityObjectPool : MonoBehaviour
 
     // 필요할만한 변수
     // 이 풀에서 관리하는 asset의 이름
-    public string assetName;
+    public string assetName { get; private set; }
     // 이 풀에서 Instantiate를 할 오브젝트
     public PooledUnityObject pooledObj;
 
     // 풀링이 되고 있는 오브젝트를 관리할 리스트 혹은 배열 (배열로 한다면, Resize를 할 수 있도록 고려를 해야합니다.)
     private Queue<PooledUnityObject> availablePool = new Queue<PooledUnityObject>();
     private List<PooledUnityObject> activePool = new List<PooledUnityObject>();
-    
+
     private int poolCount = 0;
-    public int poolCapacity = 10;
+    public int poolCapacity { get; private set; }
 
     // 추후에 필요할만한 변수
     // 이 풀이 max count를 넘으면 확장될 것인지를 결정하는 enum
@@ -34,6 +34,9 @@ public class UnityObjectPool : MonoBehaviour
     /// Asset의 이름을 Key로 사용합니다.
     /// </summary>
     private static Dictionary<string, UnityObjectPool> poolDict = new Dictionary<string, UnityObjectPool>();
+    
+    //10으로 임시 설정
+    public static int defaultPoolCapacity = 10;
 
     //만약에 정해진 pool count를 넘어갈 때는, 새로운 PooledUnityObject를 만들어주고, 그걸 List나 Array 등에 넣어서 추가도 해줘야 합니다.
     // 파라메터들은 추후에도 추가가 될 수 있습니다. 예를 들면 이 오브젝트는 지정한 오브젝트를 따라갈 수 있게 만든다던지, 혹은 일정 시간이 지나면 자동으로 반환이 된다던지
@@ -45,11 +48,6 @@ public class UnityObjectPool : MonoBehaviour
     /// <param name="rot">Instantiate될 때, 오브젝트의 회전값</param>
     public PooledUnityObject Instantiate (Vector3 pos, Quaternion rot)
     {
-        if(availablePool.Count <= 0)
-        {
-            Allocate();
-        }
-
         PooledUnityObject obj;
 
         if (poolCount < poolCapacity)
@@ -60,7 +58,7 @@ public class UnityObjectPool : MonoBehaviour
         else
         {
             obj = Instantiate<PooledUnityObject>(pooledObj, transform);
-            obj.name = assetName + (++poolCount).ToString();
+            obj.name = assetName + poolCount++.ToString();
             poolCapacity++;
         }
         activePool.Add(obj);
@@ -73,8 +71,7 @@ public class UnityObjectPool : MonoBehaviour
 
     private void Allocate()
     {
-        //poolCount 초과 시 만들고 List에 추가
-        for (int i = 0; i<poolCapacity; ++i)
+        for (int i = 0; i < poolCapacity; ++i)
         {
             PooledUnityObject obj = Instantiate<PooledUnityObject>(pooledObj, transform);
             obj.name = assetName + i.ToString();
@@ -95,6 +92,7 @@ public class UnityObjectPool : MonoBehaviour
             obj.SetActive(false);
             activePool.Remove(obj);
             availablePool.Enqueue(obj);
+            poolCount--;
         }
     }
 
@@ -135,27 +133,30 @@ public class UnityObjectPool : MonoBehaviour
         }
         availablePool = null;
         activePool = null;
-        GameObject.Destroy(gameObject);
+        Destroy(gameObject);
     }
 
     /// <summary>
     /// UnityObjectPool을 만들거나, 이미 존재한다면 그 인스턴스를 가져옵니다.
     /// </summary>
     /// <param name="assetName"></param>
-    public static UnityObjectPool GetOrCreate (string assetName)
+    public static UnityObjectPool GetOrCreate (string _assetName)
     {
         UnityObjectPool instance;
         
-        if (poolDict.TryGetValue(assetName, out instance))
+        if (poolDict.TryGetValue(_assetName, out instance))
         {
             //인스턴스를 가져온다.
         }
         else
         {
             //UnityObjectPool을 만든다
-            instance = new GameObject(assetName).AddComponent<UnityObjectPool>();
+            instance = new GameObject(_assetName + "ObjectPool").AddComponent<UnityObjectPool>();
+            instance.assetName = _assetName;
+            instance.poolCapacity = defaultPoolCapacity;
+            instance.pooledObj = Resources.Load(_assetName, typeof(PooledUnityObject)) as PooledUnityObject;
             instance.Allocate();
-            poolDict.Add(assetName, instance);
+            poolDict.Add(_assetName, instance);
         }
         return instance;
     }
