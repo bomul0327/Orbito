@@ -47,7 +47,7 @@ public class UnityObjectPool : MonoBehaviour
     {
         if(availablePool.Count <= 0)
         {
-            Allocate(poolCapacity);
+            Allocate();
         }
 
         PooledUnityObject obj;
@@ -59,32 +59,28 @@ public class UnityObjectPool : MonoBehaviour
         }
         else
         {
-            obj = GameObject.Instantiate<PooledUnityObject>(pooledObj);
+            obj = Instantiate<PooledUnityObject>(pooledObj, transform);
             obj.name = assetName + (++poolCount).ToString();
-            obj.transform.parent = gameObject.transform;
             poolCapacity++;
         }
         activePool.Add(obj);
-        obj.gameObject.SetActive(true);
+        obj.SetActive(true);
         obj.transform.position = pos;
         obj.transform.rotation = rot;
 
-        return pooledObj;
-        //PooledUnityObject를 return해야함
+        return obj;
     }
 
-    private void Allocate(int poolCapacity)
+    private void Allocate()
     {
         //poolCount 초과 시 만들고 List에 추가
         for (int i = 0; i<poolCapacity; ++i)
         {
-            PooledUnityObject obj = GameObject.Instantiate<PooledUnityObject>(pooledObj);
+            PooledUnityObject obj = Instantiate<PooledUnityObject>(pooledObj, transform);
             obj.name = assetName + i.ToString();
-            obj.transform.parent = gameObject.transform;
             
-
             availablePool.Enqueue(obj);
-            obj.gameObject.SetActive(false);
+            obj.SetActive(false);
         }
     }
     
@@ -96,7 +92,7 @@ public class UnityObjectPool : MonoBehaviour
     {
         if(activePool.Contains(obj))
         {
-            obj.gameObject.SetActive(false);
+            obj.SetActive(false);
             activePool.Remove(obj);
             availablePool.Enqueue(obj);
         }
@@ -135,7 +131,7 @@ public class UnityObjectPool : MonoBehaviour
         while(availablePool.Count != 0)
         {
             PooledUnityObject obj = availablePool.Dequeue();
-            GameObject.Destroy(obj.gameObject);
+            Destroy(obj.gameObject);
         }
         availablePool = null;
         activePool = null;
@@ -157,10 +153,9 @@ public class UnityObjectPool : MonoBehaviour
         else
         {
             //UnityObjectPool을 만든다
-            GameObject container = new GameObject(assetName + "_objectPool");
-            var a = container.AddComponent<UnityObjectPool>();
-            
-            poolDict.Add(assetName, a);
+            instance = new GameObject(assetName).AddComponent<UnityObjectPool>();
+            instance.Allocate();
+            poolDict.Add(assetName, instance);
         }
         return instance;
     }
