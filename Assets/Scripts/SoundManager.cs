@@ -1,19 +1,23 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
-using UnityEditor;
+using UnityEngine.Audio;
 
 public class SoundManager : Singleton<SoundManager>
 {
-    private string audioClipFolderPath = Application.dataPath + "\\Sounds\\";
+    private string audioClipFolderPath = "Sounds\\";
+    // AudioMixerGroup speedAudioMixer = Resources.Load<AudioMixerGroup>("AudioClipSpeedMixer");
     private Dictionary<string, AudioSource> soundDict = new Dictionary<string, AudioSource>();
+
     void Add(string audioSource)
     {
         soundDict.Add(audioSource, gameObject.AddComponent<AudioSource>() as AudioSource );
-        soundDict[audioSource].clip = (AudioClip) AssetDatabase.LoadAssetAtPath(audioClipFolderPath + audioSource, typeof(AudioClip));
+        soundDict[audioSource].clip = Resources.Load<AudioClip>(audioClipFolderPath + audioSource);
     }
-    void Play(string audioSource, float playVolume, float playPitch, float playSpeed)
+    /// <summary>
+    /// playVolume은 0~1까지의 범위이며, 3 parameter 값은 1이 Default값입니다.
+    /// </summary>
+    public void Play(string audioSource, float playVolume, float playPitch, float playSpeed)
     {
         if (!soundDict.ContainsKey(audioSource))
         {
@@ -30,33 +34,44 @@ public class SoundManager : Singleton<SoundManager>
         } else
         {
             Debug.Log("The clip is already playing.");
-            Debug.Log("So only changed volume, pitch, speed.")
+            Debug.Log("So only changed volume, pitch, speed.");
         }
     }
 
-    void Play(string audioSource)
+    /// <summary>
+    /// 3 parameter 값은 1이 Default값입니다.
+    /// </summary>
+    public void Play(string audioSource)
     {
-        Play(audioSource, 0.5f, 0.5f, 0.5f);
+        Play(audioSource, 1.0f, 1.0f, 1.0f);
     }
 
-    void Replay(string audioSource)
+    void BGM(string audioSource)
     {
-        if (soundDict[audioSource].isPlaying)
+        Play(audioSource);
+        soundDict[audioSource].loop = true;
+    }
+
+    public void Replay(string audioSource)
+    {
+        if (soundDict.ContainsKey(audioSource))
         {
-            float prevVolume = soundDict[audioSource].volume;
-            float prevPitch = soundDict[audioSource].pitch;
-            
-            // 아래의 prevSpeed는 더미데이터입니다
-            float prevSpeed = 1.0f;
-            // Speed 멤버가 없기때문에 다른 방식으로 구현해야함
-            // float prevSpeed = soundDict[audioSource].speed;
-
-            soundDict[audioSource].Stop();
-            Play(audioSource, prevVolume, prevPitch, prevSpeed);
+            if (soundDict[audioSource].isPlaying)
+            {
+                soundDict[audioSource].Stop();
+                soundDict[audioSource].Play();
+            } else
+            {
+                Debug.Log(audioSource + " is not playing, so that play it from begining");
+                soundDict[audioSource].Play();
+            }
+        } else
+        {
+            Debug.Log("There is no "+audioSource);
         }
     }
 
-    void Stop(string audioSource)
+    public void Stop(string audioSource)
     {
         if (soundDict.ContainsKey(audioSource))
         {
@@ -67,7 +82,7 @@ public class SoundManager : Singleton<SoundManager>
         }
     }
 
-    void Resume(string audioSource)
+    public void Resume(string audioSource)
     {
         if (soundDict.ContainsKey(audioSource))
         {
@@ -78,7 +93,7 @@ public class SoundManager : Singleton<SoundManager>
         }
     }
 
-    void Remove(string audioSource)
+    public void Remove(string audioSource)
     {
         if (soundDict.ContainsKey(audioSource))
         {
@@ -100,7 +115,7 @@ public class SoundManager : Singleton<SoundManager>
         }
     }
 
-    void UnMute(string audioSource)
+    public void UnMute(string audioSource)
     {
         if (soundDict.ContainsKey(audioSource))
         {
@@ -111,7 +126,7 @@ public class SoundManager : Singleton<SoundManager>
         }
     }
 
-    void MuteAll()
+    public void MuteAll()
     {
         foreach (var item in soundDict)
         {
@@ -119,7 +134,7 @@ public class SoundManager : Singleton<SoundManager>
         }
     }
 
-    void UnMuteAll()
+    public void UnMuteAll()
     {
         foreach (var item in soundDict)
         {
@@ -127,7 +142,7 @@ public class SoundManager : Singleton<SoundManager>
         }
     }
 
-    void SetVolume(string audioSource, float playVolume)
+    public void SetVolume(string audioSource, float playVolume)
     {
         if (soundDict.ContainsKey(audioSource))
         {
@@ -138,55 +153,45 @@ public class SoundManager : Singleton<SoundManager>
         }
     }
 
-    void UpVolume(string audioSource)
-    {
-        SetVolume(audioSource, soundDict[audioSource].volume + 0.1f);
-    }
-
-    void DownVolume(string audioSource)
-    {
-        SetVolume(audioSource, soundDict[audioSource].volume - 0.1f);
-    }
-
-    void SetPitch(string audioSource, float playPitch)
+    public void SetPitch(string audioSource, float playPitch)
     {
         if (soundDict.ContainsKey(audioSource))
         {
-            soundDict[audioSource].pitch = playPitch;
+            // 이부분은 Speed가 한번에 조정되는 기준으로 코딩돼 있기 때문에 Speed가 개별로 조절되어야 한다면 여기도 수정되어야 합니다.
+
+            soundDict[audioSource].outputAudioMixerGroup.audioMixer.GetFloat("pitchBend", out float pitchBend);
+            soundDict[audioSource].pitch = playPitch / pitchBend;
         } else 
         {
             Debug.Log("There is no "+audioSource);
         }
     }
 
-    void UpPitch(string audioSource)
+    public void SetSpeed(string audioSource, float playSpeed)
     {
-        SetPitch(audioSource, soundDict[audioSource].pitch + 0.1f);
-    }
-    
-    void DownPitch(string audioSource)
-    {
-        SetPitch(audioSource, soundDict[audioSource].pitch - 0.1f);
-    }
+        // 현재는 하나의 AudioMixerGroup을 사용하기 때문에 Speed를 조정중인 모든 Sound의 Speed가 동시에 조절됩니다.
+        // 전체 소리의 속도가 같이 조절되야 할지 개별의 Sound의 속도가 개별적으로 조절되야 할지에 따라 달라져야 합니다.
 
-    void SetSpeed(string audioSource, float playSpeed)
-    {
         if (soundDict.ContainsKey(audioSource))
         {
-            soundDict[audioSource].mute = true;
+            if (soundDict[audioSource].GetComponent<AudioMixerGroup>() == null)
+            {
+                // soundDict[audioSource].outputAudioMixerGroup = speedAudioMixer;
+            }
+
+            foreach (var item in soundDict)
+            {
+                float prevPitch = item.Value.pitch;
+
+                // speedAudioMixer.audioMixer.GetFloat("pitchBend",out float prevPitchBend);
+
+                // item.Value.pitch = prevPitch * prevPitchBend/playSpeed;
+            }
+
+            // speedAudioMixer.audioMixer.SetFloat("pitchBend", 1f/playSpeed);
         } else 
         {
             Debug.Log("There is no "+audioSource);
         }
     }
-
-    void UpSpeed(string audioSource)
-    {
-    }
-
-    void DownSpeed(string audioSource)
-    {
-
-    }
-
 }
