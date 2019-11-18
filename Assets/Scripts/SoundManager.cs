@@ -6,68 +6,91 @@ using UnityEngine.Audio;
 public class SoundManager : Singleton<SoundManager>
 {
     private string audioClipFolderPath = "Sounds\\";
-    // AudioMixerGroup speedAudioMixer = Resources.Load<AudioMixerGroup>("AudioClipSpeedMixer");
-    private Dictionary<string, AudioSource> soundDict = new Dictionary<string, AudioSource>();
+    AudioMixerGroup speedAudioMixer;
+    private Dictionary<string, AudioSource> soundDict;
 
-    void Add(string audioSource)
+    void Start()
     {
-        soundDict.Add(audioSource, gameObject.AddComponent<AudioSource>() as AudioSource );
+        soundDict = new Dictionary<string, AudioSource>();
+
+        // EnemyAttack 종류의 Sound개수제한 (현재 20개)
+        for(int i =1 ; i <= 20 ; i++ )
+        {
+            soundDict.Add("EnemyAttack"+i, gameObject.AddComponent<AudioSource>() );
+        }
+
+        // EnemyMoveMent 종류의 Sound개수제한 (현재 20개)
+        for(int i =1 ; i <= 20 ; i++ )
+        {
+            soundDict.Add("EnemyMoveMent"+i, gameObject.AddComponent<AudioSource>() );
+        }
+
+        speedAudioMixer = Resources.Load<AudioMixerGroup>("AudioClipSpeedMixer");
+    }
+    public void Add(string audioSource)
+    {
+        if (!soundDict.ContainsKey(audioSource))
+        {
+            soundDict.Add(audioSource, gameObject.AddComponent<AudioSource>() );
+        }
+
         soundDict[audioSource].clip = Resources.Load<AudioClip>(audioClipFolderPath + audioSource);
     }
     /// <summary>
-    /// playVolume은 0~1까지의 범위이며, 3 parameter 값은 1이 Default값입니다.
+    /// AudioSource가 없다면 생성하고 실행시킵니다.
     /// </summary>
+    /// <param name="audioSource">AudioClip 이름</param>
+    /// <param name="playVolume">실행시킬 Volume값(0~1)</param>
+    /// <param name="playPitch">실행시킬 Pitch값; Default : 1</param>
+    /// <param name="playSpeed">실행시킬 Speed값; Default : 1</param>
     public void Play(string audioSource, float playVolume, float playPitch, float playSpeed)
     {
         if (!soundDict.ContainsKey(audioSource))
         {
             Add(audioSource);
-        } 
+        }
 
         SetVolume(audioSource, playVolume);
-        SetPitch(audioSource,playPitch);
-        SetSpeed(audioSource,playSpeed);
+        SetPitch(audioSource, playPitch);
+        SetSpeed(audioSource, playSpeed);
 
         if (!soundDict[audioSource].isPlaying)
         {
             soundDict[audioSource].Play();
-        } else
+        }
+        else
         {
             Debug.Log("The clip is already playing.");
             Debug.Log("So only changed volume, pitch, speed.");
         }
     }
-
     /// <summary>
-    /// 3 parameter 값은 1이 Default값입니다.
+    /// Default Volume, Pitch, Speed로 AudioClip을 실행시킵니다.
     /// </summary>
+    /// <param name="audioSource">AudioClip 이름</param>    
     public void Play(string audioSource)
     {
         Play(audioSource, 1.0f, 1.0f, 1.0f);
     }
-
-    void BGM(string audioSource)
+    public void PlayAt(string audioSource, Vector3 position)
     {
-        Play(audioSource);
-        soundDict[audioSource].loop = true;
-    }
-
-    public void Replay(string audioSource)
-    {
-        if (soundDict.ContainsKey(audioSource))
+        if (!soundDict.ContainsKey(audioSource))
         {
-            if (soundDict[audioSource].isPlaying)
-            {
-                soundDict[audioSource].Stop();
-                soundDict[audioSource].Play();
-            } else
-            {
-                Debug.Log(audioSource + " is not playing, so that play it from begining");
-                soundDict[audioSource].Play();
-            }
+            Add(audioSource);
+        }
+        AudioSource.PlayClipAtPoint(soundDict[audioSource].clip, position);
+    }
+    
+    public void SetBGM(string audioSource)
+    {
+        if ( soundDict.ContainsKey("BGM") )
+        {
+            soundDict["BGM"].clip = Resources.Load(audioClipFolderPath + audioSource) as AudioClip; 
         } else
         {
-            Debug.Log("There is no "+audioSource);
+            soundDict.Add("BGM", gameObject.AddComponent<AudioSource>());
+            soundDict["BGM"].clip = Resources.Load(audioClipFolderPath + audioSource) as AudioClip; 
+            soundDict["BGM"].loop = true;
         }
     }
 
@@ -76,9 +99,10 @@ public class SoundManager : Singleton<SoundManager>
         if (soundDict.ContainsKey(audioSource))
         {
             soundDict[audioSource].Pause();
-        } else 
+        }
+        else
         {
-            Debug.Log("There is no "+audioSource);
+            Debug.Log("There is no " + audioSource);
         }
     }
 
@@ -87,9 +111,10 @@ public class SoundManager : Singleton<SoundManager>
         if (soundDict.ContainsKey(audioSource))
         {
             soundDict[audioSource].UnPause();
-        } else 
+        }
+        else
         {
-            Debug.Log("There is no "+audioSource);
+            Debug.Log("There is no " + audioSource);
         }
     }
 
@@ -98,20 +123,22 @@ public class SoundManager : Singleton<SoundManager>
         if (soundDict.ContainsKey(audioSource))
         {
             soundDict.Remove(audioSource);
-        } else 
+        }
+        else
         {
-            Debug.Log("There is no "+audioSource);
+            Debug.Log("There is no " + audioSource);
         }
     }
 
-    void Mute(string audioSource)
+    public void Mute(string audioSource)
     {
         if (soundDict.ContainsKey(audioSource))
         {
             soundDict[audioSource].mute = true;
-        } else 
+        }
+        else
         {
-            Debug.Log("There is no "+audioSource);
+            Debug.Log("There is no " + audioSource);
         }
     }
 
@@ -120,9 +147,10 @@ public class SoundManager : Singleton<SoundManager>
         if (soundDict.ContainsKey(audioSource))
         {
             soundDict[audioSource].mute = false;
-        } else 
+        }
+        else
         {
-            Debug.Log("There is no "+audioSource);
+            Debug.Log("There is no " + audioSource);
         }
     }
 
@@ -142,14 +170,27 @@ public class SoundManager : Singleton<SoundManager>
         }
     }
 
+    public bool isPlaying(string audioSource)
+    {
+        if (soundDict.ContainsKey(audioSource))
+        {
+            return soundDict[audioSource].isPlaying;
+        } else
+        {
+            Debug.Log("There is no "+audioSource);
+            return false;
+        }
+    }
+
     public void SetVolume(string audioSource, float playVolume)
     {
         if (soundDict.ContainsKey(audioSource))
         {
             soundDict[audioSource].volume = playVolume;
-        } else 
+        }
+        else
         {
-            Debug.Log("There is no "+audioSource);
+            Debug.Log("There is no " + audioSource);
         }
     }
 
@@ -159,11 +200,17 @@ public class SoundManager : Singleton<SoundManager>
         {
             // 이부분은 Speed가 한번에 조정되는 기준으로 코딩돼 있기 때문에 Speed가 개별로 조절되어야 한다면 여기도 수정되어야 합니다.
 
-            soundDict[audioSource].outputAudioMixerGroup.audioMixer.GetFloat("pitchBend", out float pitchBend);
+            if (soundDict[audioSource].GetComponent<AudioMixerGroup>() == null)
+            {
+                soundDict[audioSource].outputAudioMixerGroup = speedAudioMixer;
+            }
+
+            soundDict[audioSource].outputAudioMixerGroup.audioMixer.GetFloat("Pitch", out float pitchBend);
             soundDict[audioSource].pitch = playPitch / pitchBend;
-        } else 
+        }
+        else
         {
-            Debug.Log("There is no "+audioSource);
+            Debug.Log("There is no " + audioSource);
         }
     }
 
@@ -176,22 +223,28 @@ public class SoundManager : Singleton<SoundManager>
         {
             if (soundDict[audioSource].GetComponent<AudioMixerGroup>() == null)
             {
-                // soundDict[audioSource].outputAudioMixerGroup = speedAudioMixer;
+                soundDict[audioSource].outputAudioMixerGroup = speedAudioMixer;
             }
 
             foreach (var item in soundDict)
             {
                 float prevPitch = item.Value.pitch;
 
-                // speedAudioMixer.audioMixer.GetFloat("pitchBend",out float prevPitchBend);
+                speedAudioMixer.audioMixer.GetFloat("Pitch", out float prevPitchBend);
 
-                // item.Value.pitch = prevPitch * prevPitchBend/playSpeed;
+                item.Value.pitch = prevPitch * prevPitchBend / playSpeed;
             }
 
-            // speedAudioMixer.audioMixer.SetFloat("pitchBend", 1f/playSpeed);
-        } else 
-        {
-            Debug.Log("There is no "+audioSource);
+            speedAudioMixer.audioMixer.SetFloat("Pitch", 1f / playSpeed);
         }
+        else
+        {
+            Debug.Log("There is no " + audioSource);
+        }
+    }
+
+    bool ContainsAudioSource(string audioSource)
+    {
+        return soundDict.ContainsKey(audioSource);
     }
 }
