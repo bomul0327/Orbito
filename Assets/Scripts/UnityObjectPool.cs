@@ -15,13 +15,12 @@ public class UnityObjectPool : MonoBehaviour
     /// </summary>
     private static Dictionary<string, UnityObjectPool> poolDict = new Dictionary<string, UnityObjectPool>();
 
-    //기본 capacity 및 최대 capacity(resizeable할 경우) : 현재 임시로 설정
+    //기본 capacity : 현재 임시로 설정
     public static int defaultPoolCapacity = 10;
-    public static int maxPoolCapacity = 15;
 
     /// <summary>
     /// UnityObjectPool을 만들거나, 이미 존재한다면 그 인스턴스를 가져옵니다.
-    /// Default : poolCapacity=10, Resizeable=disable, AutoReturn=disable
+    /// Default : poolCapacity=10, capChange=Static, returnSystem=Manual
     /// </summary>
     /// <param name="assetName"></param>
     public static UnityObjectPool GetOrCreate(string _assetName)
@@ -38,8 +37,8 @@ public class UnityObjectPool : MonoBehaviour
             instance = new GameObject(_assetName + "ObjectPool").AddComponent<UnityObjectPool>();
             instance.assetName = _assetName;
             instance.poolCapacity = defaultPoolCapacity;
-            instance.isResizeable = Resizeable.Disable;
-            instance.isAutoReturn = AutoReturn.Disable;
+            instance.capChangeType = CapChange.Static;
+            instance.returnSystemType = ReturnSystem.Manual;
             var targetObj = Resources.Load(_assetName, typeof(GameObject)) as GameObject;
             instance.pooledObj = targetObj.AddComponent<PooledUnityObject>();
             instance.Allocate();
@@ -59,21 +58,43 @@ public class UnityObjectPool : MonoBehaviour
     private List<PooledUnityObject> activePool = new List<PooledUnityObject>();
 
     public int poolCapacity { get; private set; }
+    public int maxPoolCapacity = 15; //capChangeType이 Limited인 경우 늘어날 수 있는 최대 capacity
 
-    public enum Resizeable { Enable, Disable }; //capacity가 늘어 날 수 있는지 여부
-    public enum AutoReturn { Enable, Disable }; //일정 시간이 지나면 자동 반환되는지 여부
+    // capacity가 늘어 날 수 있는지 여부
+    // Static : 고정 / Limited : 설정된 maxPoolCapacity까지 Capacity 확장 가능 / Unlimited : 제한 없이 확장 가능
+    public enum CapChange { Static, Limited, Unlimited };
 
-    public Resizeable isResizeable;
-    public AutoReturn isAutoReturn;
+    // 일정 시간이 지나면 자동 반환되는지 여부
+    // Manual : 사용자가 직접 반환 / Auto : 일정 시간 이후 자동 반환(직접 반환 불가)
+    public enum ReturnSystem { Manual, Auto }; 
+
+    private CapChange capChangeType;
+    private ReturnSystem returnSystemType;
     public float autoReturnTime = 10.0f;//자동 반환까지 걸리는 시간(10초로 임시 설정)
 
-    
+    /// <summary>
+    /// 풀의 설정을 변경합니다.
+    /// 활성화 중인 오브젝트가 있을 경우 설정이 적용되지 않고 false를 반환합니다.
+    /// </summary>
+    /// <param name="cap">CapChange 종류</param>
+    /// <param name="ret">ReturnSystem 종류</param>
+    /// <returns></returns>
+    public bool SetOption(CapChange cap, ReturnSystem ret)
+    {
+        if(activePool.Count > 0)
+        {
+            return false;
+        }
+        capChangeType = cap;
+        returnSystemType = ret;
+        return true;
+    }
 
     //만약에 정해진 pool count를 넘어갈 때는, 새로운 PooledUnityObject를 만들어주고, 그걸 List나 Array 등에 넣어서 추가도 해줘야 합니다.
     // 파라메터들은 추후에도 추가가 될 수 있습니다. 예를 들면 이 오브젝트는 지정한 오브젝트를 따라갈 수 있게 만든다던지, 혹은 일정 시간이 지나면 자동으로 반환이 된다던지
     // Instantiate를 할 때, asset의 이름을 활용해서 만드는 것을 추천합니다. 저희는 Json을 통해서 어떤 Object들이 풀링될 수 있을 것인지를 결정할 것이기 때문에.
     /// <summary>
-    /// 풀에 있는 오브젝트를 활성화하고 반환합니다.
+    /// 풀에 있는 오브젝트를 활성화하고 반환합니다. 더 이상 오브젝트를 활성화할 수 없다면 null값을 반환합니다.
     /// </summary>
     /// <param name="pos">Instantiate될 때, 오브젝트의 위치값</param>
     /// <param name="rot">Instantiate될 때, 오브젝트의 회전값</param>
@@ -87,7 +108,7 @@ public class UnityObjectPool : MonoBehaviour
         {
             obj = availablePool.Dequeue();
         }
-        else if(isResizeable == Resizeable.Enable && poolCapacity < maxPoolCapacity)
+        else if((capChangeType == CapChange.Limited && poolCapacity < maxPoolCapacity) || capChangeType == CapChange.Unlimited)
         {
             obj = Instantiate<PooledUnityObject>(pooledObj, transform);
             obj.name = assetName + poolCount.ToString();
@@ -95,46 +116,41 @@ public class UnityObjectPool : MonoBehaviour
         }
         else
         {
-            obj = activePool[0]; //제일 오래된 object 반환
-            activePool.Remove(obj);
-            activePool.Add(obj);
-            obj.transform.SetPositionAndRotation(pos, rot);
-            if (isAutoReturn == AutoReturn.Enable)
-            {
-                //기존에 실행되던 타이머를 멈추고 새로 시작
-                StopCoroutine(obj.returnTimer);
-                obj.returnTimer = ReturnTimer(autoReturnTime, obj);
-                StartCoroutine(obj.returnTimer);
-            }
-            return obj;
+            return null;
         }
         activePool.Add(obj);
         obj.SetActive(true);
         obj.transform.SetPositionAndRotation(pos, rot);
 
-        if(isAutoReturn == AutoReturn.Enable)
+        if(returnSystemType == ReturnSystem.Auto)
         {
-            obj.returnTimer = ReturnTimer(autoReturnTime, obj);
-            StartCoroutine(obj.returnTimer);
+            StartCoroutine(AutoReturnTimer(autoReturnTime, obj));
         }
 
         return obj;
     }
 
     /// <summary>
-    /// 일정 시간이 지난 후 자동으로 오브젝트를 풀에 반환합니다.
+    /// 일정시간이 지난 뒤 오브젝트를 풀에 자동으로 반환합니다.
     /// </summary>
     /// <param name="timeToReturn">반환까지 걸리는 시간</param>
     /// <param name="obj">반환 대상 오브젝트</param>
     /// <returns></returns>
-    private IEnumerator ReturnTimer(float timeToReturn, PooledUnityObject obj)
+    private IEnumerator AutoReturnTimer(float timeToReturn, PooledUnityObject obj)
     {
-        while(timeToReturn >= 0)
-        {
-            timeToReturn -= Time.deltaTime;
-            yield return null;
-        }
-        Return(obj);
+        yield return new WaitForSeconds(timeToReturn);
+        AutoReturn(obj);
+    }
+
+    /// <summary>
+    /// AutoReturnTimer용 Return메소드
+    /// </summary>
+    /// <param name="obj">반환 대상 오브젝트</param>
+    private void AutoReturn(PooledUnityObject obj)
+    {
+        obj.SetActive(false);
+        activePool.Remove(obj);
+        availablePool.Enqueue(obj);
     }
 
     private void Allocate()
@@ -151,20 +167,21 @@ public class UnityObjectPool : MonoBehaviour
     
     /// <summary>
     /// 특정 오브젝트를 풀에 반환하고 비활성화 시키는 역할입니다.
+    /// returnSystemType이 Auto일 경우에는 작동되지 않습니다.
     /// </summary>
     /// <param name="obj">반환할 오브젝트</param>
     public void Return (PooledUnityObject obj)
     {
+        if(returnSystemType == ReturnSystem.Auto)
+        {
+            return;
+        }
+
         if(activePool.Contains(obj))
         {
             obj.SetActive(false);
             activePool.Remove(obj);
             availablePool.Enqueue(obj);
-            if(obj.returnTimer != null)
-            {
-                StopCoroutine(obj.returnTimer);
-                obj.returnTimer = null;
-            }
         }
     }
 
