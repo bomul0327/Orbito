@@ -9,4 +9,37 @@ using UnityEngine;
 public class CharacterBehaviour
 {
 
+    Character character;
+    Transform charTransform;
+    Vector3 mousePos;
+
+    CharacterBehaviour(Character character)
+    {
+        this.character = character;
+        charTransform = character.transform;
+    }
+
+
+    public void MoveFront()
+    {
+        charTransform.position += character.MoveSpeed * charTransform.right * Time.deltaTime;
+    }
+
+    public void Rotate(Vector3 center, float radius)
+    {
+        Debug.Log("Rotate");
+    }
+
+    public void Attack()
+    {
+        Debug.Log("Attack");
+    }
+
+    public void AirBomb(Vector3 dir)
+    {
+        Debug.Log("Air Bomb");
+    }
 }
+
+
+
