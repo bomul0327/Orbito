@@ -15,11 +15,26 @@ public class SoundManager : Singleton<SoundManager>
     FMOD.Sound sound;
     void Start()
     {
-        system = FMODUnity.RuntimeManager.CoreSystem;
+        FMOD.Factory.System_Create(out system);
+        // 현재 MaxChannel 개수는 임의로 8로 넣었습니다. 아직 도입 과정이라 channel이 몇개 필요할지 모르겠네요.
+        // 나머지는 기본값입니다.
+        system.init(8, FMOD.INITFLAGS.NORMAL, System.IntPtr.Zero);
     }
 
     /// <summary>
-    /// AudioSource가 없다면 생성하고 실행시킵니다.
+    /// Test용 Update함수입니다. SpaceBar를 누르면 example 2D SFX 사운드를 play합니다.
+    /// 완성본에서는 지워질 함수입니다.
+    /// </summary>
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            SoundManager.Instance.PlaySFX("LaserSample");
+        }
+    }
+
+    /// <summary>
+    /// 2D SFX사운드를 발생시킵니다.
     /// </summary>
     /// <param name="audioClip">대상 audioClip 이름</param>
     /// <param name="playVolume">실행시킬 Volume값(0~1)</param>
@@ -27,7 +42,7 @@ public class SoundManager : Singleton<SoundManager>
     /// <param name="playSpeed">실행시킬 Speed값; Default : 1</param>
     public void PlaySFX(string audioClip, float playVolume = 1.0f, float playPitch = 1.0f, float playSpeed = 1.0f)
     {
-
+        FMODUnity.RuntimeManager.PlayOneShot("event:/"+audioClip);
     }
 
     /// <summary>
@@ -46,7 +61,7 @@ public class SoundManager : Singleton<SoundManager>
     /// <param name="position">SFX를 발생시킬 위치</param>
     public void PlayAt(string audioClip, Vector3 position)
     {
-
+        FMODUnity.RuntimeManager.PlayOneShot("event:/"+audioClip, position);
     }
 
     /// <summary>
@@ -55,7 +70,7 @@ public class SoundManager : Singleton<SoundManager>
     /// <param name="audioClip">대상 audioClip 이름</param>
     public void Remove(string audioClip)
     {
-
+;
     }
 
     /// <summary>
