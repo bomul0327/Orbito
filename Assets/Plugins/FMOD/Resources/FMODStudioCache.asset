@@ -277,6 +277,26 @@ MonoBehaviour:
   - Name: 
     Value: 688
   Exists: 0
+--- !u!114 &-2712161232294710986
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: bank:/Master.strings.bank
+  m_EditorClassIdentifier: 
+  Path: ../../../../../Documents/FMOD Studio/LaserSample/Build/Desktop/Master.strings.bank
+  SubDir: 
+  lastModified: 637104862679341662
+  LoadResult: 0
+  FileSizes:
+  - Name: 
+    Value: 688
+  Exists: 1
 --- !u!114 &-2156770006582652973
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -391,16 +411,15 @@ MonoBehaviour:
   m_Name: FMODStudioCache
   m_EditorClassIdentifier: 
   EditorBanks:
-  - {fileID: -6094862267674978515}
-  - {fileID: 2862698719705961520}
-  EditorEvents:
-  - {fileID: 8889828992057912374}
+  - {fileID: -2712161232294710986}
+  - {fileID: 5447385623636692120}
+  EditorEvents: []
   EditorParameters: []
   MasterBanks:
-  - {fileID: 2862698719705961520}
+  - {fileID: 5447385623636692120}
   StringsBanks:
-  - {fileID: -6094862267674978515}
-  stringsBankWriteTime: 637103148825787395
+  - {fileID: -2712161232294710986}
+  stringsBankWriteTime: 637104862679341662
   cacheVersion: 3
 --- !u!114 &126754131858326654
 MonoBehaviour:
@@ -576,6 +595,24 @@ MonoBehaviour:
     Value: 786
   - Name: Test
     Value: 786
+  Exists: 1
+--- !u!114 &5447385623636692120
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: bank:/Master.bank
+  m_EditorClassIdentifier: 
+  Path: ../../../../../Documents/FMOD Studio/LaserSample/Build/Desktop/Master.bank
+  SubDir: 
+  lastModified: 637104862679271518
+  LoadResult: 0
+  FileSizes: []
   Exists: 1
 --- !u!114 &6169920865154460179
 MonoBehaviour:
