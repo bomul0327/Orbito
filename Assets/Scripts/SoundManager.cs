@@ -8,8 +8,11 @@ using System.Runtime.InteropServices;
 /// </summary>
 public class SoundManager : Singleton<SoundManager>
 {
+    const int channelNum = 32;
     FMOD.RESULT result;
-    FMOD.ChannelGroup channelGroup;
+    FMOD.ChannelGroup MasterChannelGroup;
+    FMOD.ChannelGroup SFXChannelGroup;
+    FMOD.Channel[] channelArr;
     FMOD.System system;
     Dictionary<string, FMOD.Sound> soundDict;
     void Start()
@@ -24,12 +27,24 @@ public class SoundManager : Singleton<SoundManager>
 
         // 현재 MaxChannel 개수는 임의로 넣었습니다. 아직 도입 과정이라 channel이 몇개 필요할지 모르겠네요.
         // 나머지는 기본값입니다.
-        result = system.init(32, FMOD.INITFLAGS.NORMAL, System.IntPtr.Zero);
+        result = system.init(channelNum, FMOD.INITFLAGS.NORMAL, System.IntPtr.Zero);
         if (result != FMOD.RESULT.OK)
         {
             Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
         }
 
+        MasterChannelGroup = new FMOD.ChannelGroup();
+        SFXChannelGroup = new FMOD.ChannelGroup();
+        MasterChannelGroup.addGroup(SFXChannelGroup);
+        channelArr = new FMOD.Channel[channelNum];
+        FMOD.Channel.usingChannel = new bool[channelNum];
+        for (int i =0 ; i < channelNum; i++)
+        {
+            // SFX 전용 channel은 channelIndex 0~19로 임의로 정하겠습니다. 변경이 필요합니다.
+            channelArr[i] = new FMOD.Channel();
+            channelArr[i].setChannelGroup(MasterChannelGroup);
+            FMOD.Channel.usingChannel[i] = false;
+        }
 
         result = LoadOnStart();
         if (result != FMOD.RESULT.OK)
@@ -37,12 +52,12 @@ public class SoundManager : Singleton<SoundManager>
             Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
         }
     }
-
     ~SoundManager()
     {
         system.release();
     }
 
+    bool playing = false;
     /// <summary>
     /// Test용 Update함수입니다. SpaceBar를 누르면 example 2D SFX 사운드를 play합니다.
     /// 완성본에서는 지워질 함수입니다.
@@ -54,41 +69,47 @@ public class SoundManager : Singleton<SoundManager>
             PlaySFX("LaserSample1.wav");
         }
 
-        if (Input.GetKeyDown(KeyCode.T))
+        // channelGroup.isPlaying으로 확인결과 false지만 해당 channel.isPlaying은 true로 나옴 channelGroup과 channel의 연관성을 살펴봐야할듯.
+        MasterChannelGroup.isPlaying(out playing);
+        if (playing)
+        {  
+            Debug.Log("It is plyaing but the sound is muted?");
+        } else
         {
-            Load("Master");
-        }
-
-        if (Input.GetKeyDown(KeyCode.U))
-        {
+            Debug.Log("It is not playing.");
         }
     }
 
-    void AddSound(string audioClip, FMOD.MODE mode, out FMOD.Sound sound)
+    FMOD.RESULT AddSound(string audioClip, FMOD.MODE mode)
     {
         if (!soundDict.ContainsKey(audioClip))
         {
+            FMOD.Sound sound;
             string path = Application.streamingAssetsPath + "/" + audioClip;
+
             Debug.Log(path);
+
             FMOD.CREATESOUNDEXINFO info = new FMOD.CREATESOUNDEXINFO();
             info.cbsize = Marshal.SizeOf(typeof(FMOD.CREATESOUNDEXINFO));
             info.format = FMOD.SOUND_FORMAT.PCMFLOAT;
 
-            result = system.createSound(path, mode, ref info, out sound);
+            result = system.createSound(path, mode, out sound);
             if (result != FMOD.RESULT.OK)
             {
                 Debug.Log("The sound is not in dictionary but failed to createsound.");
                 Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
+                return result;
             }
 
             soundDict.Add(audioClip, sound);
 
             Debug.Log("The sound is not in dictionary and added successfuly.");
+            return result;
         }
         else
         {
-            sound = new FMOD.Sound();
             Debug.Log("The sound is already in dictionary.");
+            return FMOD.RESULT.FILE_ARLEADY_IN;
         }
     }
 
@@ -101,15 +122,24 @@ public class SoundManager : Singleton<SoundManager>
     /// <param name="playSpeed">실행시킬 Speed값; Default : 1</param>
     public void PlaySFX(string audioClip, float playVolume = 1.0f, float playPitch = 1.0f, float playSpeed = 1.0f)
     {
-        FMOD.Sound sound;
-        AddSound(audioClip, FMOD.MODE.OPENMEMORY_POINT, out sound);
-        FMOD.Channel channel;
-        system.playSound(sound, channelGroup, false, out channel);
-        channel.setVolume(playVolume);
-        channel.setPitch(playPitch);
-        channel.setFrequency(playSpeed/playPitch);
 
-        // channel.setPaused(false);
+        int channelIndex = FMOD.Channel.findUnusingSFXChannel();
+        if (channelIndex == -1)
+        {
+            Debug.Log("There is no extra channel now.");
+            return;
+        }
+
+        // 현재는 SFX에 한해 2D sound, No Loop 옵션입니다. 변경 가능합니다.
+        AddSound(audioClip, FMOD.MODE._2D | FMOD.MODE.LOOP_OFF);
+        system.playSound(soundDict[audioClip], SFXChannelGroup, true, out channelArr[channelIndex]);
+        channelArr[channelIndex].setVolume(playVolume);
+        channelArr[channelIndex].setPitch(playPitch);
+
+        // 아 이 코드 한줄 때문에 계속 실행이 안됬었습니다.!!!!!!!!!
+        // channelArr[channelIndex].setFrequency(playSpeed/playPitch);
+
+        channelArr[channelIndex].setPaused(false);
     }
 
     /// <summary>
@@ -128,7 +158,6 @@ public class SoundManager : Singleton<SoundManager>
     /// <param name="position">SFX를 발생시킬 위치</param>
     public void PlayAt(string audioClip, Vector3 position)
     {
-        FMODUnity.RuntimeManager.PlayOneShot("event:/"+audioClip, position);
     }
 
     /// <summary>
@@ -238,8 +267,20 @@ public class SoundManager : Singleton<SoundManager>
     /// <returns></returns>
     private FMOD.RESULT LoadOnStart()
     {
-        // To do
-
+        string path = Application.streamingAssetsPath + "/";
+        FMOD.Sound sound;
+        string audioClip = "LaserSample1.wav";
+        system.createSound(path + audioClip, FMOD.MODE.DEFAULT, out sound);
+        soundDict.Add(audioClip, sound);
+        audioClip = "LaserSample2.wav";
+        system.createSound(path + audioClip, FMOD.MODE.DEFAULT, out sound);
+        soundDict.Add(audioClip, sound);
+        audioClip = "LaserSample3.wav";
+        system.createSound(path + audioClip, FMOD.MODE.DEFAULT, out sound);
+        soundDict.Add(audioClip, sound);
+        audioClip = "BGMSample.wav";
+        system.createSound(path + audioClip, FMOD.MODE.DEFAULT, out sound);
+        soundDict.Add(audioClip, sound);
         return FMOD.RESULT.OK;
     }
 
@@ -251,7 +292,6 @@ public class SoundManager : Singleton<SoundManager>
     public FMOD.RESULT Load(string audioClip)
     {
         // To do
-        FMODUnity.RuntimeManager.LoadBank(audioClip);
         return FMOD.RESULT.OK;
     }
 
