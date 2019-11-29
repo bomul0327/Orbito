@@ -70,14 +70,23 @@ public class SoundManager : Singleton<SoundManager>
         }
 
         // channelGroup.isPlaying으로 확인결과 false지만 해당 channel.isPlaying은 true로 나옴 channelGroup과 channel의 연관성을 살펴봐야할듯.
-        MasterChannelGroup.isPlaying(out playing);
-        if (playing)
-        {  
-            Debug.Log("It is plyaing but the sound is muted?");
-        } else
-        {
-            Debug.Log("It is not playing.");
-        }
+        // MasterChannelGroup.isPlaying(out playing);
+        // if (playing)
+        // {  
+        //     Debug.Log("It is plyaing but the sound is muted?");
+        // } else
+        // {
+        //     Debug.Log("It is not playing.");
+        // }
+    
+        // channelArr[0].isPlaying(out playing);
+        // if (playing)
+        // {  
+        //     Debug.Log("It is plyaing but the sound is muted?");
+        // } else
+        // {
+        //     Debug.Log("It is not playing.");
+        // }
     }
 
     FMOD.RESULT AddSound(string audioClip, FMOD.MODE mode)
@@ -108,7 +117,7 @@ public class SoundManager : Singleton<SoundManager>
         }
         else
         {
-            Debug.Log("The sound is already in dictionary.");
+            Debug.Log("The sound is already loaded.");
             return FMOD.RESULT.FILE_ARLEADY_IN;
         }
     }
@@ -270,16 +279,16 @@ public class SoundManager : Singleton<SoundManager>
         string path = Application.streamingAssetsPath + "/";
         FMOD.Sound sound;
         string audioClip = "LaserSample1.wav";
-        system.createSound(path + audioClip, FMOD.MODE.DEFAULT, out sound);
+        system.createSound(path + audioClip, FMOD.MODE._2D | FMOD.MODE.LOOP_OFF, out sound);
         soundDict.Add(audioClip, sound);
         audioClip = "LaserSample2.wav";
-        system.createSound(path + audioClip, FMOD.MODE.DEFAULT, out sound);
+        system.createSound(path + audioClip, FMOD.MODE._2D | FMOD.MODE.LOOP_OFF, out sound);
         soundDict.Add(audioClip, sound);
         audioClip = "LaserSample3.wav";
-        system.createSound(path + audioClip, FMOD.MODE.DEFAULT, out sound);
+        system.createSound(path + audioClip, FMOD.MODE._2D | FMOD.MODE.LOOP_OFF, out sound);
         soundDict.Add(audioClip, sound);
         audioClip = "BGMSample.wav";
-        system.createSound(path + audioClip, FMOD.MODE.DEFAULT, out sound);
+        system.createSound(path + audioClip, FMOD.MODE._2D | FMOD.MODE.LOOP_OFF, out sound);
         soundDict.Add(audioClip, sound);
         return FMOD.RESULT.OK;
     }
