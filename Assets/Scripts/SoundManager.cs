@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using System.Runtime.InteropServices;
 
 /// <summary>
 /// 전체적인 AudioClip들을 관리하기 위한 Singleton Class입니다.
@@ -24,7 +24,7 @@ public class SoundManager : Singleton<SoundManager>
 
         // 현재 MaxChannel 개수는 임의로 넣었습니다. 아직 도입 과정이라 channel이 몇개 필요할지 모르겠네요.
         // 나머지는 기본값입니다.
-        result = system.init(100, FMOD.INITFLAGS.NORMAL, System.IntPtr.Zero);
+        result = system.init(32, FMOD.INITFLAGS.NORMAL, System.IntPtr.Zero);
         if (result != FMOD.RESULT.OK)
         {
             Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
@@ -36,6 +36,11 @@ public class SoundManager : Singleton<SoundManager>
         {
             Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
         }
+    }
+
+    ~SoundManager()
+    {
+        system.release();
     }
 
     /// <summary>
@@ -59,12 +64,17 @@ public class SoundManager : Singleton<SoundManager>
         }
     }
 
-    void AddSound(string audioClip)
+    void AddSound(string audioClip, FMOD.MODE mode, out FMOD.Sound sound)
     {
         if (!soundDict.ContainsKey(audioClip))
         {
-            FMOD.Sound sound;
-            result = system.createSound(Application.streamingAssetsPath + audioClip, FMOD.MODE._2D | FMOD.MODE.LOOP_OFF, out sound);
+            string path = Application.streamingAssetsPath + "/" + audioClip;
+            Debug.Log(path);
+            FMOD.CREATESOUNDEXINFO info = new FMOD.CREATESOUNDEXINFO();
+            info.cbsize = Marshal.SizeOf(typeof(FMOD.CREATESOUNDEXINFO));
+            info.format = FMOD.SOUND_FORMAT.PCMFLOAT;
+
+            result = system.createSound(path, mode, ref info, out sound);
             if (result != FMOD.RESULT.OK)
             {
                 Debug.Log("The sound is not in dictionary but failed to createsound.");
@@ -77,6 +87,7 @@ public class SoundManager : Singleton<SoundManager>
         }
         else
         {
+            sound = new FMOD.Sound();
             Debug.Log("The sound is already in dictionary.");
         }
     }
@@ -90,14 +101,15 @@ public class SoundManager : Singleton<SoundManager>
     /// <param name="playSpeed">실행시킬 Speed값; Default : 1</param>
     public void PlaySFX(string audioClip, float playVolume = 1.0f, float playPitch = 1.0f, float playSpeed = 1.0f)
     {
-        AddSound(audioClip);
+        FMOD.Sound sound;
+        AddSound(audioClip, FMOD.MODE.OPENMEMORY_POINT, out sound);
         FMOD.Channel channel;
-        system.playSound(soundDict[audioClip], channelGroup, true, out channel);
+        system.playSound(sound, channelGroup, false, out channel);
         channel.setVolume(playVolume);
         channel.setPitch(playPitch);
         channel.setFrequency(playSpeed/playPitch);
 
-        channel.setPaused(false);
+        // channel.setPaused(false);
     }
 
     /// <summary>
