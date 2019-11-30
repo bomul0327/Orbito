@@ -6,7 +6,7 @@ public class MoveFrontCommand : ICommand
 {
     Character character;
 
-    MoveFrontCommand(Character character)
+    public MoveFrontCommand(Character character)
     {
         this.character = character;
     }

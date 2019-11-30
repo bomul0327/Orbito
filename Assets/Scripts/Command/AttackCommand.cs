@@ -8,7 +8,7 @@ public class AttackCommand : ICommand
     Character victim;
     int dmg;
 
-    AttackCommand(Character attacker, Character victim, int dmg)
+    public AttackCommand(Character attacker, Character victim, int dmg)
     {
         this.attacker = attacker;
         this.victim = victim;

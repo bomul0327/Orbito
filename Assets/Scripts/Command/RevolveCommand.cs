@@ -1,13 +1,13 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RotateCommand : ICommand
+public class RevolveCommand : ICommand
 {
     Character character;
     Vector3 planetPos;
 
-    public RotateCommand(Character character, Vector3 planetPos)
+    public RevolveCommand(Character character, Vector3 planetPos)
     {
         this.character = character;
         this.planetPos = planetPos;
@@ -15,8 +15,6 @@ public class RotateCommand : ICommand
 
     public void Execute()
     {
-        character.Behaviour.Rotate(planetPos);
+        character.Behaviour.Revolve(planetPos);
     }
 }
-
-
