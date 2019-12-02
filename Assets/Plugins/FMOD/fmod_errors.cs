@@ -101,7 +101,8 @@ namespace FMOD
 				case FMOD.RESULT.ERR_TOOMANYSAMPLES:            return "The length provided exceed the allowable limit.";
                 
                 // 여기는 Orbito Custom FMOD.RESULT 입니다.
-                case FMOD.RESULT.FILE_ARLEADY_IN:               return "The audio file is already added by SoundManager.AddSound().[Orbito Custom]";
+                case FMOD.RESULT.FILE_ARLEADY_IN:               return "The audio file is already in SoundManager.soundDict.[Orbito Custom]";
+                case FMOD.RESULT.FILE_NOT_IN:                   return "The audio file is not in  SoundManager.SoundDict.[Orbito Custom]";
 
                 default:                                        return "Unknown error.";
             }

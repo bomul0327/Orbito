@@ -15,17 +15,26 @@ public static class JsonManager
         testDict = new Dictionary<string, JObject>();
 
         string currentDirectory = Directory.GetCurrentDirectory() + "\\Assets\\Scripts\\";
-        string dataAsJson = File.ReadAllText( currentDirectory + "JsonManagerTestData.json" );
-        var data = JsonConvert.DeserializeObject<List<JObject>> (dataAsJson);
+        // test용이라 compile 에러 나서 주석처리했습니다.
+        // string dataAsJson = File.ReadAllText( currentDirectory + "JsonManagerTestData.json" );
+        // var data = JsonConvert.DeserializeObject<List<JObject>> (dataAsJson);
 
-        foreach ( var ob in data)
-        {
-            testDict.Add(ob["AssetName"].ToString(), ob);
-        }
+        // foreach ( var ob in data)
+        // {
+        //     testDict.Add(ob["AssetName"].ToString(), ob);
+        // }
     }
 
-    public static JObject Find(string name)
+    public static void Find(string name, ref JObject jObject)
     {
-        return testDict[name];
+        if (testDict.ContainsKey(name))
+        {
+            jObject =  testDict[name];
+        }
+        else
+        {
+            Debug.Log("There is no JsonFile named like parameter");
+            jObject = null;
+        }
     }
 }
