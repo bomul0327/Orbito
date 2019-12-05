@@ -138,7 +138,7 @@ namespace FMOD
 
         // 여기는 Orbito Custom FMOD.RESULT 입니다.
         FILE_ARLEADY_IN,                /* The audio file is already in SoundManager.soundDict.[Orbito Custom] */ 
-        FILE_NOT_IN,                    /* The audio file is not in  SoundManager.SoundDict.[Orbito Custom] */
+        FILE_NOT_IN,                    /* Could not find that audio file.[Orbito Custom] */
     }
 
     public enum CHANNELCONTROL_TYPE : int

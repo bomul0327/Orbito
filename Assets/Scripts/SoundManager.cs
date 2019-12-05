@@ -20,11 +20,14 @@ public class SoundManager : Singleton<SoundManager>
     FMOD.ChannelGroup SFXChannelGroup;
     FMOD.SoundGroup soundGroup;
     FMOD.Channel[] channelArr;
+    string currentBGM;
     static FMOD.RESULT result;
+    JObject soundPathJson;
     Dictionary<string, FMOD.Sound> soundDict;
     void Start()
     {
         soundDict = new Dictionary<string, FMOD.Sound>();
+        currentBGM = null;
 
         result = FMOD.Factory.System_Create(out system);
         if (result != FMOD.RESULT.OK)
@@ -42,7 +45,7 @@ public class SoundManager : Singleton<SoundManager>
         
         // 현재 MaxChannel 개수는 임의로 넣었습니다. 아직 도입 과정이라 channel이 몇개 필요할지 모르겠네요.
         // 나머지는 기본값입니다.
-        result = system.init(maxChannelNum, FMOD.INITFLAGS.NORMAL, System.IntPtr.Zero);
+        result = system.init(maxChannelNum, FMOD.INITFLAGS.VOL0_BECOMES_VIRTUAL, System.IntPtr.Zero);
         if (result != FMOD.RESULT.OK)
         {
             Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
@@ -69,13 +72,26 @@ public class SoundManager : Singleton<SoundManager>
 
         FMOD.Channel.usingChannel = new bool[maxChannelNum];
         channelArr = new FMOD.Channel[maxChannelNum];
-        for (int i =0 ; i < maxChannelNum; i++)
+        for (int i =0 ; i < 20; i++)
         {
-            system.getChannel(i, out channelArr[i]);
             // SFX 전용 channel은 channelIndex 0~19로 임의로 정하겠습니다. 변경이 필요합니다.
+            system.getChannel(i, out channelArr[i]);
+            channelArr[i].setChannelGroup(SFXChannelGroup);
+            FMOD.Channel.usingChannel[i] = false;
+        }
+        
+        for (int i = 20 ; i < maxChannelNum-1; i++)
+        {
+            // 그 외의 소리에 사용될 채널들입니다.
+            system.getChannel(i, out channelArr[i]);
             channelArr[i].setChannelGroup(MasterChannelGroup);
             FMOD.Channel.usingChannel[i] = false;
         }
+
+            // BGM용 채널은 마지막에 넣었습니다.
+            system.getChannel(maxChannelNum-1, out channelArr[maxChannelNum-1]);
+            channelArr[maxChannelNum-1].setChannelGroup(MasterChannelGroup);
+            FMOD.Channel.usingChannel[maxChannelNum-1] = false;
 
         // Sound 초기설정 part입니다.
         result = system.getMasterSoundGroup(out soundGroup);
@@ -90,6 +106,7 @@ public class SoundManager : Singleton<SoundManager>
     }
     ~SoundManager()
     {
+        system.close();
         system.release();
     }
 
@@ -110,37 +127,6 @@ public class SoundManager : Singleton<SoundManager>
         }
     }
 
-    void AddSound(string audioFile, FMOD.MODE mode)
-    {
-        if (!soundDict.ContainsKey(audioFile))
-        {
-            FMOD.Sound sound;
-            string path = soundPath + audioFile;
-
-            Debug.Log(path);
-
-            // FMOD.CREATESOUNDEXINFO info = new FMOD.CREATESOUNDEXINFO();
-            // info.cbsize = Marshal.SizeOf(typeof(FMOD.CREATESOUNDEXINFO));
-            // info.format = FMOD.SOUND_FORMAT.PCMFLOAT;
-
-            result = system.createSound(path, mode, out sound);
-            if (result != FMOD.RESULT.OK)
-            {
-                Debug.Log("The sound is not in dictionary but failed to createsound.");
-                Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
-            }
-
-            soundDict.Add(audioFile, sound);
-
-            Debug.Log("The sound is not in dictionary and added successfuly.");
-        }
-        else
-        {
-            result = FMOD.RESULT.FILE_ARLEADY_IN;
-            Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
-        }
-    }
-
     /// <summary>
     /// 2D SFX사운드를 발생시킵니다.
     /// </summary>
@@ -158,17 +144,39 @@ public class SoundManager : Singleton<SoundManager>
             return;
         }
 
-        // 현재는 SFX에 한해 2D sound, No Loop 옵션입니다. 변경 가능합니다.
-        AddSound(audioFile, FMOD.MODE._2D | FMOD.MODE.LOOP_OFF);
-        system.playSound(soundDict[audioFile], SFXChannelGroup, true, out channelArr[channelIndex]);
-        // channel.setVolume 사용? or sound.setVolume 사용? 어떤게 좋을지 봐야할듯.
-        channelArr[channelIndex].setVolume(playVolume);
-        channelArr[channelIndex].setPitch(playPitch);
+        if (!soundDict.ContainsKey(audioFile))
+        {
+            Debug.Log("Load the sound file before play.");
+            return;
+        } else
+        {
+            result = system.playSound(soundDict[audioFile], SFXChannelGroup, true, out channelArr[channelIndex]);
+            if (result != FMOD.RESULT.OK)
+            {
+                Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
+            }
 
-        // 아 이 코드 한줄 때문에 계속 실행이 안됬었습니다.!!!!!!!!!
-        // channelArr[channelIndex].setFrequency(playSpeed/playPitch);
+            result = channelArr[channelIndex].setVolume(playVolume);
+            if (result != FMOD.RESULT.OK)
+            {
+                Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
+            }
 
-        channelArr[channelIndex].setPaused(false);
+            result = channelArr[channelIndex].setPitch(playPitch);
+            if (result != FMOD.RESULT.OK)
+            {
+                Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
+            }
+            
+            // 아 이 코드 한줄 때문에 계속 실행이 안됬었습니다.!!!!!!!!!
+            // channelArr[channelIndex].setFrequency(playSpeed/playPitch);
+
+            result = channelArr[channelIndex].setPaused(false);
+            if (result != FMOD.RESULT.OK)
+            {
+                Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
+            }
+        }
     }
 
     /// <summary>
@@ -177,7 +185,18 @@ public class SoundManager : Singleton<SoundManager>
     /// <param name="audioFile">변경될 BGM audioFile 이름</param>
     public void SetBGM(string audioFile, float playVolume = 1.0f, float playPitch = 1.0f, float playSpeed = 1.0f)
     {
+        Load(audioFile, false);
+        // Fade in Fade out 기능이 추가되어야 합니다.
+        result = system.playSound(soundDict[audioFile], MasterChannelGroup, true, out channelArr[maxChannelNum-1]);
+        if (result != FMOD.RESULT.OK)
+        {
+            Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
+        }
 
+        if (!currentBGM.Equals(null))
+        {
+            UnLoad(currentBGM);
+        }
     }
 
     /// <summary>
@@ -197,7 +216,11 @@ public class SoundManager : Singleton<SoundManager>
     /// <param name="audioFile">대상 audioFile 이름</param>
     public void Pause(string audioFile)
     {
-
+        result = FindChannelOfSound(audioFile).setPaused(true);
+        if (result != FMOD.RESULT.OK)
+        {
+            Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
+        }
     }
 
     /// <summary>
@@ -206,7 +229,11 @@ public class SoundManager : Singleton<SoundManager>
     /// <param name="audioFile">대상 audioFile 이름</param>
     public void UnPause(string audioFile)
     {
-
+        result = FindChannelOfSound(audioFile).setPaused(false);
+        if (result != FMOD.RESULT.OK)
+        {
+            Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
+        }
     }
 
     /// <summary>
@@ -215,7 +242,11 @@ public class SoundManager : Singleton<SoundManager>
     /// <param name="audioFile">대상 audioFile 이름</param>
     public void Mute(string audioFile)
     {
-
+        result = FindChannelOfSound(audioFile).setMute(true);
+        if (result != FMOD.RESULT.OK)
+        {
+            Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
+        }
     }
 
     /// <summary>
@@ -224,7 +255,11 @@ public class SoundManager : Singleton<SoundManager>
     /// <param name="audioFile">대상 audioFile 이름</param>
     public void UnMute(string audioFile)
     {
-
+        result = FindChannelOfSound(audioFile).setMute(false);
+        if (result != FMOD.RESULT.OK)
+        {
+            Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
+        }
     }
 
     /// <summary>
@@ -232,7 +267,14 @@ public class SoundManager : Singleton<SoundManager>
     /// </summary>
     public void MuteAll()
     {
-
+        foreach(var c in channelArr)
+        {
+            result = c.setMute(true);
+            if (result != FMOD.RESULT.OK)
+            {
+                Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
+            }
+        }
     }
 
     /// <summary>
@@ -240,7 +282,14 @@ public class SoundManager : Singleton<SoundManager>
     /// </summary>
     public void UnMuteAll()
     {
-
+        foreach(var c in channelArr)
+        {
+            result = c.setMute(true);
+            if (result != FMOD.RESULT.OK)
+            {
+                Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
+            }
+        }
     }
 
     /// <summary>
@@ -250,8 +299,13 @@ public class SoundManager : Singleton<SoundManager>
     /// <returns></returns>
     public bool isPlaying(string audioFile)
     {
-        
-        return false;
+        bool isPlaying;
+        result = FindChannelOfSound(audioFile).isPlaying(out isPlaying);
+        if (result != FMOD.RESULT.OK)
+        {
+            Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
+        }
+        return isPlaying;
     }
 
     /// <summary>
@@ -261,7 +315,7 @@ public class SoundManager : Singleton<SoundManager>
     /// <param name="playVolume">원하는 Volume배율</param>
     public void SetVolume(string audioFile, float playVolume)
     {
-
+        result = FindChannelOfSound(audioFile).setVolume(playVolume);
     }
 
     /// <summary>
@@ -291,44 +345,40 @@ public class SoundManager : Singleton<SoundManager>
     /// <summary>
     /// 게임시작시에 미리 memory에 올려놓을 자주쓰고 크기가 작은 audioFile들을 불러옵니다.
     /// </summary>
-    /// <param name="levelNumberSoundtypeJson">([Level]+[Number]+[SoundType])의 형식을 지켜주세요. Ex) LevelOneSFX, LevelTwodEffect</param>
+    /// <param name="audioFile">([Level]+[Number]+[SoundType])의 형식을 지켜주세요. Ex) LevelOneSFX, LevelTwodEffect</param>
     /// <returns></returns>
-    public void Load(string levelNumberSoundtypeJson, bool stayOnMemory)
+    public void Load(string audioFile, bool stayOnMemory)
     {
         // 예외처리를 어디까지 해줘야 할까요? 
-        JObject pathJson = new JObject();
-        JsonManager.Find(levelNumberSoundtypeJson, ref pathJson);
+        soundPathJson = JsonManager.Find(audioFile);
         FMOD.Sound soundBuffer;
         FMOD.MODE mode;
-            mode = (FMOD.MODE) System.Enum.Parse(typeof(FMOD.MODE), pathJson["FMOD.MODE"].ToString());
-        foreach (var s in pathJson)
+            mode = (FMOD.MODE) System.Enum.Parse(typeof(FMOD.MODE), soundPathJson["FMOD.MODE"].ToString());
+        // 아직 폴더구조가 정리가 안된 상태에서의 soundPath입니다.
+        if (stayOnMemory)
         {
-            // 아직 폴더구조가 정리가 안된 상태에서의 soundPath입니다.
-            if (stayOnMemory)
+            result = system.createStream(soundPath + soundPathJson["Path"].ToString(), mode, out soundBuffer);
+            if (result != FMOD.RESULT.OK)
             {
-                result = system.createStream(soundPath + s.Value.ToString(), mode, out soundBuffer);
-                if (result != FMOD.RESULT.OK)
-                {
-                    Debug.Log(s.Key + "를 불러오지 못했습니다.");
-                    Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
-                }
-                else
-                {
-                    soundDict.Add(s.Value.ToString(), soundBuffer);
-                }
+                Debug.Log(audioFile + "을(를) 불러오지 못했습니다.");
+                Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
             }
             else
             {
-                result = system.createSound(soundPath + s.Value.ToString(), mode, out soundBuffer);
-                if (result != FMOD.RESULT.OK)
-                {
-                    Debug.Log(s.Key + "를 불러오지 못했습니다.");
-                    Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
-                }
-                else
-                {
-                    soundDict.Add(s.Value.ToString(), soundBuffer);
-                }
+                soundDict.Add(audioFile, soundBuffer);
+            }
+        }
+        else
+        {
+            result = system.createSound(soundPath + soundPathJson["Path"].ToString(), mode, out soundBuffer);
+            if (result != FMOD.RESULT.OK)
+            {
+                Debug.Log(audioFile + "을(를) 불러오지 못했습니다.");
+                Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
+            }
+            else
+            {
+                soundDict.Add(audioFile, soundBuffer);
             }
         }
     }
@@ -343,10 +393,12 @@ public class SoundManager : Singleton<SoundManager>
         if (soundDict.ContainsKey(audioFile))
         {
             result = soundDict[audioFile].release();
-            soundDict.Remove(audioFile);
             if (result != FMOD.RESULT.OK)
             {
                 Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
+            } else
+            {
+                soundDict.Remove(audioFile);
             }
         }
         else
@@ -366,5 +418,21 @@ public class SoundManager : Singleton<SoundManager>
         {
             Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
         }
+    }
+
+    FMOD.Channel FindChannelOfSound(string audioFile)
+    {
+        FMOD.Sound soundbuffer;
+        foreach(var c in channelArr)
+        {
+            c.getCurrentSound(out soundbuffer);
+            if (soundbuffer.Equals(soundDict[audioFile]))
+            {
+                return c;
+            }
+        }
+
+        Debug.Log("That Sound is not playing!\nReturned channel is NULL value");
+        return new FMOD.Channel();
     }
 }

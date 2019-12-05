@@ -102,7 +102,7 @@ namespace FMOD
                 
                 // 여기는 Orbito Custom FMOD.RESULT 입니다.
                 case FMOD.RESULT.FILE_ARLEADY_IN:               return "The audio file is already in SoundManager.soundDict.[Orbito Custom]";
-                case FMOD.RESULT.FILE_NOT_IN:                   return "The audio file is not in  SoundManager.SoundDict.[Orbito Custom]";
+                case FMOD.RESULT.FILE_NOT_IN:                   return "Could not find that audio file.[Orbito Custom]";
 
                 default:                                        return "Unknown error.";
             }
