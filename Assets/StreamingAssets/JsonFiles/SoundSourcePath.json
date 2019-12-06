@@ -1,0 +1,22 @@
+[
+    {
+        "AssetName": "LaserSample1.wav",
+        "FMOD.MODE": "LOOP_OFF,_2D,CREATESAMPLE",
+        "Path": "LaserSample1.wav"
+    },
+    {
+        "AssetName": "LaserSample2.wav",
+        "FMOD.MODE": "LOOP_OFF,_2D,CREATESAMPLE",
+        "Path": "LaserSample2.wav"
+    },
+    {
+        "AssetName": "LaserSample3.wav",
+        "FMOD.MODE": "LOOP_OFF,_2D,CREATESAMPLE",
+        "Path": "LaserSample3.wav"
+    },
+    {
+        "AssetName": "BGMSample.wav",
+        "FMOD.MODE": "_2D,CREATESTREAM",
+        "Path": "BGMSample.wav"
+    }
+]

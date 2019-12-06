@@ -5,6 +5,13 @@ using Newtonsoft.Json.Linq;
 // Marshall library이용을 위해 향후 필요 가능성 있음.
 using System.Runtime.InteropServices;
 
+// 현 진행상황 : 기초적인 부분은 되어갑니다.
+// 한가지 sound로 중복되어 소리를 내고 wav파일 및 모든 음원형식의 파일의 speed를 조절하기 위해
+// FMOD.MODE.CREATESAMPLE 및 DSP 공부중입니다.
+// memory 관리는 계속 조금씩 늘어가는 중입니다.
+// unity editor에서 play exit을 반복할 시 memory가 0.03GB만큼 늘어가는 현상이 있습니다.
+// Release되지 않은 메모리가 있는것으로 보입니다.
+
 /// <summary>
 /// 전체적인 audioFile들을 관리하기 위한 Singleton Class입니다.
 /// </summary>
@@ -20,14 +27,14 @@ public class SoundManager : Singleton<SoundManager>
     FMOD.ChannelGroup SFXChannelGroup;
     FMOD.SoundGroup soundGroup;
     FMOD.Channel[] channelArr;
-    string currentBGM;
+    static string currentBGM;
     static FMOD.RESULT result;
     JObject soundPathJson;
     Dictionary<string, FMOD.Sound> soundDict;
     void Start()
     {
         soundDict = new Dictionary<string, FMOD.Sound>();
-        currentBGM = null;
+        currentBGM = "null";
 
         result = FMOD.Factory.System_Create(out system);
         if (result != FMOD.RESULT.OK)
@@ -70,14 +77,12 @@ public class SoundManager : Singleton<SoundManager>
             Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
         }
 
-        FMOD.Channel.usingChannel = new bool[maxChannelNum];
         channelArr = new FMOD.Channel[maxChannelNum];
         for (int i =0 ; i < 20; i++)
         {
             // SFX 전용 channel은 channelIndex 0~19로 임의로 정하겠습니다. 변경이 필요합니다.
             system.getChannel(i, out channelArr[i]);
             channelArr[i].setChannelGroup(SFXChannelGroup);
-            FMOD.Channel.usingChannel[i] = false;
         }
         
         for (int i = 20 ; i < maxChannelNum-1; i++)
@@ -85,13 +90,11 @@ public class SoundManager : Singleton<SoundManager>
             // 그 외의 소리에 사용될 채널들입니다.
             system.getChannel(i, out channelArr[i]);
             channelArr[i].setChannelGroup(MasterChannelGroup);
-            FMOD.Channel.usingChannel[i] = false;
         }
 
             // BGM용 채널은 마지막에 넣었습니다.
             system.getChannel(maxChannelNum-1, out channelArr[maxChannelNum-1]);
             channelArr[maxChannelNum-1].setChannelGroup(MasterChannelGroup);
-            FMOD.Channel.usingChannel[maxChannelNum-1] = false;
 
         // Sound 초기설정 part입니다.
         result = system.getMasterSoundGroup(out soundGroup);
@@ -106,6 +109,14 @@ public class SoundManager : Singleton<SoundManager>
     }
     ~SoundManager()
     {
+        foreach (var s in soundDict)
+        {
+            s.Value.release();
+        }
+
+        MasterChannelGroup.release();
+        SFXChannelGroup.release();
+        soundGroup.release();
         system.close();
         system.release();
     }
@@ -125,6 +136,32 @@ public class SoundManager : Singleton<SoundManager>
         {
             SetBGM("BGMSample.wav");
         }
+
+        if (Input.GetKeyDown(KeyCode.U))
+        {
+            MuteAll();
+        }
+        
+        if (Input.GetKeyDown(KeyCode.I))
+        {
+            UnMuteAll();
+        }
+        
+        if (Input.GetKeyDown(KeyCode.O))
+        {
+            Pause("LaserSample1.wav");
+        }
+        
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            UnPause("LaserSample1.wav");
+        }
+        
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            Load("LaserSample1.wav", true);
+        }
+
     }
 
     /// <summary>
@@ -136,13 +173,29 @@ public class SoundManager : Singleton<SoundManager>
     /// <param name="playSpeed">실행시킬 Speed값; Default : 1</param>
     public void PlaySFX(string audioFile, float playVolume = 1.0f, float playPitch = 1.0f, float playSpeed = 1.0f)
     {
-
-        int channelIndex = FMOD.Channel.findUnusingSFXChannel();
-        if (channelIndex == -1)
+        int channelIndex = 0;
+        foreach (var c in channelArr)
+        {
+            bool b;
+            c.isPlaying(out b);
+            if (!b | channelIndex > 19)
+            {
+                break;
+            }
+            channelIndex++;
+        }
+        if (channelIndex == 20)
         {
             Debug.Log("There is no extra SFX channel now.");
             return;
         }
+
+        // 현재 하나의 FMOD.Sound파일이 서로다른 Channel에서 play될 경우 다시말해 FMOD.playSound함수의 parameter로 받아질경우
+        // 기존 Channel과의 연결이 끊어져 하나의 Sound로 중복된 소리가 나지 않습니다.
+        // SoundDict로 FMOD.Sound를 관리하면서 생긴 문제로 판명났습니다.
+        // FMOD.MODE.CREATESAMPLE, FMOD.MODE.OPENMEMORY 사용 및 FMOD.CREATESOUNDINDEXINFO 설정을 통하여 
+        // FMOD API 내부 구조체를 이용해야 합니다. 많이 변경해야합니다 ㅜㅜ
+        Debug.Log("Channel Debug: " + channelIndex);
 
         if (!soundDict.ContainsKey(audioFile))
         {
@@ -193,10 +246,14 @@ public class SoundManager : Singleton<SoundManager>
             Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
         }
 
-        if (!currentBGM.Equals(null))
+        if (!currentBGM.Equals("null"))
         {
             UnLoad(currentBGM);
         }
+
+        currentBGM = audioFile;
+
+        channelArr[maxChannelNum-1].setPaused(false);
     }
 
     /// <summary>
@@ -267,14 +324,7 @@ public class SoundManager : Singleton<SoundManager>
     /// </summary>
     public void MuteAll()
     {
-        foreach(var c in channelArr)
-        {
-            result = c.setMute(true);
-            if (result != FMOD.RESULT.OK)
-            {
-                Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
-            }
-        }
+        MasterChannelGroup.setMute(true);
     }
 
     /// <summary>
@@ -282,14 +332,7 @@ public class SoundManager : Singleton<SoundManager>
     /// </summary>
     public void UnMuteAll()
     {
-        foreach(var c in channelArr)
-        {
-            result = c.setMute(true);
-            if (result != FMOD.RESULT.OK)
-            {
-                Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
-            }
-        }
+        MasterChannelGroup.setMute(false);
     }
 
     /// <summary>
@@ -316,6 +359,10 @@ public class SoundManager : Singleton<SoundManager>
     public void SetVolume(string audioFile, float playVolume)
     {
         result = FindChannelOfSound(audioFile).setVolume(playVolume);
+        if (result != FMOD.RESULT.OK)
+        {
+            Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
+        }
     }
 
     /// <summary>
@@ -325,9 +372,13 @@ public class SoundManager : Singleton<SoundManager>
     /// <param name="playPitch">원하는 Pitch</param>
     public void SetPitch(string audioFile, float playPitch)
     {
-        
+        result = FindChannelOfSound(audioFile).setPitch(playPitch);
+        if (result != FMOD.RESULT.OK)
+        {
+            Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
+        }
     }
-
+    
     /// <summary>
     /// 해당 소리의 속도를 조절합니다.
     /// </summary>
@@ -335,11 +386,14 @@ public class SoundManager : Singleton<SoundManager>
     /// <param name="playSpeed">상대 배율값입니다. Default : 1, Range[0.01~100]</param>
     public void SetSpeed(string audioFile, float playSpeed)
     {
-        result = soundDict[audioFile].setMusicSpeed(playSpeed);
-        if (result != FMOD.RESULT.OK)
-        {
-            Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
-        }
+        // 지원하지 않는 음악 Format이라는 에러가 뜹니다. wav파일은 이 함수를 사용할수 없다고하네요.
+        // wav파일은 note based가 아닌 sample based라서 랍니다.
+        // 알아본 바로는 DSP를 이용해야한다고 합니다. 공부시작!
+        // result = soundDict[audioFile].setMusicSpeed(playSpeed);
+        // if (result != FMOD.RESULT.OK)
+        // {
+        //     Debug.LogAssertionFormat(string.Format("FMOD error! {0} : {1}", result, FMOD.Error.String(result)));
+        // }
     }
 
     /// <summary>
@@ -353,10 +407,19 @@ public class SoundManager : Singleton<SoundManager>
         soundPathJson = JsonManager.Find(audioFile);
         FMOD.Sound soundBuffer;
         FMOD.MODE mode;
-            mode = (FMOD.MODE) System.Enum.Parse(typeof(FMOD.MODE), soundPathJson["FMOD.MODE"].ToString());
+        string modeString = soundPathJson["FMOD.MODE"].ToString();
+        string[] modesString = modeString.Split(',');
+            Debug.Log("Load debug1");
+        mode = (FMOD.MODE) System.Enum.Parse(typeof(FMOD.MODE), modesString[0]);
+        for (int i =1 ; i < modesString.Length; i++)
+        {
+            Debug.Log("Load debug2");
+            mode = mode | (FMOD.MODE) System.Enum.Parse(typeof(FMOD.MODE), modesString[i]);
+        }
         // 아직 폴더구조가 정리가 안된 상태에서의 soundPath입니다.
         if (stayOnMemory)
         {
+            Debug.Log("Load debug3");
             result = system.createStream(soundPath + soundPathJson["Path"].ToString(), mode, out soundBuffer);
             if (result != FMOD.RESULT.OK)
             {
@@ -370,6 +433,7 @@ public class SoundManager : Singleton<SoundManager>
         }
         else
         {
+            Debug.Log("Load debug4");
             result = system.createSound(soundPath + soundPathJson["Path"].ToString(), mode, out soundBuffer);
             if (result != FMOD.RESULT.OK)
             {

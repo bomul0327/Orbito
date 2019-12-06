@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 using Newtonsoft.Json;
@@ -14,14 +15,13 @@ public static class JsonManager
         testDict = new Dictionary<string, JObject>();
 
         string jsonPath = Application.streamingAssetsPath + "/JsonFiles/";
-        // test용이라 compile 에러 나서 주석처리했습니다.
-        // string dataAsJson = File.ReadAllText( jsonPath + "JsonManagerTestData.json" );
-        // var data = JsonConvert.DeserializeObject<List<JObject>> (dataAsJson);
+        string dataAsJson = File.ReadAllText( jsonPath + "SoundSourcePath.json" );
+        var data = JsonConvert.DeserializeObject<List<JObject>> (dataAsJson);
 
-        // foreach ( var ob in data)
-        // {
-        //     testDict.Add(ob["AssetName"].ToString(), ob);
-        // }
+        foreach ( var ob in data)
+        {
+            testDict.Add(ob["AssetName"].ToString(), ob);
+        }
     }
 
     public static JObject Find(string name)

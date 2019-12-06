@@ -2418,19 +2418,6 @@ namespace FMOD
         public bool hasHandle()     { return this.handle != IntPtr.Zero; }
         public void clearHandle()   { this.handle = IntPtr.Zero; }
 
-        // Orbito Custom 입니다.
-        public static bool[] usingChannel;
-        public static int findUnusingSFXChannel()
-        {
-            for (int i =0 ; i < 20 ; i++)
-            {
-                if (!usingChannel[i])
-                {
-                    return i; 
-                }
-            }
-            return -1;
-        }
 
         #endregion
     }
