@@ -13,7 +13,7 @@ public class CharacterBehaviour
     Transform charTransform;
     Vector3 mousePos;
 
-    CharacterBehaviour(Character character)
+    public CharacterBehaviour(Character character)
     {
         this.character = character;
         charTransform = character.transform;
