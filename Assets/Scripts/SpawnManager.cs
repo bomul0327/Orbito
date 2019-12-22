@@ -2,12 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 게임이 시작될 때, 주요 오브젝트(Player, Planet)들을 생성하는 클래스
+/// </summary>
 public class SpawnManager : Singleton<SpawnManager>
 {
+    public int planetSpawnCount;
+    public float spawnRange;
+
     private void Awake()
     {
         SpawnPlayer();
-        SpawnPlanets(100, 15f);
+        SpawnPlanets(planetSpawnCount, spawnRange);
     }
 
     public void SpawnPlayer()

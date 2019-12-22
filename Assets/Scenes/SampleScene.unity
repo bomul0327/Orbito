@@ -319,6 +319,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f651fbdb13ceca4893ce8422e5d7aa1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  planetSpawnCount: 10
+  spawnRange: 15
 --- !u!1 &662845029
 GameObject:
   m_ObjectHideFlags: 0
