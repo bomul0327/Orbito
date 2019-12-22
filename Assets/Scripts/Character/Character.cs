@@ -37,7 +37,8 @@ public class Character : FieldObject
     {
         // Get Controller and Behaviour by something.
         // Json 데이터가 준비되면 Json을 통해서 받아올 것
-        // Controller = ?;
-        // Behaviour = ?;
+        // 현재 JSON 데이터가 준비되어 있지 않기 때문에 Awake에서 바로 Controller와 Behaviour객체를 생성함.
+        Controller = new CharacterPlayerController(this);
+        Behaviour = new CharacterBehaviour(this);
     }
 }
