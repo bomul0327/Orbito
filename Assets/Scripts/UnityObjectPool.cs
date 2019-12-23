@@ -49,7 +49,9 @@ public class UnityObjectPool : MonoBehaviour
             instance.myPoolScaleType = PoolScaleType.Static;
             instance.myPoolReturnType = PoolReturnType.Manual;
             var targetObj = Resources.Load(assetFileName, typeof(GameObject)) as GameObject;
-            instance.PooledObj = targetObj.AddComponent<PooledUnityObject>();
+            PooledUnityObject targetClone = Instantiate(targetObj).AddComponent<PooledUnityObject>();
+            instance.PooledObj = targetClone;
+            targetClone.SetActive(false);
             instance.Allocate();
             poolDict.Add(assetFileName, instance);
         }
