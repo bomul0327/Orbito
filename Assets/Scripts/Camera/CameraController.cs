@@ -56,7 +56,6 @@ public class CameraController : IUpdatable, ILateUpdatable
 
     private Vector3 targetPosition;
     private Quaternion targetRot;
-    private float targetOrthogonalSize;
 
     private float zoomTime = 0;
     private float followTime = 0;
@@ -78,8 +77,7 @@ public class CameraController : IUpdatable, ILateUpdatable
         ZoomSettings = new CameraZoomSettings();
         FollowSettings = new CameraFollowSettings();
 
-        MainCamera.orthographicSize = 1;
-        targetOrthogonalSize = 1;
+        MainCamera.orthographicSize = 5;
 
         UpdateManager.Instance.AddUpdatable(this);
         UpdateManager.Instance.AddLateUpdatable(this);
@@ -116,14 +114,13 @@ public class CameraController : IUpdatable, ILateUpdatable
         float mouseWheelDelta = Input.GetAxis("Mouse ScrollWheel");
         if (Mathf.Abs(mouseWheelDelta) > 0)
         {
-            targetOrthogonalSize -= mouseWheelDelta;
+            controlSettings.orthographicSize -= mouseWheelDelta;
             zoomTime = 0;
         }
-        targetOrthogonalSize = controlSettings.orthographicSize;
 
         ///TODO: Need to use our custom easing effect instead of using Mathf.MoveTowards.
-        if (MainCamera.orthographicSize != targetOrthogonalSize)
-            MainCamera.orthographicSize = Mathf.MoveTowards(MainCamera.orthographicSize, targetOrthogonalSize, Time.deltaTime * zoomSettings.maxZoomDelta);
+        if (MainCamera.orthographicSize != controlSettings.orthographicSize)
+            MainCamera.orthographicSize = Mathf.MoveTowards(MainCamera.orthographicSize, controlSettings.orthographicSize, Time.deltaTime * zoomSettings.maxZoomDelta);
 
     }
 
