@@ -1,8 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
 // 이거 using 안하고 쓸수 있도록
 using Newtonsoft.Json.Linq;
+
 using FMOD;
 using Debug = UnityEngine.Debug;
 
@@ -42,7 +44,6 @@ public class SoundManager : Singleton<SoundManager>
         {
             Debug.LogAssertionFormat("FMOD error! {0} {1}", result, Error.String(result));
         }
-
         // 한번에 다룰 최대 음원의 개수입니다.
         result = system.setSoftwareChannels(64);
         if (result != RESULT.OK)
@@ -509,6 +510,19 @@ public class SoundManager : Singleton<SoundManager>
     }
 
     /// <summary>
+    /// 해당 소리에 Loop option을 제거합니다.
+    /// </summary>
+    /// <param name="audioName">대상 audioFile 이름</param>
+    public void LoopOff(string audioName)
+    {
+        result = soundDict[audioName].setMode(MODE.LOOP_OFF);
+        if (result != RESULT.OK)
+        {
+            Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result));
+        }
+    }
+
+    /// <summary>
     /// 해당 Sound를 실행하고 있는 Channel을 반환합니다.
     /// </summary>
     /// <param name="audioName">대상 audioFile 이름</param>
@@ -525,7 +539,7 @@ public class SoundManager : Singleton<SoundManager>
             }
         }
 
-        Debug.Log("That Sound is not playing!\nReturned channel is NULL value");
+        Debug.LogWarning("That Sound is not playing!\nReturned channel is NULL value");
         return new Channel();
     }
 }
