@@ -20,24 +20,26 @@ using Debug = UnityEngine.Debug;
 /// </summary>
 public class SoundManager : Singleton<SoundManager>
 {
-    const int maxChannelNum = 32;
-    const int BGMChannelIndex = 31;
+    const int maxChannelNum = 21, BattleSoundChannelIndex = 0, EventSoundChannelIndex = 10,
+             EnvironmentSoundChannelIndex = 15, BGMChannelIndex = 20;
+
     // soundPath를 사용하면 관리하기는 편리해지지만 많은 string concat을 실시하게 됩니다.
     // string concat을 지양하려면 json속 모든 path앞에 추가로 달아주면됩니다.
     string soundPath = Application.streamingAssetsPath + "/";
     FMOD.System system;
-    ChannelGroup MasterChannelGroup;
-    ChannelGroup SFXChannelGroup;
-    SoundGroup soundGroup;
-    Channel[] channelArr;
-    string currentBGMName;
     static RESULT result;
-    JObject soundPathJson;
+    ChannelGroup MasterChannelGroup, SFXChannelGroup, BattleSoundChannelGroup, EventSoundChannelGroup, 
+            EnvironmentSoundChannelGroup, BGMChannelGroup;
+    Channel[] channelArr;
+    DSP DSPTemp;
+    List<DSPConnection> DSPConnectionsList;
     Dictionary<string, Sound> soundDict;
+    SoundGroup soundGroup;
+    string currentBGMName = "null";
+    JObject soundPathJson;
     void Start()
     {
-        soundDict = new Dictionary<string, Sound>();
-        currentBGMName = "null";
+        //@ System 초기설정 part입니다.
 
         result = Factory.System_Create(out system);
         if (result != RESULT.OK)
@@ -60,7 +62,7 @@ public class SoundManager : Singleton<SoundManager>
             Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result));
         }
 
-        // Channel 초기설정 part입니다.
+        //@ Channel 초기설정 part입니다.
         result = system.getMasterChannelGroup(out MasterChannelGroup);
         if (result != RESULT.OK)
         {
@@ -73,41 +75,127 @@ public class SoundManager : Singleton<SoundManager>
             Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result));
         }
 
+        result = system.createChannelGroup("BattleSound", out BattleSoundChannelGroup);
+        if (result != RESULT.OK)
+        {
+            Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result));
+        }
+
+        result = system.createChannelGroup("EventSound", out EventSoundChannelGroup);
+        if (result != RESULT.OK)
+        {
+            Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result));
+        }
+
+        result = system.createChannelGroup("EnvironmentSound", out EnvironmentSoundChannelGroup);
+        if (result != RESULT.OK)
+        {
+            Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result));
+        }
+
+        result = system.createChannelGroup("BGM", out BGMChannelGroup);
+        if (result != RESULT.OK)
+        {
+            Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result));
+        }
+
         result = MasterChannelGroup.addGroup(SFXChannelGroup);
         if (result != RESULT.OK)
         {
             Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result));
         }
 
-        channelArr = new Channel[maxChannelNum];
-        for (int i =0 ; i < 20; i++)
+        result = MasterChannelGroup.addGroup(BGMChannelGroup);
+        if (result != RESULT.OK)
         {
-            // SFX 전용 channel은 channelIndex 0~19로 임의로 정하겠습니다. 변경이 필요합니다.
+            Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result));
+        }
+
+        result = SFXChannelGroup.addGroup(BattleSoundChannelGroup);
+        if (result != RESULT.OK)
+        {
+            Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result));
+        }
+
+        result = SFXChannelGroup.addGroup(EventSoundChannelGroup);
+        if (result != RESULT.OK)
+        {
+            Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result));
+        }
+
+        result = SFXChannelGroup.addGroup(EnvironmentSoundChannelGroup);
+        if (result != RESULT.OK)
+        {
+            Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result));
+        }
+
+        channelArr = new Channel[maxChannelNum];
+        for (int i = BattleSoundChannelIndex ; i < EventSoundChannelIndex; i++)
+        {
+            // BattleSound 전용 채널입니다.
             system.getChannel(i, out channelArr[i]);
-            channelArr[i].setChannelGroup(SFXChannelGroup);
+            channelArr[i].setChannelGroup(BattleSoundChannelGroup);
+            // Speed 조정을 위한 DSP삽입입니다.
+            channelArr[i].addDSP(CHANNELCONTROL_DSP_INDEX.HEAD, DSPTemp);
         }
         
-        for (int i = 20 ; i < maxChannelNum-1; i++)
+        for (int i = EventSoundChannelIndex ; i < EnvironmentSoundChannelIndex; i++)
         {
-            // 그 외의 소리에 사용될 채널들입니다.
+            // EventSound 전용 채널입니다.
             system.getChannel(i, out channelArr[i]);
-            channelArr[i].setChannelGroup(MasterChannelGroup);
+            channelArr[i].setChannelGroup(EventSoundChannelGroup);
+            // Speed 조정을 위한 DSP삽입입니다.
+            channelArr[i].addDSP(CHANNELCONTROL_DSP_INDEX.HEAD, DSPTemp);
+        }
+        
+        for (int i = EnvironmentSoundChannelIndex ; i < BGMChannelIndex; i++)
+        {
+            // EnvironmentSound 전용 채널입니다.
+            system.getChannel(i, out channelArr[i]);
+            channelArr[i].setChannelGroup(EnvironmentSoundChannelGroup);
+            // Speed 조정을 위한 DSP삽입입니다.
+            channelArr[i].addDSP(CHANNELCONTROL_DSP_INDEX.HEAD, DSPTemp);
         }
 
             // BGM용 채널은 마지막에 넣었습니다.
-            system.getChannel(maxChannelNum-1, out channelArr[maxChannelNum-1]);
-            channelArr[maxChannelNum-1].setChannelGroup(MasterChannelGroup);
+            system.getChannel(BGMChannelIndex, out channelArr[BGMChannelIndex]);
+            channelArr[BGMChannelIndex].setChannelGroup(BGMChannelGroup);
+            channelArr[BGMChannelIndex].addDSP(CHANNELCONTROL_DSP_INDEX.HEAD, DSPTemp);
 
-        // Sound 초기설정 part입니다.
+        //@ DSP 초기설정 part입니다.
+        for ( int i = 0 ; i < maxChannelNum ; i++ )
+        {
+            result = channelArr[i].getDSP(CHANNELCONTROL_DSP_INDEX.HEAD, out DSPTemp);
+            if (result != RESULT.OK)
+            {
+                Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result));
+            }
+            
+            result = system.createDSPByType(DSP_TYPE.PITCHSHIFT, out DSPTemp);
+            if (result != RESULT.OK)
+            {
+                Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result));
+            }
+        }
+
+        result = MasterChannelGroup.addDSP(CHANNELCONTROL_DSP_INDEX.HEAD ,DSPTemp);
+        if (result != RESULT.OK)
+        {
+            Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result));
+        }
+
+        // result = DSPTemp.addInput()
+
+        DSPConnectionsList = new List<DSPConnection>();
+
+        //@ Sound 초기설정 part입니다.
         result = system.getMasterSoundGroup(out soundGroup);
         if (result != RESULT.OK)
         {
             Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result));
         }
 
-
-        // test용이라 compile 에러나서 주석처리했습니다.
-        // Load("LevelExampleSFX");
+        soundDict = new Dictionary<string, Sound>();
     }
     void OnDestroy()
     {
@@ -131,7 +219,7 @@ public class SoundManager : Singleton<SoundManager>
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            PlaySFX("LaserSample1.wav");
+            PlaySFX("LaserSample1.wav", SFXEnum.BattleSound);
         }
 
         if (Input.GetKeyDown(KeyCode.T))
@@ -141,22 +229,12 @@ public class SoundManager : Singleton<SoundManager>
 
         if (Input.GetKeyDown(KeyCode.U))
         {
-            MuteAll();
+            LoopOn("LaserSample1.wav");
         }
         
         if (Input.GetKeyDown(KeyCode.I))
         {
-            UnMuteAll();
-        }
-        
-        if (Input.GetKeyDown(KeyCode.O))
-        {
-            Pause("LaserSample1.wav");
-        }
-        
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            UnPause("LaserSample1.wav");
+            LoopOff("LaserSample1.wav");
         }
         
         if (Input.GetKeyDown(KeyCode.L))
@@ -164,6 +242,15 @@ public class SoundManager : Singleton<SoundManager>
             Load("LaserSample1.wav", true);
         }
 
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            SetPitch("LaserSample1.wav", 2f);
+        }
+        
+        if (Input.GetKeyDown(KeyCode.O))
+        {
+            // system.playDSP(DSPTemp,);
+        }
     }
 
     /// <summary>
@@ -173,20 +260,36 @@ public class SoundManager : Singleton<SoundManager>
     /// <param name="playVolume">실행시킬 Volume값(0~1)</param>
     /// <param name="playPitch">실행시킬 Pitch값; Default : 1</param>
     /// <param name="playSpeed">실행시킬 Speed값; Default : 1</param>
-    public void PlaySFX(string audioName, float playVolume = 1.0f, float playPitch = 1.0f, float playSpeed = 1.0f)
+    public void PlaySFX(string audioName, SFXEnum SFXEnum, float playVolume = 1.0f, float playPitch = 1.0f, float playSpeed = 1.0f)
     {
         int channelIndex = 0;
-        foreach (var c in channelArr)
+        int departure = 0;
+        switch (SFXEnum)
+        {
+            case SFXEnum.BattleSound : 
+                channelIndex = BattleSoundChannelIndex;
+                departure = EventSoundChannelIndex;
+                break;
+            case SFXEnum.EventSound :
+                channelIndex = EventSoundChannelIndex;
+                departure = EnvironmentSoundChannelIndex;
+                break;
+            case SFXEnum.EnvironmentSound :
+                channelIndex = EnvironmentSoundChannelIndex;
+                departure = BGMChannelIndex;
+                break;
+        }
+
+        Debug.Log(channelIndex + ", " + departure);
+
+        for (; channelIndex < departure ; channelIndex++ )
         {
             bool b;
-            c.isPlaying(out b);
-            if (!b | channelIndex > 19)
-            {
-                break;
-            }
-            channelIndex++;
+            channelArr[channelIndex].isPlaying(out b);
+            if (!b){break;}
         }
-        if (channelIndex == 20)
+
+        if (channelIndex == departure)
         {
             Debug.LogError("There is no extra SFX channel now.");
             return;
@@ -366,10 +469,17 @@ public class SoundManager : Singleton<SoundManager>
     /// 해당 소리의 높낮이를 조절합니다.
     /// </summary>
     /// <param name="audioName">대상 audioFile 이름</param>
-    /// <param name="playPitch">원하는 Pitch</param>
+    /// <param name="playPitch">원하는 Pitch in Range[0.5~2]</param>
     public void SetPitch(string audioName, float playPitch)
     {
-        result = FindChannelOfSound(audioName).setPitch(playPitch);
+        Debug.Log("SetPitch debug M");
+        result = FindChannelOfSound(audioName).getDSP(CHANNELCONTROL_DSP_INDEX.HEAD, out DSPTemp);
+        if (result != RESULT.OK)
+        {
+            Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result));
+        }
+
+        result = DSPTemp.setParameterFloat(0, playPitch);
         if (result != RESULT.OK)
         {
             Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result));
@@ -541,5 +651,10 @@ public class SoundManager : Singleton<SoundManager>
 
         Debug.LogWarning("That Sound is not playing!\nReturned channel is NULL value");
         return new Channel();
+    }
+
+    public enum SFXEnum
+    {
+        BattleSound, EventSound, EnvironmentSound
     }
 }
