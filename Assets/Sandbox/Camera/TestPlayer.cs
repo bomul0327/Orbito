@@ -7,27 +7,11 @@ namespace Experimental
     /// </summary>
     public class TestPlayer : MonoBehaviour
     {
-        public Camera playerCamera;
-
-        [SerializeField] CameraController cameraController;
-
-        [Header("Intitial camera settings")]
-        [SerializeField] CameraControlSettings controlSettings;
-
-        [SerializeField] CameraFollowSettings followSettings;
-
-        [SerializeField] CameraZoomSettings zoomSettings;
-
-
+        [SerializeField] CameraController camController;
         // Start is called before the first frame update
         void Start()
         {
-            cameraController = new CameraController(playerCamera, playerCamera.transform.parent)
-            {
-                ZoomSettings = zoomSettings,
-                ControlSettings = controlSettings,
-                FollowSettings = followSettings
-            };
+
         }
 
         // Update is called once per frame
@@ -35,7 +19,7 @@ namespace Experimental
         {
             if (Input.GetButton("Fire1"))
             {
-               transform.position = CameraUtils.MouseToWorldPos(playerCamera, Input.mousePosition);
+               transform.position = CameraUtils.MouseToWorldPos(camController.MainCamera, Input.mousePosition);
             }
         }
     }

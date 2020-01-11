@@ -4,16 +4,10 @@
 /// Camera Controller for 2D Topdown.
 /// </summary>
 [System.Serializable]
-public class CameraController : IUpdatable, ILateUpdatable
+public class CameraController : MonoBehaviour
 {
     /// Camera controlled by this controller.
     public Camera MainCamera { get; private set; }
-
-    /// <summary>
-    /// The transform actually being controlled by this controller.
-    /// Note that it can differ from the transform of MainCamera.
-    /// </summary>
-    public Transform rigTransform;
 
     [SerializeField] CameraControlSettings controlSettings;
     public CameraControlSettings ControlSettings
@@ -30,8 +24,7 @@ public class CameraController : IUpdatable, ILateUpdatable
     [SerializeField] CameraZoomSettings zoomSettings;
     public CameraZoomSettings ZoomSettings
     {
-        set
-            => zoomSettings = value;
+        set => zoomSettings = value;
     }
 
     /// <summary>
@@ -52,50 +45,23 @@ public class CameraController : IUpdatable, ILateUpdatable
     /// /////////////////// ///
     /// Internal Properties ///
     /// /////////////////// /// 
-
     private Vector3 targetPosition;
     private Quaternion targetRot;
 
     private float zoomTime = 0;
     private float followTime = 0;
 
-    /// <summary>
-    /// Initializer of Camera Controller.
-    /// </summary>
-    /// <param name="camera">The camera to control with this controller.</param>
-    /// <param name="rigTransform">The transform to control with this controller. 
-    /// If it is null, it directly uses camera's transform.</param>
-    public CameraController(Camera camera, Transform rigTransform = null)
+    private void Awake()
     {
-        MainCamera = camera;
-
-        //If given rig transform is not given, use camera's transform.
-        this.rigTransform = rigTransform ? rigTransform : camera.transform;
-
-        ControlSettings = new CameraControlSettings();
-        ZoomSettings = new CameraZoomSettings();
-        FollowSettings = new CameraFollowSettings();
-
-        MainCamera.orthographicSize = 5;
-
-        UpdateManager.Instance.AddUpdatable(this);
-        UpdateManager.Instance.AddLateUpdatable(this);
+        MainCamera = GetComponentInChildren<Camera>();
     }
-
-    ~CameraController()
-    {
-        UpdateManager.Instance.RemoveUpdatable(this);
-        UpdateManager.Instance.RemoveLateUpdatable(this);
-    }
-
-
-    public void OnUpdate(float dt)
+    void Update()
     {
         if (zoomSettings.enableZoomControl)
             UpdateZoom();
     }
 
-    public void OnLateUpdate(float dt)
+    void LateUpdate()
     {
         if (followSettings.enableFollowTarget)
             UpdateTargetPosition();
@@ -144,9 +110,9 @@ public class CameraController : IUpdatable, ILateUpdatable
     private void UpdatePosition()
     {
         ///TODO: Need to use our custom easing effect instead of using Mathf.MoveTowards.
-        Vector3 newPosition = Vector2.MoveTowards(rigTransform.position, targetPosition, followSettings.maxFollowSpeed * Time.deltaTime);
+        Vector3 newPosition = Vector2.MoveTowards(transform.position, targetPosition, followSettings.maxFollowSpeed * Time.deltaTime);
         newPosition.z = controlSettings.z;
-        rigTransform.position = newPosition;
+        transform.position = newPosition;
     }
 
 

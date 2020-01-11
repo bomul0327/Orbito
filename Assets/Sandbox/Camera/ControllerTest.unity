@@ -280,7 +280,6 @@ GameObject:
   m_Component:
   - component: {fileID: 335958320}
   - component: {fileID: 335958319}
-  - component: {fileID: 335958321}
   m_Layer: 0
   m_Name: TestPlayer
   m_TagString: Untagged
@@ -300,37 +299,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27f90492864325c44ac609b6a67b6186, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerCamera: {fileID: 519420031}
-  cameraController:
-    rigTransform: {fileID: 1818531514}
-    controlSettings:
-      z: 0
-      dutch: 0
-      orthographicSize: 0
-    followSettings:
-      enableFollowTarget: 0
-      target: {fileID: 0}
-      followEaseType: 0
-      maxFollowSpeed: 0
-      offset: {x: 0, y: 0, z: 0}
-    zoomSettings:
-      enableZoomControl: 0
-      zoomEaseType: 0
-      maxZoomDelta: 0
-  controlSettings:
-    z: -10
-    dutch: 37
-    orthographicSize: 20
-  followSettings:
-    enableFollowTarget: 1
-    target: {fileID: 335958320}
-    followEaseType: 0
-    maxFollowSpeed: 20
-    offset: {x: 0, y: 1, z: 0}
-  zoomSettings:
-    enableZoomControl: 1
-    zoomEaseType: 0
-    maxZoomDelta: 7
+  camController: {fileID: 1818531515}
 --- !u!4 &335958320
 Transform:
   m_ObjectHideFlags: 0
@@ -346,25 +315,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &335958321
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 335958318}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 006c184a9f98fb7478734df2b03ab24e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CurrentHP: 0
-  MaxHP: 0
-  CurrentFuel: 0
-  MaxFuel: 0
-  FuelReductionRatio: 0
-  Defense: 0
-  MoveSpeed: 1
 --- !u!1 &347139630
 GameObject:
   m_ObjectHideFlags: 0
@@ -869,6 +819,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1818531514}
+  - component: {fileID: 1818531515}
   m_Layer: 0
   m_Name: CameraRig
   m_TagString: Untagged
@@ -891,6 +842,32 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1818531515
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1818531513}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f47ef7f195d4264cbe60489c466ca63, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  controlSettings:
+    z: -10
+    dutch: 0
+    orthographicSize: 25
+  followSettings:
+    enableFollowTarget: 1
+    target: {fileID: 335958320}
+    followEaseType: 0
+    maxFollowSpeed: 12
+    offset: {x: 0, y: 0, z: 0}
+  zoomSettings:
+    enableZoomControl: 1
+    zoomEaseType: 0
+    maxZoomDelta: 8
 --- !u!1 &1865711368
 GameObject:
   m_ObjectHideFlags: 0
