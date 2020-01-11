@@ -66,12 +66,12 @@ namespace Experimental
 
         private void UpdateActor(float t)
         {
-            actorTransform.position = easeFunction.Interp(startTransform.position, endTransform.position, t);
+            actorTransform.position = MathExtension.Interp(easeFunction, startTransform.position, endTransform.position, t);
         }
 
         private void UpdateUI(float t)
         {
-            text.text = $"t: {Mathf.Clamp01(easeFunction.Interp(0, 1, t)):F2}";
+            text.text = $"t: {Mathf.Clamp01(MathExtension.Interp(easeFunction, 0, 1, t)):F2}";
         }
 
         private void DrawEaseFunction()
@@ -89,8 +89,8 @@ namespace Experimental
             {
                 float t = i / (float)LinePrecision;
                 points[i] = new Vector3(
-                EaseType.Linear.Interp(startPos.x, endPos.x, t),
-                easeFunction.Interp(startPos.y, endPos.y, t),
+                MathExtension.Interp(EaseType.Linear, startPos.x, endPos.x, t),
+                MathExtension.Interp(easeFunction, startPos.y, endPos.y, t),
                 0);
 
             }

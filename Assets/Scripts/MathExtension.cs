@@ -56,9 +56,9 @@ public static class MathExtension
     /// <param name="a">The start value.</param>
     /// <param name="b">The end value.</param>
     /// <param name="t">The interpolation value between a and b.</param>
-    public static float Interp(this EaseType easeType, float a, float b, float t)
+    public static float Interp(EaseType easeType, float a, float b, float t)
     {
-        return (b - a) * easeType.Interp01(t) + a;
+        return (b - a) * Interp01(easeType, t) + a;
     }
 
     /// <summary>
@@ -66,9 +66,9 @@ public static class MathExtension
     /// </summary>
     /// <param name="easeType">Easing function used for interpolation.</param>
     /// <param name="t">The interpolation value between 0 and 1.</param>
-    public static Vector3 Interp(this EaseType easeType, Vector3 a, Vector3 b, float t)
+    public static Vector3 Interp(EaseType easeType, Vector3 a, Vector3 b, float t)
     {
-        return new Vector3(easeType.Interp(a.x, b.x, t), easeType.Interp(a.y, b.y, t), easeType.Interp(a.z, b.z, t));
+        return new Vector3(Interp(easeType, a.x, b.x, t), Interp(easeType, a.y, b.y, t), Interp(easeType, a.z, b.z, t));
     }
 
     /// <summary>
@@ -76,9 +76,9 @@ public static class MathExtension
     /// </summary>
     /// <param name="easeType">Easing function used for interpolation.</param>
     /// <param name="t">The interpolation value between 0 and 1.</param>
-    public static Quaternion Interp(this EaseType easeType, Quaternion a, Quaternion b, float t)
+    public static Quaternion Interp(EaseType easeType, Quaternion a, Quaternion b, float t)
     {
-        return Quaternion.Lerp(a, b, easeType.Interp01(t));
+        return Quaternion.Lerp(a, b, Interp01(easeType, t));
     }
 
     /// <summary>
@@ -86,7 +86,7 @@ public static class MathExtension
     /// </summary>
     /// <param name="easeType">Easing function.</param>
     /// <param name="t">The interpolation value between 0 and 1.</param>
-    public static float Interp01(this EaseType easeType, float t)
+    public static float Interp01(EaseType easeType, float t)
     {
         t = Mathf.Clamp01(t);
         switch (easeType)
@@ -172,9 +172,9 @@ public static class MathExtension
     /// <param name="b">The end value.</param>
     /// <param name="duration">The duration of interpolation.</param>
     /// <param name="time">The interpolation time between 0 and duration.</param>
-    public static float Interp(this EaseType easeType, float a, float b, float duration, float time)
+    public static float Interp(EaseType easeType, float a, float b, float duration, float time)
     {
-        return easeType.Interp(a, b, time / duration);
+        return Interp(easeType, a, b, time / duration);
     }
 
     /// <summary>
@@ -183,9 +183,9 @@ public static class MathExtension
     /// <param name="easeType">The easing function used for interpolation.</param>
     /// <param name="duration">The duration of interpolation.</param>
     /// <param name="time">The interpolation time between 0 and duration.</param>
-    public static Vector3 Interp(this EaseType easeType, Vector3 a, Vector3 b, float duration, float time)
+    public static Vector3 Interp(EaseType easeType, Vector3 a, Vector3 b, float duration, float time)
     {
-        return easeType.Interp(a, b, time / duration);
+        return Interp(easeType, a, b, time / duration);
     }
 
 }

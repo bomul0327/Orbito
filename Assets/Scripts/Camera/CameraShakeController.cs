@@ -78,7 +78,7 @@ public class CameraShakeController : MonoBehaviour
         public Vector3 GetShakeValues(float time)
         {
             float t = time / duration;
-            t = easeType.Interp01(t);
+            t = MathExtension.Interp01(easeType, t);
             //float amplitudeMultiplier = 1 - easeType.Interp(0, 1, t);
 
             float x = xAxis.GetShakeValue(t);
