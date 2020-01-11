@@ -1,6 +1,4 @@
-﻿using MathExtension;
-
-[System.Serializable]
+﻿[System.Serializable]
 public struct CameraZoomSettings
 {
     public bool enableZoomControl;

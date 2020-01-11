@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using MathExtension;
 
 namespace Experimental
 {

@@ -1,7 +1,6 @@
 ﻿using System.Collections;
  
 using UnityEngine;
-using MathExtension;
 
 /// <summary>
 /// Test implementation of camera shake feature.

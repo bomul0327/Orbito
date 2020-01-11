@@ -1,6 +1,4 @@
 ﻿using UnityEngine;
-using MathExtension;
-
 
 /// <summary>
 /// Follow Settings for Camera Controller.

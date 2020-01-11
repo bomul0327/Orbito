@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using MathExtension;
 
 /// <summary>
 /// Camera Controller for 2D Topdown.
