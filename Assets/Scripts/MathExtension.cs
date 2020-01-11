@@ -166,6 +166,29 @@ namespace MathExtension
             return t;
         }
 
+        /// <summary>
+        /// Interpolates between a and b by time for duration.
+        /// </summary>
+        /// <param name="easeType">The easing function used for interpolation.</param>
+        /// <param name="a">The start value.</param>
+        /// <param name="b">The end value.</param>
+        /// <param name="duration">The duration of interpolation.</param>
+        /// <param name="time">The interpolation time between 0 and duration.</param>
+        public static float Interp(this EaseType easeType, float a, float b, float duration, float time)
+        {
+            return easeType.Interp(a, b, time / duration);
+        }
+
+        /// <summary>
+        /// Interpolates between two vectors by time for duration.
+        /// </summary>
+        /// <param name="easeType">The easing function used for interpolation.</param>
+        /// <param name="duration">The duration of interpolation.</param>
+        /// <param name="time">The interpolation time between 0 and duration.</param>
+        public static Vector3 Interp(this EaseType easeType, Vector3 a, Vector3 b, float duration, float time)
+        {
+            return easeType.Interp(a, b, time / duration);
+        }
 
         /*
         /// <summary>
