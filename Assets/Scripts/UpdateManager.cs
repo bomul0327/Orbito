@@ -13,6 +13,18 @@ public class UpdateManager : Singleton<UpdateManager>
 
     private List<ILateUpdatable> lateList = new List<ILateUpdatable>();
 
+    // End of Frame에서 삭제될 Updatable 보관하는 큐
+    private Queue<IUpdatable> removeUpdatableQueue = new Queue<IUpdatable>();
+
+    private Queue<IFixedUpdatable> removeFixedUpdatableQueue = new Queue<IFixedUpdatable>();
+
+    private Queue<ILateUpdatable> removeLateUpdatableQueue = new Queue<ILateUpdatable>();
+
+    /// <summary>
+    /// 제거 프로세스 실행 중인지 체크하는 플래그
+    /// </summary>
+    private bool isActivatedRemoveProcess = false;
+
     private void Awake()
     {
 
@@ -70,7 +82,12 @@ public class UpdateManager : Singleton<UpdateManager>
     {
         if (updatableList.Contains(updatable))
         {
-            updatableList.Remove(updatable);
+            removeUpdatableQueue.Enqueue(updatable);
+        }
+
+        if (!isActivatedRemoveProcess)
+        {
+            StartCoroutine(ActivateRemoveProcess());
         }
     }
 
@@ -78,7 +95,12 @@ public class UpdateManager : Singleton<UpdateManager>
     {
         if (fixedList.Contains(updatable))
         {
-            fixedList.Remove(updatable);
+            removeFixedUpdatableQueue.Enqueue(updatable);
+        }
+
+        if (!isActivatedRemoveProcess)
+        {
+            StartCoroutine(ActivateRemoveProcess());
         }
     }
 
@@ -86,7 +108,41 @@ public class UpdateManager : Singleton<UpdateManager>
     {
         if (lateList.Contains(updatable))
         {
-            lateList.Remove(updatable);
+            removeLateUpdatableQueue.Enqueue(updatable);
         }
+
+        if (!isActivatedRemoveProcess)
+        {
+            StartCoroutine(ActivateRemoveProcess());
+        }
+    }
+
+    //FIXME: 나중에 코루틴 개조할 때 이거 없앨 것.
+    WaitForEndOfFrame endFrame = new WaitForEndOfFrame();
+
+    /// <summary>
+    /// 실질적인 제거 작업은 여기서 진행
+    /// </summary>
+    private IEnumerator ActivateRemoveProcess()
+    {
+        isActivatedRemoveProcess = true;
+        yield return endFrame;
+
+        while (removeUpdatableQueue.Count != 0)
+        {
+            updatableList.Remove(removeUpdatableQueue.Dequeue());
+        }
+
+        while (removeFixedUpdatableQueue.Count != 0)
+        {
+            fixedList.Remove(removeFixedUpdatableQueue.Dequeue());
+        }
+
+        while (removeLateUpdatableQueue.Count != 0)
+        {
+            lateList.Remove(removeLateUpdatableQueue.Dequeue());
+        }
+
+        isActivatedRemoveProcess = false;
     }
 }
