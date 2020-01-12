@@ -18,6 +18,10 @@ public class AttackCommand : ICommand
     {
         attacker.Behaviour.Attack();
     }
+    public void Dispose()
+    {
+
+    }
 }
 
 

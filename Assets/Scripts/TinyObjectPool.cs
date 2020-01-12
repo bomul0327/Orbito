@@ -7,7 +7,7 @@ using UnityEngine;
 /// 작은 사이즈의 클래스들을 풀링
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class TinyObjectPool<T> where T : class, IDisposable, new()
+public class TinyObjectPool<T> : IPool where T : class, IDisposable, new()
 {
     private Queue<T> availableObjects = new Queue<T>();
     private List<T> inUseObjects = new List<T>();
@@ -34,12 +34,12 @@ public class TinyObjectPool<T> where T : class, IDisposable, new()
     /// 사용한 객체를 다시 풀에 반환하여 비활성화 합니다
     /// </summary>
     /// <param name="obj">반환할 객체</param>
-    public void Return(T obj)
+    public void Return(object obj)
     {
-        if (inUseObjects.Contains(obj))
+        if (inUseObjects.Contains((T)obj))
         {
-            inUseObjects.Remove(obj);
-            availableObjects.Enqueue(obj);
+            inUseObjects.Remove((T)obj);
+            availableObjects.Enqueue((T)obj);
         }
     }
 

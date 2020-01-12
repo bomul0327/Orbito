@@ -15,6 +15,10 @@ public class MoveFrontCommand : ICommand
     {
         character.Behaviour.MoveFront();
     }
+    public void Dispose()
+    {
+
+    }
 }
 
 

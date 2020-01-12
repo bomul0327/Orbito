@@ -18,7 +18,10 @@ public class AirBombCommand : ICommand
     {
         character.Behaviour.AirBomb(dir);
     }
-
+    public void Dispose()
+    {
+        
+    }
 }
 
 

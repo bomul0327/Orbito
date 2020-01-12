@@ -26,9 +26,14 @@ public static class CommandDispatcher
     /// </summary>
     public static void Handle()
     {
+        ICommand command;
+        IPool commandPool;
         for(int i = 0; i < commandQueue.Count; ++i)
         {
-            commandQueue.Dequeue().Execute();
+            command = commandQueue.Dequeue();
+            command.Execute();
+            CommandFactory.CommandPoolDict.TryGetValue(command.GetType().Name, out commandPool);
+            commandPool.Return(command);
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-public interface ICommand
+public interface ICommand : IDisposable
 {
     /// <summary>
     /// 커맨드 실행

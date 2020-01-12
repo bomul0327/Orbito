@@ -17,4 +17,8 @@ public class RevolveCommand : ICommand
     {
         character.Behaviour.Revolve(planetPos);
     }
+    public void Dispose()
+    {
+
+    }
 }
