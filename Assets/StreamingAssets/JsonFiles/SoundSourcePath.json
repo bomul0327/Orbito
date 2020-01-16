@@ -18,5 +18,10 @@
         "AssetName": "BGMSample.wav",
         "MODE": "LOOP_NORMAL,_2D,CREATESTREAM",
         "Path": "BGMSample.wav"
-    }
+    },
+    {
+        "AssetName": "ChannelInitiatingSound.wav",
+        "MODE": "DEFAULT",
+        "Path": "ChannelInitiatingSound.wav"
+    },
 ]
