@@ -21,7 +21,7 @@
     },
     {
         "AssetName": "ChannelInitiatingSound.wav",
-        "MODE": "DEFAULT",
+        "MODE": "CREATESAMPLE",
         "Path": "ChannelInitiatingSound.wav"
     },
 ]

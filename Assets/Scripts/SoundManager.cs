@@ -23,8 +23,6 @@ public class SoundManager : Singleton<SoundManager>
     const int maxChannelNum = 21, BattleSoundChannelIndex = 0, EventSoundChannelIndex = 10,
              EnvironmentSoundChannelIndex = 15, BGMChannelIndex = 20;
 
-    // soundPath를 사용하면 관리하기는 편리해지지만 많은 string concat을 실시하게 됩니다.
-    // string concat을 지양하려면 json속 모든 path앞에 추가로 달아주면됩니다.
     string soundPath = Application.streamingAssetsPath + "/";
     FMOD.System system;
     static RESULT result; DSP_TYPE typeTemp; Sound soundTemp; string strTemp;
@@ -91,34 +89,51 @@ public class SoundManager : Singleton<SoundManager>
         if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
 
         Load("ChannelInitiatingSound.wav", true);
-
+        Channel channelTemp; int channelIndex;
+        
         for (int i = BattleSoundChannelIndex ; i < EventSoundChannelIndex; i++)
         {
             // BattleSound 전용 채널입니다.
-            result = system.getChannel(i, out channelArr[i]);
+            result = system.getChannel(i, out channelTemp);
             if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+            result = channelTemp.getIndex(out channelIndex);
+            if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+            channelArr[channelIndex] = channelTemp;
+            Debug.Log("channelIndex = " + channelIndex);
             PlayForInit("ChannelInitiatingSound.wav", SFXEnum.BattleSound);
+            // PrintInfo();
         }
-        
+
         for (int i = EventSoundChannelIndex ; i < EnvironmentSoundChannelIndex; i++)
         {
             // EventSound 전용 채널입니다.
-            result = system.getChannel(i, out channelArr[i]);
+            result = system.getChannel(i, out channelTemp);
             if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+            result = channelTemp.getIndex(out channelIndex);
+            if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+            channelArr[channelIndex] = channelTemp;
             PlayForInit("ChannelInitiatingSound.wav", SFXEnum.EventSound);
+            // PrintInfo();
         }
         
         for (int i = EnvironmentSoundChannelIndex ; i < BGMChannelIndex; i++)
         {
             // EnvironmentSound 전용 채널입니다.
-            result = system.getChannel(i, out channelArr[i]);
+            result = system.getChannel(i, out channelTemp);
             if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+            result = channelTemp.getIndex(out channelIndex);
+            if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+            channelArr[channelIndex] = channelTemp;
             PlayForInit("ChannelInitiatingSound.wav", SFXEnum.EnvironmentSound);
+            // PrintInfo();
         }
 
             // BGM용 채널은 마지막에 넣었습니다.
-            result = system.getChannel(BGMChannelIndex, out channelArr[BGMChannelIndex]);
+            result = system.getChannel(BGMChannelIndex, out channelTemp);
             if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+            result = channelTemp.getIndex(out channelIndex);
+            if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+            channelArr[channelIndex] = channelTemp;
 
         //@ DSP 초기설정 part입니다.
         result = system.createDSPByType(DSP_TYPE.PITCHSHIFT, out PitchshiftDSP);
@@ -126,7 +141,7 @@ public class SoundManager : Singleton<SoundManager>
 
         for (int i = 0 ; i < maxChannelNum ; i++ )
         {
-            Debug.Log("i = "+i);
+            Debug.Log("Inserting DSP i = "+i);
             result = channelArr[i].addDSP(CHANNELCONTROL_DSP_INDEX.HEAD, PitchshiftDSP);
             if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
         }
@@ -136,7 +151,6 @@ public class SoundManager : Singleton<SoundManager>
 
         //@ Sound 초기설정 part입니다.
 
-        UnLoad("ChannelInitiatingSound.wav");
     }
     void OnDestroy()
     {
@@ -195,7 +209,7 @@ public class SoundManager : Singleton<SoundManager>
 
         if (Input.GetKeyDown(KeyCode.P))
         {
-            SetPitch("LaserSample1.wav", 0.5f);
+            SetPitch("LaserSample1.wav", 2f);
         }
 
         if (Input.GetKeyDown(KeyCode.Z))
@@ -203,9 +217,10 @@ public class SoundManager : Singleton<SoundManager>
             PrintInfo();
         }
         
-        if (Input.GetKeyDown(KeyCode.O))
+        if (Input.GetKeyDown(KeyCode.R))
         {
-            // system.playDSP(DSPTemp,);
+            system.playSound(soundDict["LaserSample1.wav"], MasterChannelGroup, true, out channelArr[0]);
+            channelArr[0].setPaused(false);
         }
     }
 
@@ -242,10 +257,13 @@ public class SoundManager : Singleton<SoundManager>
             {
                 channelArr[channelIndex].isPlaying(out bool b);
                 if (!b) break;
-                channelArr[channelIndex].getCurrentSound(out soundTemp);
-                soundTemp.getName(out string nameTemp, 30);
-                if (b) Debug.Log(channelIndex + nameTemp);
-                channelIndex++;
+                else
+                {
+                    channelArr[channelIndex].getCurrentSound(out soundTemp);
+                    soundTemp.getName(out strTemp, 30);
+                    Debug.Log(channelIndex + strTemp);
+                    channelIndex++;
+                }
             }
         }
 
@@ -274,11 +292,9 @@ public class SoundManager : Singleton<SoundManager>
                     if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
                     break;
                 case SFXEnum.EventSound :
-                    // PrintInfo();
                     Debug.Log("ChannelIndex = "+channelIndex);
                     result = system.playSound(soundDict[audioName], EventSoundChannelGroup, false, out channelArr[channelIndex]);
                     if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
-                    // PrintInfo();
                     break;
                 case SFXEnum.EnvironmentSound :
                     Debug.Log("ChannelIndex = "+channelIndex);
@@ -414,8 +430,11 @@ public class SoundManager : Singleton<SoundManager>
     /// <param name="audioName">대상 audioFile 이름</param>
     public void Pause(string audioName)
     {
-        result = FindChannelOfSound(audioName).setPaused(true);
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        foreach (var c in FindChannelOfSound(audioName))
+        {
+            result = c.setPaused(true);
+            if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        }
     }
 
     /// <summary>
@@ -424,8 +443,11 @@ public class SoundManager : Singleton<SoundManager>
     /// <param name="audioName">대상 audioFile 이름</param>
     public void UnPause(string audioName)
     {
-        result = FindChannelOfSound(audioName).setPaused(false);
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        foreach (var c in FindChannelOfSound(audioName))
+        {
+            result = c.setPaused(false);
+            if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        }
     }
 
     /// <summary>
@@ -434,8 +456,11 @@ public class SoundManager : Singleton<SoundManager>
     /// <param name="audioName">대상 audioFile 이름</param>
     public void Mute(string audioName)
     {
-        result = FindChannelOfSound(audioName).setMute(true);
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        foreach (var c in FindChannelOfSound(audioName))
+        {
+            result = c.setMute(true);
+            if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        }
     }
 
     /// <summary>
@@ -444,8 +469,11 @@ public class SoundManager : Singleton<SoundManager>
     /// <param name="audioName">대상 audioFile 이름</param>
     public void UnMute(string audioName)
     {
-        result = FindChannelOfSound(audioName).setMute(false);
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        foreach (var c in FindChannelOfSound(audioName))
+        {
+            result = c.setMute(false);
+            if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        }
     }
 
     /// <summary>
@@ -472,9 +500,13 @@ public class SoundManager : Singleton<SoundManager>
     public bool isPlaying(string audioName)
     {
         bool isPlaying;
-        result = FindChannelOfSound(audioName).isPlaying(out isPlaying);
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
-        return isPlaying;
+        foreach (var c in FindChannelOfSound(audioName))
+        {
+            result = c.isPlaying(out isPlaying);
+            if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+            if (isPlaying) return isPlaying;
+        }
+        return false;
     }
 
     /// <summary>
@@ -484,8 +516,11 @@ public class SoundManager : Singleton<SoundManager>
     /// <param name="playVolume">원하는 Volume배율</param>
     public void SetVolume(string audioName, float playVolume)
     {
-        result = FindChannelOfSound(audioName).setVolume(playVolume);
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        foreach (var c in FindChannelOfSound(audioName))
+        {
+            result = c.setVolume(playVolume);
+            if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        }
     }
 
     /// <summary>
@@ -496,31 +531,36 @@ public class SoundManager : Singleton<SoundManager>
     public void SetPitch(string audioName, float playPitch)
     {
         Debug.Log("SetPitch debug M");
-
-        FindChannelOfSound(audioName).getDSPIndex(PitchshiftDSP, out int DSPIndex);
-        Debug.Log("The index of pitchshift is "+DSPIndex);
-        result = FindChannelOfSound(audioName).getDSP(1, out DSPTemp);
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
-
-        DSPTemp.getNumParameters(out DSPIndex);
-        Debug.Log("number of param = " + DSPIndex);
-
-        DSPTemp.getType(out typeTemp);
-        Debug.Log("type : " + typeTemp);
-
-        string name;
-        DSPTemp.getInfo(out name, out uint version, out int chan, out int cofi, out int cofig);
-        Debug.Log(name + "/" + version + "/" + chan + "/" + cofi + "/" + cofig);
-
-        DSP_PARAMETER_DESC sdf;
-        for (int i =0 ; i < DSPIndex ; i++ )
+        foreach (var c in FindChannelOfSound(audioName))
         {
-            DSPTemp.getParameterInfo(i, out sdf);
-            Debug.Log(sdf.description);
-        }
+            c.addDSP(CHANNELCONTROL_DSP_INDEX.HEAD, PitchshiftDSP);
+            c.getDSPIndex(PitchshiftDSP, out int DSPIndex);
+            c.getDSP(DSPIndex, out DSPTemp);
+            DSPTemp.getNumParameters(out int numdsp);
+            DSPTemp.getInfo(out string name, out uint version, out int chan, out int cofi, out int cofig);
 
-        result = DSPTemp.setParameterFloat(1, playPitch);
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+
+            Debug.Log("Before set the parameter value");
+            Debug.Log("The index of pitchshift is "+DSPIndex);
+            Debug.Log("number of param = " + numdsp);
+            Debug.Log(name + "/" + version + "/" + chan + "/" + cofi + "/" + cofig);
+            for (int j = 0 ; j < numdsp ; j++)
+            {
+                DSPTemp.getParameterFloat(j, out float value);
+                Debug.Log(j+"th parameter is "+value);
+            }
+
+
+            result = DSPTemp.setParameterFloat(0, playPitch);
+            if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+
+            Debug.Log("After set the parameter value");
+            for (int j = 0 ; j < numdsp ; j++)
+            {
+                DSPTemp.getParameterFloat(j, out float value);
+                Debug.Log(j+"th parameter is "+value);
+            }
+        }
     }
     
     /// <summary>
@@ -654,96 +694,98 @@ public class SoundManager : Singleton<SoundManager>
     }
 
     /// <summary>
-    /// 해당 Sound를 실행하고 있는 Channel을 반환합니다.
+    /// 해당 Sound를 실행하고 있는 Channel들을 담은 List를 반환합니다.
     /// </summary>
     /// <param name="audioName">대상 audioFile 이름</param>
     /// <returns></returns>
-    Channel FindChannelOfSound(string audioName)
+    List<Channel> FindChannelOfSound(string audioName)
     {
+        List<Channel> channelList = new List<Channel>();
         foreach(var c in channelArr)
         {
             c.getCurrentSound(out soundTemp);
             if (soundTemp.Equals(soundDict[audioName]))
             {
-                return c;
+                channelList.Add(c);
             }
         }
 
-        Debug.LogWarning("That Sound is not playing!\nReturned channel is NULL value");
-        return new Channel();
+        if (channelList.Count == 0)
+            Debug.LogWarning("That Sound is not playing!\nReturned channel is NULL value");
+        return channelList;
     }
 
     public void PrintInfo()
     {
         ChannelGroup CGTemp;
-        Debug.Log("The number of channel is " + maxChannelNum);
-        Debug.Log("The BattleSound channels are from " + BattleSoundChannelIndex + " to " + (EventSoundChannelIndex-1) );
-        Debug.Log("The EventSound channels are from " + EventSoundChannelIndex + " to " + (EnvironmentSoundChannelIndex-1) );
-        Debug.Log("The EnvironmentSound channels are from " + EnvironmentSoundChannelIndex + " to " + (BGMChannelIndex-1) );
-        Debug.Log("The BGM channels is " + BGMChannelIndex);
-        Debug.Log("------------------------------------");
-        Debug.Log("Currently these sounds are in memory");
-        foreach (var s in soundDict)
-        {
-            Debug.Log(s.Key);
-            s.Value.getMode(out MODE mode);
-            Debug.Log(s.Key+"'s modes are "+mode);
-        }
-        Debug.Log("------------------------------------");
+        // Debug.Log("The number of channel is " + maxChannelNum);
+        // Debug.Log("The BattleSound channels are from " + BattleSoundChannelIndex + " to " + (EventSoundChannelIndex-1) );
+        // Debug.Log("The EventSound channels are from " + EventSoundChannelIndex + " to " + (EnvironmentSoundChannelIndex-1) );
+        // Debug.Log("The EnvironmentSound channels are from " + EnvironmentSoundChannelIndex + " to " + (BGMChannelIndex-1) );
+        // Debug.Log("The BGM channels is " + BGMChannelIndex);
+        // Debug.Log("------------------------------------");
+        // Debug.Log("Currently these sounds are in memory");
+        // foreach (var s in soundDict)
+        // {
+        //     Debug.Log(s.Key);
+        //     s.Value.getMode(out MODE mode);
+        //     Debug.Log(s.Key+"'s modes are "+mode);
+        // }
+        // Debug.Log("------------------------------------");
         Debug.Log("Currently playing channels are");
         int i = 0;
         foreach (var c in channelArr)
         {
             bool b;
+            c.getIndex(out i);
             c.isPlaying(out b);
             if (b)
             {
                 c.getCurrentSound(out soundTemp);
                 c.getNumDSPs(out int numdsp);
-                soundTemp.getName(out string name, 30);
-                Debug.Log("On "+(i)+" channel the "+name+" is playing. And number of DSP is "+numdsp);
-                Debug.Log("--------List of DSPs in this channel");
-                for (int j = 0 ; j < numdsp ; j++)
-                {
-                    c.getDSP(j, out DSPTemp);
-                    DSPTemp.getType(out typeTemp);
-                    Debug.Log(j+"th DSP's type is "+typeTemp);
-                }
+                soundTemp.getName(out strTemp, 30);
+                Debug.Log("On "+i+" channel the "+strTemp+" is playing. And number of DSP is "+numdsp);
                 c.getChannelGroup(out CGTemp);
                 CGTemp.getName(out strTemp, 30);
                 Debug.Log("ChannelGroup which this channel belongs to is "+strTemp);
+                // Debug.Log("--------List of DSPs in this channel");
+                // for (int j = 0 ; j < numdsp ; j++)
+                // {
+                //     c.getDSP(j, out DSPTemp);
+                //     DSPTemp.getType(out typeTemp);
+                //     Debug.Log(j+"th DSP's type is "+typeTemp);
+                // }
             }
-            i++;
         }
-        Debug.Log("------------------------------------");
-        Debug.Log("Currently structed channelGroups are");
-        MasterChannelGroup.getName(out strTemp, 30);
-        Debug.Log(strTemp);        
-        SFXChannelGroup.getName(out strTemp, 30);
-        Debug.Log(strTemp);        
-        BGMChannelGroup.getName(out strTemp, 30);
-        Debug.Log(strTemp);        
-        BattleSoundChannelGroup.getName(out strTemp, 30);
-        Debug.Log(strTemp);        
-        EventSoundChannelGroup.getName(out strTemp, 30);
-        Debug.Log(strTemp);        
-        EnvironmentSoundChannelGroup.getName(out strTemp, 30);
-        Debug.Log(strTemp);
-        BattleSoundChannelGroup.getParentGroup(out CGTemp);
-        CGTemp.getName(out strTemp, 30);        
-        Debug.Log("BattleChannelGroup's parrent ChannelGroup is "+strTemp);
-        EventSoundChannelGroup.getParentGroup(out CGTemp);
-        CGTemp.getName(out strTemp, 30);        
-        Debug.Log("EventChannelGroup's parrent ChannelGroup is "+strTemp);
-        EnvironmentSoundChannelGroup.getParentGroup(out CGTemp);
-        CGTemp.getName(out strTemp, 30);        
-        Debug.Log("EnvironmentChannelGroup's parrent ChannelGroup is "+strTemp);
-        SFXChannelGroup.getParentGroup(out CGTemp);
-        CGTemp.getName(out strTemp, 30);        
-        Debug.Log("SFXChannelGroup's parrent ChannelGroup is "+strTemp);
-        BGMChannelGroup.getParentGroup(out CGTemp);
-        CGTemp.getName(out strTemp, 30);        
-        Debug.Log("BGMChannelGroup's parrent ChannelGroup is "+strTemp);
+        // Debug.Log("------------------------------------");
+        // Debug.Log("Currently structed channelGroups are");
+        // MasterChannelGroup.getName(out strTemp, 30);
+        // Debug.Log(strTemp);        
+        // SFXChannelGroup.getName(out strTemp, 30);
+        // Debug.Log(strTemp);        
+        // BGMChannelGroup.getName(out strTemp, 30);
+        // Debug.Log(strTemp);        
+        // BattleSoundChannelGroup.getName(out strTemp, 30);
+        // Debug.Log(strTemp);        
+        // EventSoundChannelGroup.getName(out strTemp, 30);
+        // Debug.Log(strTemp);        
+        // EnvironmentSoundChannelGroup.getName(out strTemp, 30);
+        // Debug.Log(strTemp);
+        // BattleSoundChannelGroup.getParentGroup(out CGTemp);
+        // CGTemp.getName(out strTemp, 30);        
+        // Debug.Log("BattleChannelGroup's parrent ChannelGroup is "+strTemp);
+        // EventSoundChannelGroup.getParentGroup(out CGTemp);
+        // CGTemp.getName(out strTemp, 30);        
+        // Debug.Log("EventChannelGroup's parrent ChannelGroup is "+strTemp);
+        // EnvironmentSoundChannelGroup.getParentGroup(out CGTemp);
+        // CGTemp.getName(out strTemp, 30);        
+        // Debug.Log("EnvironmentChannelGroup's parrent ChannelGroup is "+strTemp);
+        // SFXChannelGroup.getParentGroup(out CGTemp);
+        // CGTemp.getName(out strTemp, 30);        
+        // Debug.Log("SFXChannelGroup's parrent ChannelGroup is "+strTemp);
+        // BGMChannelGroup.getParentGroup(out CGTemp);
+        // CGTemp.getName(out strTemp, 30);        
+        // Debug.Log("BGMChannelGroup's parrent ChannelGroup is "+strTemp);
     }
 
     public enum SFXEnum
