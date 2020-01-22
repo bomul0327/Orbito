@@ -89,49 +89,10 @@ public class SoundManager : Singleton<SoundManager>
         result = SFXChannelGroup.addGroup(EnvironmentSoundChannelGroup);
         if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
 
-        Load("ChannelInitiatingSound.wav", true);
-        Channel channelTemp;
-        
-        for (int i = BattleSoundChannelIndex ; i < EventSoundChannelIndex; i++)
+        for (int i = 0 ; i < maxChannelNum; i++)
         {
-            // BattleSound 전용 채널입니다.
-            result = system.getChannel(i, out channelTemp);
+            result = system.getChannel(i, out channelArr[i]);
             if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
-            channelArr[i] = channelTemp;
-        }
-
-        for (int i = EventSoundChannelIndex ; i < EnvironmentSoundChannelIndex; i++)
-        {
-            // EventSound 전용 채널입니다.
-            result = system.getChannel(i, out channelTemp);
-            if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
-            channelArr[i] = channelTemp;
-        }
-        
-        for (int i = EnvironmentSoundChannelIndex ; i < BGMChannelIndex; i++)
-        {
-            // EnvironmentSound 전용 채널입니다.
-            result = system.getChannel(i, out channelTemp);
-            if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
-            channelArr[i] = channelTemp;
-        }
-
-            // BGM용 채널은 마지막에 넣었습니다.
-            result = system.getChannel(BGMChannelIndex, out channelTemp);
-            if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
-            channelArr[BGMChannelIndex] = channelTemp;
-
-        for (int i = BattleSoundChannelIndex ; i < EventSoundChannelIndex; i++)
-        {
-            PlayForInit("ChannelInitiatingSound.wav", SFXEnum.BattleSound);
-        }
-        for (int i = EventSoundChannelIndex ; i < EnvironmentSoundChannelIndex; i++)
-        {
-            PlayForInit("ChannelInitiatingSound.wav", SFXEnum.EventSound);
-        }
-        for (int i = EnvironmentSoundChannelIndex ; i < BGMChannelIndex; i++)
-        {
-            PlayForInit("ChannelInitiatingSound.wav", SFXEnum.EnvironmentSound);
         }
 
         //@ DSP 초기설정 part입니다.
@@ -224,7 +185,7 @@ public class SoundManager : Singleton<SoundManager>
 
         if (Input.GetKeyDown(KeyCode.D))
         {
-            SetSpeed("LaserSample1.wav", 50000);
+            SetSpeed("LaserSample1.wav", 88200);
         }
 
         if (Input.GetKeyDown(KeyCode.F))
@@ -248,87 +209,6 @@ public class SoundManager : Singleton<SoundManager>
         }
     }
 
-    private void PlayForInit(string audioName, SFXEnum SFXEnum)
-    {
-        int channelIndex = 0;
-        int departure = 0;
-
-        if (!soundDict.ContainsKey(audioName))
-        {
-            Debug.LogError("Load the sound file before play.");
-            return;
-        } else 
-        {
-            switch (SFXEnum)
-            {
-                case SFXEnum.BattleSound : 
-                    channelIndex = BattleSoundChannelIndex;
-                    departure = EventSoundChannelIndex;
-                    break;
-                case SFXEnum.EventSound :
-                    channelIndex = EventSoundChannelIndex;
-                    departure = EnvironmentSoundChannelIndex;
-                    break;
-                case SFXEnum.EnvironmentSound :
-                    channelIndex = EnvironmentSoundChannelIndex;
-                    departure = BGMChannelIndex;
-                    break;
-            }
-
-            Debug.Log("ChannelIndex = "+channelIndex+", departure = "+departure);
-
-            while (channelIndex < departure)
-            {
-                channelArr[channelIndex].isPlaying(out bool b);
-                if (!b) break;
-                else
-                {
-                    channelArr[channelIndex].getCurrentSound(out soundTemp);
-                    soundTemp.getName(out strTemp, 30);
-                    Debug.Log(channelIndex + strTemp);
-                    channelIndex++;
-                }
-            }
-        }
-
-        if (channelIndex == departure)
-        {
-            switch (SFXEnum)
-            {
-                case SFXEnum.BattleSound : 
-                    Debug.LogError("There is no extra BattleSFX channel now.");
-                    break;
-                case SFXEnum.EventSound :
-                    Debug.LogError("There is no extra EventSFX channel now.");
-                    break;
-                case SFXEnum.EnvironmentSound :
-                    Debug.LogError("There is no extra EnvironmentSFX channel now.");
-                    break;
-            }
-            return;
-        } else
-        {
-            switch (SFXEnum)
-            {
-                case SFXEnum.BattleSound :
-                    Debug.Log("ChannelIndex = "+channelIndex);
-                    result = system.playSound(soundDict[audioName], BattleSoundChannelGroup, false, out channelArr[channelIndex]);
-                    if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
-                    break;
-                case SFXEnum.EventSound :
-                    Debug.Log("ChannelIndex = "+channelIndex);
-                    result = system.playSound(soundDict[audioName], EventSoundChannelGroup, false, out channelArr[channelIndex]);
-                    if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
-                    break;
-                case SFXEnum.EnvironmentSound :
-                    Debug.Log("ChannelIndex = "+channelIndex);
-                    result = system.playSound(soundDict[audioName], EnvironmentSoundChannelGroup, false, out channelArr[channelIndex]);
-                    if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
-                    break;
-            }
-        }
-    }
-
     /// <summary>
     /// 2D SFX사운드를 발생시킵니다.
     /// </summary>
@@ -336,55 +216,26 @@ public class SoundManager : Singleton<SoundManager>
     /// <param name="playVolume">실행시킬 Volume값(0~1)</param>
     /// <param name="playPitch">실행시킬 Pitch값; Default : 1</param>
     /// <param name="playSpeed">실행시킬 Speed값; Default : 1</param>
-    public void PlaySFX(string audioName, SFXEnum SFXEnum, float playVolume = 1.0f, float playPitch = 1.0f, float playSpeed = 1.0f)
+    public void PlaySFX(string audioName, SFXEnum SFXEnum = SFXEnum.SFX, float playVolume = 1.0f, float playPitch = 1.0f, float playSpeed = 1.0f)
     {
-        int channelIndex = 0;
-        int departure = 0;
-
+        int channelIndex;
+        
         if (!soundDict.ContainsKey(audioName))
         {
             Debug.LogError("Load the sound file before play.");
             return;
         } else 
         {
-            switch (SFXEnum)
-            {
-                case SFXEnum.BattleSound : 
-                    channelIndex = BattleSoundChannelIndex;
-                    departure = EventSoundChannelIndex;
-                    break;
-                case SFXEnum.EventSound :
-                    channelIndex = EventSoundChannelIndex;
-                    departure = EnvironmentSoundChannelIndex;
-                    break;
-                case SFXEnum.EnvironmentSound :
-                    channelIndex = EnvironmentSoundChannelIndex;
-                    departure = BGMChannelIndex;
-                    break;
-            }
-
-            while (channelIndex < departure)
+            for (channelIndex =0 ; channelIndex < maxChannelNum ; channelIndex++)
             {
                 channelArr[channelIndex].isPlaying(out bool b);
                 if (!b) break;
-                channelIndex++;
             }
         }
 
-        if (channelIndex == departure)
+        if (channelIndex == maxChannelNum)
         {
-            switch (SFXEnum)
-            {
-                case SFXEnum.BattleSound : 
-                    Debug.LogError("There is no extra BattleSFX channel now.");
-                    break;
-                case SFXEnum.EventSound :
-                    Debug.LogError("There is no extra EventSFX channel now.");
-                    break;
-                case SFXEnum.EnvironmentSound :
-                    Debug.LogError("There is no extra EnvironmentSFX channel now.");
-                    break;
-            }
+            Debug.LogError("There is no extra SFX channel now.");
             return;
         } else
         {
@@ -405,6 +256,12 @@ public class SoundManager : Singleton<SoundManager>
                     result = system.playSound(soundDict[audioName], EnvironmentSoundChannelGroup, true, out channelArr[channelIndex]);
                     if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
                     break;
+                case SFXEnum.SFX :
+                    Debug.Log("ChannelIndex = "+channelIndex);
+                    result = system.playSound(soundDict[audioName], SFXChannelGroup, true, out channelArr[channelIndex]);
+                    if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+                    break;
+                    
             }
         
             SetVolume(audioName, playVolume);
@@ -610,7 +467,7 @@ public class SoundManager : Singleton<SoundManager>
     {
         foreach (var c in FindChannelOfSound(audioName))
         {
-            SetPitch(audioName, 44100/playSpeed);
+            // SetPitch(audioName, 44100/playSpeed);
             c.setFrequency(playSpeed);
         }
     }
@@ -823,8 +680,13 @@ public class SoundManager : Singleton<SoundManager>
         // Debug.Log("BGMChannelGroup's parrent ChannelGroup is "+strTemp);
     }
 
+    private void SetAsDefault()
+    {
+
+    }
+
     public enum SFXEnum
     {
-        BattleSound, EventSound, EnvironmentSound
+        BattleSound, EventSound, EnvironmentSound, SFX
     }
 }
