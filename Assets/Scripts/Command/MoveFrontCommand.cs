@@ -1,14 +1,18 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Character character ÇÊ¿ä
+/// </summary>
 public class MoveFrontCommand : ICommand
 {
     Character character;
 
-    public MoveFrontCommand(Character character)
+    public void SetData(params object[] values)
     {
-        this.character = character;
+        this.character = (Character)values[0];
     }
 
     public void Execute()
@@ -17,7 +21,7 @@ public class MoveFrontCommand : ICommand
     }
     public void Dispose()
     {
-
+        GC.SuppressFinalize(this);
     }
 }
 

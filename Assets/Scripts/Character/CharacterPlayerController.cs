@@ -20,14 +20,13 @@ public class CharacterPlayerController : CharacterControllerBase, IUpdatable
         if (Input.GetButton("Revolve"))
         {
             // TODO : 공전궤도 안인지 확인하고 Vector3.zero를 planet의 position으로 변경
-            CommandDispatcher.Publish(new RevolveCommand(character, Vector3.zero));
+            CommandDispatcher.Publish(CommandFactory.GetOrCreate<RevolveCommand>(character, Vector3.zero));
 
         }
         else
         {
-            CommandDispatcher.Publish(new MoveFrontCommand(character));
+            CommandDispatcher.Publish(CommandFactory.GetOrCreate<MoveFrontCommand>(character));
 
         }
-        CommandDispatcher.Handle();
     }
 }

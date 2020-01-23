@@ -9,31 +9,10 @@ using UnityEngine;
 public static class CommandDispatcher
 {
     /// <summary>
-    /// 커맨드를 큐에 넣어서 순차적으로 실행
-    /// </summary>
-    private static Queue<ICommand> commandQueue = new Queue<ICommand>();
-
-    /// <summary>
-    /// 커맨드를 Dispatcher에 올려놓습니다.
+    /// 커맨드를 실행시킵니다.
     /// </summary>
     public static void Publish(ICommand command)
     {
-        commandQueue.Enqueue(command);
-    }
-
-    /// <summary>
-    /// 올려놓은 커맨드들을 모두 실행
-    /// </summary>
-    public static void Handle()
-    {
-        ICommand command;
-        IPool commandPool;
-        for(int i = 0; i < commandQueue.Count; ++i)
-        {
-            command = commandQueue.Dequeue();
-            command.Execute();
-            CommandFactory.CommandPoolDict.TryGetValue(command.GetType().Name, out commandPool);
-            commandPool.Return(command);
-        }
+        command.Execute();
     }
 }

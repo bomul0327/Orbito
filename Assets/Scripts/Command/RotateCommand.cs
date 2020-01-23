@@ -1,16 +1,20 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Character character, Vector3 planetPos ÇÊ¿ä
+/// </summary>
 public class RotateCommand : ICommand
 {
     Character character;
     Vector3 planetPos;
 
-    public RotateCommand(Character character, Vector3 planetPos)
+    public void SetData(params object[] values)
     {
-        this.character = character;
-        this.planetPos = planetPos;
+        this.character = (Character)values[0];
+        this.planetPos = (Vector3)values[1];
     }
 
     public void Execute()
@@ -19,7 +23,7 @@ public class RotateCommand : ICommand
     }
     public void Dispose()
     {
-
+        GC.SuppressFinalize(this);
     }
 }
 
