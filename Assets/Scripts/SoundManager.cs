@@ -30,6 +30,7 @@ public class SoundManager : Singleton<SoundManager>
             EnvironmentSoundChannelGroup, BGMChannelGroup;
     Channel[] channelArr;
     DSP DSPTemp, PitchshiftDSP;
+    List<DSP> DSPList;
     List<DSPConnection> DSPConnectionsList;
     Dictionary<string, Sound> soundDict;
     string currentBGMName = "null";
@@ -39,6 +40,7 @@ public class SoundManager : Singleton<SoundManager>
         soundDict = new Dictionary<string, Sound>();
         channelArr = new Channel[maxChannelNum];
         DSPConnectionsList = new List<DSPConnection>();
+        DSPList = new List<DSP>();
 
         //@ System 초기설정 part입니다.
 
@@ -49,11 +51,6 @@ public class SoundManager : Singleton<SoundManager>
         // 나머지는 기본값입니다.
         result = system.init(maxChannelNum, INITFLAGS.VOL0_BECOMES_VIRTUAL | INITFLAGS.PROFILE_METER_ALL, System.IntPtr.Zero);
         Error(result); 
-
-        ADVANCEDSETTINGS advancedSetting = new ADVANCEDSETTINGS();
-        advancedSetting.profilePort = 9264;
-
-        result = system.setAdvancedSettings(ref advancedSetting);
 
         //@ Channel 초기설정 part입니다.
         result = system.getMasterChannelGroup(out MasterChannelGroup);
@@ -100,7 +97,21 @@ public class SoundManager : Singleton<SoundManager>
         Error(result); 
 
         result = MasterChannelGroup.addDSP(CHANNELCONTROL_DSP_INDEX.HEAD, PitchshiftDSP);
+<<<<<<< HEAD
         Error(result); 
+=======
+        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        result = SFXChannelGroup.addDSP(CHANNELCONTROL_DSP_INDEX.HEAD, PitchshiftDSP);
+        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        result = BGMChannelGroup.addDSP(CHANNELCONTROL_DSP_INDEX.HEAD, PitchshiftDSP);
+        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        result = BattleSoundChannelGroup.addDSP(CHANNELCONTROL_DSP_INDEX.HEAD, PitchshiftDSP);
+        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        result = EventSoundChannelGroup.addDSP(CHANNELCONTROL_DSP_INDEX.HEAD, PitchshiftDSP);
+        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        result = EnvironmentSoundChannelGroup.addDSP(CHANNELCONTROL_DSP_INDEX.HEAD, PitchshiftDSP);
+        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+>>>>>>> Let's merge into develop
 
         //@ Sound 초기설정 part입니다.
 
@@ -202,11 +213,6 @@ public class SoundManager : Singleton<SoundManager>
             PrintInfo();
         }
         
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            system.playSound(soundDict["LaserSample1.wav"], MasterChannelGroup, true, out channelArr[0]);
-            channelArr[0].setPaused(false);
-        }
     }
 
     /// <summary>
@@ -412,6 +418,7 @@ public class SoundManager : Singleton<SoundManager>
     public void SetPitch(string audioName, float playPitch)
     {
         Debug.Log("SetPitch debug M");
+<<<<<<< HEAD
         // foreach (var c in FindChannelOfSound(audioName))
         // {
             // result = c.addDSP(0, PitchshiftDSP);
@@ -456,6 +463,41 @@ public class SoundManager : Singleton<SoundManager>
         result = DSPTemp.setParameterFloat(0, playPitch);
         Error(result); 
 
+=======
+        foreach (var c in FindChannelOfSound(audioName))
+        {
+            result = c.addDSP(0, PitchshiftDSP);
+            if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+            result = c.getDSPIndex(PitchshiftDSP, out int DSPIndex);
+            if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+            result = c.getDSP(DSPIndex, out DSPTemp);
+            if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+            result = DSPTemp.getNumParameters(out int numdsp);
+            if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+            result = DSPTemp.getInfo(out string name, out uint version, out int chan, out int cofi, out int cofig);
+            if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+
+
+            result = DSPTemp.setParameterFloat(0, playPitch);
+            if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        }
+    }
+    
+    /// <summary>
+    /// 해당 소리의 높낮이를 조절합니다.
+    /// </summary>
+    /// <param name="audioName">대상 audioFile 이름</param>
+    /// <param name="playPitch">원하는 Pitch in Range[0.5~2]</param>
+    public void SetPitch(ChannelGroup channelGroup, float playPitch)
+    {
+        Debug.Log("SetPitch channelGroup debug M");
+        result = channelGroup.getDSPIndex(PitchshiftDSP, out int dspIndex);
+        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        result = channelGroup.getDSP(dspIndex, out DSPTemp);
+        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        result = DSPTemp.setParameterFloat(0, playPitch);
+        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+>>>>>>> Let's merge into develop
     }
     
     /// <summary>
@@ -467,9 +509,21 @@ public class SoundManager : Singleton<SoundManager>
     {
         foreach (var c in FindChannelOfSound(audioName))
         {
-            // SetPitch(audioName, 44100/playSpeed);
-            c.setFrequency(playSpeed);
+            SetPitch(audioName, 1/playSpeed);
+            c.setFrequency(44100*playSpeed);
         }
+    }
+
+    /// <summary>
+    /// 해당 소리의 속도를 조절합니다.
+    /// </summary>
+    /// <param name="audioName">대상 audioFile 이름</param>
+    /// <param name="playSpeed">상대 배율값입니다. Default : 1, Range[0.01~100]</param>
+    public void SetSpeed(ChannelGroup channelGroup, float playSpeed)
+    {
+        SetPitch(channelGroup, 1/playSpeed);
+        // channelGroup에는 setFrequency가 없네요?;;
+        // channelGroup.setFrequency(44100*playSpeed);
     }
 
     /// <summary>
