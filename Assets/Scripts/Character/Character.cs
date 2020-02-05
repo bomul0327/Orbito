@@ -19,6 +19,8 @@ public class Character : FieldObject
         private set;
     }
 
+    public StateMachine CharacterStateMachine = new StateMachine();
+
     public int CurrentHP;
 
     public int MaxHP;

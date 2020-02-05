@@ -46,14 +46,31 @@ public class CharacterBehaviour
     /// planetPos를 중심으로 MoveSpeed를 각속도로 변환한 속도로 공전
     /// </summary>
     /// <param name="planetPos"></param> character가 공전하는 행성의 위치
-    public void Revolve(Vector3 planetPos)
+    /// <param name="isClockwise"></param> character의 공전 방향
+    public void Revolve(Vector3 planetPos, bool isClockwise)
     {
-        float deg = (character.MoveSpeed / Vector3.Distance(planetPos, charTransform.position)) * Mathf.Rad2Deg * Time.deltaTime;
+        // player가 바라보는 방향 설정
+        var dir = Vector2.Perpendicular(planetPos - charTransform.position).normalized;
+        if (!isClockwise) dir = -dir;
 
-        var antiClockwiseDir = Vector2.Perpendicular(charTransform.position - planetPos).normalized;
-        if (Vector2.Dot(antiClockwiseDir, charTransform.up) > 0) deg = -deg;
+        float angle = Mathf.Acos(dir.y) * Mathf.Rad2Deg;
+        if (dir.x > 0) angle *= -1;
+        charTransform.localRotation = Quaternion.Euler(0, 0, angle);
 
-        charTransform.RotateAround(planetPos, -Vector3.forward, deg);
+        // 공전
+        float radius = Vector3.Distance(planetPos, charTransform.position);
+        float deltaAngle = (character.MoveSpeed / radius) * Time.deltaTime;
+        float rotAngle = Mathf.Acos((charTransform.position - planetPos).normalized.x);
+
+        if (charTransform.position.y < planetPos.y) rotAngle = -rotAngle;
+        if (isClockwise) deltaAngle = -deltaAngle;
+
+        rotAngle += deltaAngle;
+        float cos = Mathf.Cos(rotAngle);
+        float sin = Mathf.Sin(rotAngle);
+        Vector3 direction = new Vector2(cos, sin);
+        Vector3 position = direction * radius;
+        charTransform.position = position + planetPos;
     }
 
     public void Attack()

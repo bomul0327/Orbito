@@ -7,6 +7,7 @@ public class RevolveState : IState, IUpdatable
     private Character character;
 
     private Planet targetPlanet;
+    private bool isClockwise;
 
     public RevolveState(Character character, Planet targetPlanet)
     {
@@ -16,7 +17,8 @@ public class RevolveState : IState, IUpdatable
 
     void IState.OnEnter(IState prevState)
     {
-        
+        var antiClockwiseDir = Vector2.Perpendicular(targetPlanet.transform.position - character.transform.position).normalized;
+        isClockwise = Vector2.Dot(antiClockwiseDir, character.transform.up) > 0;
     }
 
     void IState.OnExit(IState nextState)
@@ -26,6 +28,6 @@ public class RevolveState : IState, IUpdatable
 
     void IUpdatable.OnUpdate(float dt)
     {
-        character.Behaviour.Revolve(targetPlanet.transform.position);
+        character.Behaviour.Revolve(targetPlanet.transform.position, isClockwise);
     }
 }

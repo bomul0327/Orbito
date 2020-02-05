@@ -19,7 +19,9 @@ public class RevolveCommand : ICommand
 
     public void Execute()
     {
-        character.Behaviour.Revolve(planetPos);
+        var antiClockwiseDir = Vector2.Perpendicular(planetPos - character.transform.position).normalized;
+        bool isClockwise = Vector2.Dot(antiClockwiseDir, character.transform.up) > 0;
+        character.Behaviour.Revolve(planetPos, isClockwise);
     }
     public void Dispose()
     {
