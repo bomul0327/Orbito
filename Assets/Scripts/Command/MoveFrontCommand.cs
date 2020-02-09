@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Character character ÇÊ¿ä
+/// Character character ï¿½Ê¿ï¿½
 /// </summary>
 public class MoveFrontCommand : ICommand
 {
@@ -21,7 +21,7 @@ public class MoveFrontCommand : ICommand
     }
     public void Dispose()
     {
-        GC.SuppressFinalize(this);
+        character = null;
     }
 }
 

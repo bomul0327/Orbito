@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Character attacker, Character victim, int dmg ÇÊ¿ä
+/// Character attacker, Character victim, int dmg ï¿½Ê¿ï¿½
 /// </summary>
 public class AttackCommand : ICommand
 {
@@ -24,7 +24,8 @@ public class AttackCommand : ICommand
     }
     public void Dispose()
     {
-        GC.SuppressFinalize(this);
+        attacker = null;
+        victim = null;
     }
 }
 

@@ -23,7 +23,8 @@ public class RevolveState : IState, IUpdatable
 
     void IState.OnExit(IState nextState)
     {
-        
+        character = null;
+        targetPlanet = null;
     }
 
     void IUpdatable.OnUpdate(float dt)

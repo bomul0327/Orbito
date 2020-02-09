@@ -21,6 +21,7 @@ public class StateChangeCommand : ICommand
 
     public void Dispose()
     {
-        GC.SuppressFinalize(this);
+        stateMachine = null;
+        nextState = null;
     }
 }

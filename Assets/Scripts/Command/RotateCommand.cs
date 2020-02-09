@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Character character, Vector3 planetPos ÇÊ¿ä
+/// Character character, Vector3 planetPos ï¿½Ê¿ï¿½
 /// </summary>
 public class RotateCommand : ICommand
 {
@@ -23,7 +23,7 @@ public class RotateCommand : ICommand
     }
     public void Dispose()
     {
-        GC.SuppressFinalize(this);
+        character = null;
     }
 }
 

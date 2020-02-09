@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Character character, Vector3 dir ÇÊ¿ä
+/// Character character, Vector3 dir ï¿½Ê¿ï¿½
 /// </summary>
 public class AirBombCommand : ICommand
 {
@@ -23,7 +23,7 @@ public class AirBombCommand : ICommand
     }
     public void Dispose()
     {
-        GC.SuppressFinalize(this);
+        character = null;
     }
 }
 

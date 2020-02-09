@@ -17,7 +17,7 @@ public class DashState : IState, IUpdatable
 
     void IState.OnExit(IState nextState)
     {
-        
+        character = null;
     }
 
     void IUpdatable.OnUpdate(float dt)

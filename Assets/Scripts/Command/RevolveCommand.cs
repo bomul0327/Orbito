@@ -25,6 +25,6 @@ public class RevolveCommand : ICommand
     }
     public void Dispose()
     {
-        GC.SuppressFinalize(this);
+        character = null;
     }
 }
