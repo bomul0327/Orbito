@@ -7,6 +7,7 @@ using UnityEngine;
 /// </summary>
 public class Planet : FieldObject
 {
+    public float MoveSpeed = 10;
     public PlanetBehaviour Behaviour
     {
         get;
