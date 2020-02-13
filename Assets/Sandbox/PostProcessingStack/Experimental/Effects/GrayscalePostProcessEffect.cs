@@ -2,26 +2,25 @@
 
 namespace Experimental.PostProcessStack
 {
+    [CreateAssetMenu(fileName = "New GrayscaleEffect", menuName = "PostProcessing/New GrayScale Effect")]
     public class GrayscalePostProcessEffect : PostProcessEffectBase
     {
         [Range(0, 1)] public float amount;
 
         public override void Render(PostProcessContext context)
         {
-            if (IsDisabled())
-                return;
+            var sheet = context.Sheets.GetOrCreateSheet("Hidden/PostProcessing/Grayscale");
+            sheet.Material.SetFloat(Grayscale_Amount_ID, amount);
 
-            var sheet = context.Sheets.GetOrCreateSheet("PostProcessing/Grayscale");
-            sheet.Properties.SetFloat(Grayscale_Amount_ID, amount);
-            context.Command.BlitFullscreenTriangle(context.Source, context.Destination, 0, false, sheet);
+            Graphics.Blit(context.Source, context.Destination, sheet.Material);               
         }
 
-        public override bool IsDisabled()
+        public override bool IsEnabled()
         {
-            return amount == 0;
+            return amount > 0;
         }
 
         /// Shader Property IDs
         private static readonly int Grayscale_Amount_ID = Shader.PropertyToID("_Amount");
     }
-}
+} 

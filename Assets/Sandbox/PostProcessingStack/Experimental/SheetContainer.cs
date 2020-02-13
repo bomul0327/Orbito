@@ -27,7 +27,7 @@ namespace Experimental.PostProcessStack
             {
                 return sheet;
             }
-
+            
             //If sheet for the shader does not exist, create and add new one.
             var newMaterial = new Material(shader);
             newMaterial.hideFlags = HideFlags.DontSave;

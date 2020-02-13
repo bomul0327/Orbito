@@ -3,14 +3,13 @@ using UnityEngine.Rendering;
 
 namespace Experimental.PostProcessStack
 {
-    [RequireComponent(typeof(Camera))]
     [ExecuteInEditMode]
+    [RequireComponent(typeof(Camera))]
     public class PostProcessBrain : MonoBehaviour
     {
         [SerializeField] PostProcessProfile profile;
 
         private PostProcessContext currentContext;
-        private CommandBuffer postProcessingBuffer;
 
         private SheetContainer sheetContainer;
 
@@ -29,11 +28,7 @@ namespace Experimental.PostProcessStack
             Camera = GetComponent<Camera>();
             currentContext = new PostProcessContext();
             sheetContainer = new SheetContainer();
-            postProcessingBuffer = new CommandBuffer()
-            {
-                name = "Post Processing"
-            };
-            Camera.AddCommandBuffer(CameraEvent.AfterImageEffects, postProcessingBuffer);
+
             BuildContext();
         }
 
@@ -41,8 +36,6 @@ namespace Experimental.PostProcessStack
         {
             currentContext.Reset();
             sheetContainer = null;
-            Camera.RemoveCommandBuffer(CameraEvent.AfterImageEffects, postProcessingBuffer);
-            postProcessingBuffer.Release();
 
         }
 
@@ -56,60 +49,55 @@ namespace Experimental.PostProcessStack
 
         private void OnRenderImage(RenderTexture source, RenderTexture destination)
         {
-            Graphics.Blit(source, destination);
+            currentContext.Source = source;
+            currentContext.Destination = destination;
 
-
-
-        }
-        /// <summary>
-        /// FixMe
-        /// </summary>
-        private void OnPostRender()
-        {
-            //currentContext.Source = source;
-            //currentContext.Destination = destination;
-
-            postProcessingBuffer.GetTemporaryRT(cameraColorTextureID, Camera.pixelWidth, Camera.pixelHeight, 0);
-            postProcessingBuffer.GetTemporaryRT(cameraDepthTextureID, Camera.pixelWidth, Camera.pixelHeight, 24, FilterMode.Point, RenderTextureFormat.Depth);
-
-            //currentContext.Command.Blit(currentContext.Source, currentContext.Destination);
-            Graphics.ExecuteCommandBuffer(postProcessingBuffer);
-            Render();
-
-            postProcessingBuffer.Clear();
-            postProcessingBuffer.SetRenderTarget(
-                cameraColorTextureID, RenderBufferLoadAction.Load, RenderBufferStoreAction.Store,
-                cameraDepthTextureID, RenderBufferLoadAction.Load, RenderBufferStoreAction.Store
-            );
-
-            Graphics.ExecuteCommandBuffer(postProcessingBuffer);
-            postProcessingBuffer.Clear();
-
-            postProcessingBuffer.ReleaseTemporaryRT(cameraColorTextureID);
-            postProcessingBuffer.ReleaseTemporaryRT(cameraDepthTextureID);
+            RenderEffects();
         }
 
-        private void Render()
+
+
+        private void RenderEffects()
         {
             var effects = profile.EffectList;
 
-            foreach (var effect in effects)
+            //If there are no effects to render, just blit(source -> dest).
+            if (effects == null || effects.Count == 0)
             {
-                ProcessEffect(effect, currentContext);
+                Graphics.Blit(currentContext.Source, currentContext.Destination);
+                return;
+            }
+
+            //Render each effects and blit (dest -> source) for switching.
+            for (int i = 0; i < effects.Count; i++)
+            {
+                ProcessEffect(effects[i], currentContext);
+
+                //Note that we don't need to blit (dest -> source) for the last effect.
+                if (i < effects.Count - 1 && effects[i].IsEnabled())
+                {
+                    Graphics.Blit(currentContext.Destination, currentContext.Source);
+                }
             }
         }
 
+        /// <summary>
+        /// Build & set up PostProcessContext
+        /// </summary>
         private void BuildContext()
         {
             var context = currentContext;
             context.Reset();
-
+            
             context.Sheets = sheetContainer;
             context.Camera = Camera;
-            context.Command = postProcessingBuffer;
         }
 
-
+        /// <summary>
+        /// Process a effect
+        /// </summary>
+        /// <param name="effect"></param>
+        /// <param name="context"></param>
         private void ProcessEffect(PostProcessEffectBase effect, PostProcessContext context)
         {
             effect.Render(context);

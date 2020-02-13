@@ -11,24 +11,17 @@ namespace Experimental.PostProcessStack
             set;
         }
 
-        public RenderTargetIdentifier Source
+        public RenderTexture Source
         {
             get;
             set;
         }
 
-        public RenderTargetIdentifier Destination
+        public RenderTexture Destination
         {
             get;
             set;
         }
-
-        public CommandBuffer Command
-        {
-            get;
-            set;
-        }
-
 
         public SheetContainer Sheets
         {
@@ -40,10 +33,11 @@ namespace Experimental.PostProcessStack
         public void Reset()
         {
             Camera = null;
-            Source = 0;
-            Destination = 0;
+
+            Source = null;
+            Destination = null;
+
             Sheets = null;
-            Command = null;
 
         }
 

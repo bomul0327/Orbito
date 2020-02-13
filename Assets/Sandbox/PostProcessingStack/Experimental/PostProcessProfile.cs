@@ -4,8 +4,8 @@ using UnityEngine;
 
 namespace Experimental.PostProcessStack
 {
-    [System.Serializable]
-    public class PostProcessProfile
+    [CreateAssetMenu(fileName = "New PostProcessing Profile", menuName = "PostProcessing/New PostProcessing Profile")]
+    public class PostProcessProfile : ScriptableObject
     {
         [SerializeField] List<PostProcessEffectBase> effectList = new List<PostProcessEffectBase>();
 

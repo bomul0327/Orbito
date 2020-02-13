@@ -1,4 +1,4 @@
-﻿Shader "Hidden/PostProcessing/Grayscale"
+﻿Shader "Hidden/PostProcessing/ColorGrading"
 {
     Properties
     {
@@ -38,13 +38,12 @@
             }
 
             sampler2D _MainTex;
-            float _Amount;
+            float4 _TintColor;
 
             fixed4 frag (v2f i) : SV_Target
             {
                 fixed4 col = tex2D(_MainTex, i.uv);
-                float luminance = dot(col.rgb, float3(0.2126729, 0.7151522, 0.0721750));
-                col.rgb = lerp(col.rgb, luminance.xxx, _Amount.xxx);
+                col.rgb *= _TintColor;
                 return col;
             }
             ENDCG

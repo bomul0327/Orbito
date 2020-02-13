@@ -24,7 +24,7 @@ namespace Experimental.PostProcessStack
             Properties = new MaterialPropertyBlock();
 
         }
-
+            
         public void Release()
         {
             Properties.Clear();
