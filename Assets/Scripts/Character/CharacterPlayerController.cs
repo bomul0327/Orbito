@@ -14,10 +14,11 @@ public class CharacterPlayerController : CharacterControllerBase, IUpdatable
 
     public CharacterPlayerController(Character character)
     {
+        Debug.Log(character.name);
         this.character = character;
         UpdateManager.Instance.AddUpdatable(this);
         charStateMachine = this.character.CharacterStateMachine;
-        
+
         // 초기 상태 (직진)
         CommandDispatcher.Publish(CommandFactory.GetOrCreate<StateChangeCommand>(charStateMachine, new StraightMoveState(character)));
     }
@@ -68,6 +69,12 @@ public class CharacterPlayerController : CharacterControllerBase, IUpdatable
         else if (Input.GetButtonUp("Revolve"))
         {
             CommandDispatcher.Publish(CommandFactory.GetOrCreate<StateChangeCommand>(charStateMachine, new StraightMoveState(character)));
+        }
+
+        // FIXME: 예시용 코드입니다. BattleAction 사용하는 방법을 나타내기 위한 코드니깐, 저 부분 최대한 빨리 없애주시길 바랍니다.
+        if (Input.GetKeyDown(KeyCode.Z))
+        {
+            character.battleActionDict["NormalBattleAction"].Trigger();
         }
     }
 }

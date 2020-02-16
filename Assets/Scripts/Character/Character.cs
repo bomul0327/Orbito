@@ -35,6 +35,14 @@ public class Character : FieldObject
 
     public float MoveSpeed;
 
+    /// <summary>
+    /// 사용할 수 있는 배틀액션들
+    /// </summary>
+    /// <typeparam name="string">배틀 액션 이름</typeparam>
+    /// <typeparam name="ITriggerBattleAction">실제 사용하는 배틀 액션</typeparam>
+    /// <returns></returns>
+    public Dictionary<string, ITriggerBattleAction> battleActionDict = new Dictionary<string, ITriggerBattleAction>();
+
     private void Awake()
     {
         // Get Controller and Behaviour by something.
@@ -42,5 +50,8 @@ public class Character : FieldObject
         // 현재 JSON 데이터가 준비되어 있지 않기 때문에 Awake에서 바로 Controller와 Behaviour객체를 생성함.
         Controller = new CharacterPlayerController(this);
         Behaviour = new CharacterBehaviour(this);
+
+        // FIXME: 예시를 위해서 임시로 추가한 코드입니다.
+        battleActionDict.Add(typeof(NormalBattleAction).Name, new NormalBattleAction(this));
     }
 }
