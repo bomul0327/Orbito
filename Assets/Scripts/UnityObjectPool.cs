@@ -49,9 +49,7 @@ public class UnityObjectPool : MonoBehaviour
             instance.myPoolScaleType = PoolScaleType.Static;
             instance.myPoolReturnType = PoolReturnType.Manual;
             var targetObj = Resources.Load(assetFileName, typeof(GameObject)) as GameObject;
-            PooledUnityObject targetClone = Instantiate(targetObj).AddComponent<PooledUnityObject>();
-            instance.PooledObj = targetClone;
-            targetClone.SetActive(false);
+            instance.PooledObj = targetObj;
             instance.Allocate();
             poolDict.Add(assetFileName, instance);
         }
@@ -62,7 +60,7 @@ public class UnityObjectPool : MonoBehaviour
     public string AssetName { get; private set; }
 
     // 이 풀에서 Instantiate를 할 오브젝트
-    public PooledUnityObject PooledObj;
+    public GameObject PooledObj;
 
     // 풀링이 되고 있는 오브젝트를 관리할 리스트
     private Queue<PooledUnityObject> availablePool = new Queue<PooledUnityObject>();
@@ -114,7 +112,7 @@ public class UnityObjectPool : MonoBehaviour
         }
         else if((myPoolScaleType == PoolScaleType.Limited && PoolCapacity < MaxPoolCapacity) || myPoolScaleType == PoolScaleType.Unlimited)
         {
-            obj = Instantiate<PooledUnityObject>(PooledObj, transform);
+            obj = Instantiate(PooledObj, transform).AddComponent<PooledUnityObject>();
             obj.name = AssetName + poolCount.ToString();
             PoolCapacity++;
         }
@@ -153,7 +151,7 @@ public class UnityObjectPool : MonoBehaviour
     {
         for (int i = 0; i < PoolCapacity; ++i)
         {
-            PooledUnityObject obj = Instantiate<PooledUnityObject>(PooledObj, transform);
+            PooledUnityObject obj = Instantiate(PooledObj, transform).AddComponent<PooledUnityObject>();
             obj.name = AssetName + i.ToString();
             
             availablePool.Enqueue(obj);
