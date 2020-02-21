@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections;
 
 /// <summary>
 /// Camera Controller for 2D Topdown.
@@ -9,38 +10,57 @@ public class CameraController : MonoBehaviour
     /// Camera controlled by this controller.
     public Camera MainCamera { get; private set; }
 
-    [SerializeField] CameraControlSettings controlSettings;
-    public CameraControlSettings ControlSettings
-    {
-        set => controlSettings = value;
-    }
-
-    [SerializeField] CameraFollowSettings followSettings;
-    public CameraFollowSettings FollowSettings
-    {
-        set => followSettings = value;
-    }
-
-    [SerializeField] CameraZoomSettings zoomSettings;
-    public CameraZoomSettings ZoomSettings
-    {
-        set => zoomSettings = value;
-    }
+    [Header("Control Settings")]
 
     /// <summary>
-    /// Set/Get follow Target of controller.
+    /// z position of rig transform.
     /// </summary>
-    public Transform FollowTarget
-    {
-        get => followSettings.target;
-        set => followSettings.target = value;
-    }
+    public float z;
+
+    /// <summary>
+    /// Dutch angle of the camera. In 2D top down, it actually represents z axis of rotation.
+    /// </summary>
+    [Range(-180, 180)]
+    [SerializeField] float dutch;
 
     public float Dutch
     {
-        get => controlSettings.dutch;
-        set => controlSettings.dutch = value;
+        get => dutch;
+        set => dutch = value;
     }
+
+    /// <summary>
+    /// Orthographic size of camera.
+    /// </summary>
+    public float orthographicSize;
+
+    [Header("Follow Settings")]
+
+    public bool enableFollowTarget;
+
+    public Transform followTarget;
+    public Transform FollowTarget
+    {
+        get => followTarget;
+        set => followTarget = value;
+    }
+
+    public EaseType followEaseType;
+    public float maxFollowSpeed;
+
+    public Vector3 offset;
+
+
+    [Header("Zoom Settings")]
+    public bool enableZoomControl;
+
+    public EaseType zoomEaseType;
+    public float maxZoomDelta;
+
+
+    [Header("Shake Settings")]
+    public CameraShakeSettings shakeSettings;
+
 
     /// /////////////////// ///
     /// Internal Properties ///
@@ -48,22 +68,23 @@ public class CameraController : MonoBehaviour
     private Vector3 targetPosition;
     private Quaternion targetRot;
 
-    private float zoomTime = 0;
-    private float followTime = 0;
+    private Coroutine shakeCoroutine;
+
 
     private void Awake()
     {
         MainCamera = GetComponentInChildren<Camera>();
     }
+
     void Update()
     {
-        if (zoomSettings.enableZoomControl)
+        if (enableZoomControl)
             UpdateZoom();
     }
 
     void LateUpdate()
     {
-        if (followSettings.enableFollowTarget)
+        if (enableFollowTarget)
             UpdateTargetPosition();
 
         UpdatePosition();
@@ -71,21 +92,26 @@ public class CameraController : MonoBehaviour
     }
 
     /// <summary>
+    /// Start camera shake effect.
+    /// </summary>
+    public void StartShake()
+    {
+        if (shakeCoroutine != null)
+        {
+            StopCoroutine(shakeCoroutine);
+        }
+        shakeCoroutine = StartCoroutine(ShakeRoutine(shakeSettings));
+    }
+
+
+    /// <summary>
     /// Update orthographic size of camera.
     /// </summary>
     private void UpdateZoom()
     {
-        //Currently, it uses Unity Default 'Mouse ScrollWheel' Button in InputSetting.
-        float mouseWheelDelta = Input.GetAxis("Mouse ScrollWheel");
-        if (Mathf.Abs(mouseWheelDelta) > 0)
-        {
-            controlSettings.orthographicSize -= mouseWheelDelta;
-            zoomTime = 0;
-        }
-
         ///TODO: Need to use our custom easing effect instead of using Mathf.MoveTowards.
-        if (MainCamera.orthographicSize != controlSettings.orthographicSize)
-            MainCamera.orthographicSize = Mathf.MoveTowards(MainCamera.orthographicSize, controlSettings.orthographicSize, Time.deltaTime * zoomSettings.maxZoomDelta);
+        if (MainCamera.orthographicSize != orthographicSize)
+            MainCamera.orthographicSize = Mathf.MoveTowards(MainCamera.orthographicSize, orthographicSize, Time.deltaTime * maxZoomDelta);
 
     }
 
@@ -94,14 +120,13 @@ public class CameraController : MonoBehaviour
     /// </summary>
     private void UpdateTargetPosition()
     {
-        if (followSettings.target == null)
+        if (followTarget == null)
         {
             Debug.LogError("Follow target is null.");
-            followSettings.enableFollowTarget = false;
             return;
         }
 
-        targetPosition = followSettings.target.position + followSettings.offset;
+        targetPosition = followTarget.position + offset;
     }
 
     /// <summary>
@@ -110,8 +135,8 @@ public class CameraController : MonoBehaviour
     private void UpdatePosition()
     {
         ///TODO: Need to use our custom easing effect instead of using Mathf.MoveTowards.
-        Vector3 newPosition = Vector2.MoveTowards(transform.position, targetPosition, followSettings.maxFollowSpeed * Time.deltaTime);
-        newPosition.z = controlSettings.z;
+        Vector3 newPosition = Vector2.MoveTowards(transform.position, targetPosition, maxFollowSpeed * Time.deltaTime);
+        newPosition.z = z;
         transform.position = newPosition;
     }
 
@@ -122,13 +147,43 @@ public class CameraController : MonoBehaviour
     /// </summary>
     private void UpdateRotation()
     {
-        MainCamera.transform.localRotation = Quaternion.Euler(0, 0, controlSettings.dutch);
+        MainCamera.transform.localRotation = Quaternion.Euler(0, 0, dutch);
     }
 
-    private static float Clamp180(float value)
+    /// <summary>
+    /// Coroutine for Camera Shake Animation
+    /// </summary>
+    /// <param name="setting"></param>
+    /// <returns></returns>
+    IEnumerator ShakeRoutine(CameraShakeSettings setting)
     {
+        float time = 0;
+        float duration = setting.duration;
+
+        Transform camTransform = MainCamera.transform;
+
+        while (time < setting.duration)
+        {
+            Vector3 shakeValues = setting.GetShakeValues(time);
+
+            camTransform.localPosition = (Vector2)shakeValues;
+            Dutch = shakeValues.z;
+
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        camTransform.localPosition = Vector3.zero;
+        Dutch = dutch;
+
+        shakeCoroutine = null;
+    }
+
+
+    private static float Clamp180(float value)
+    {   
         if (value > 180)
-            return value - 360;
+            return value -  360;
         if (value < -180)
             return 360 + value;
         return value;

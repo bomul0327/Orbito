@@ -308,7 +308,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 335958318}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.65, z: 0}
+  m_LocalPosition: {x: 2.02, y: 0.83, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1577961902}
@@ -468,7 +468,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -854,20 +854,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f47ef7f195d4264cbe60489c466ca63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  controlSettings:
-    z: -10
-    dutch: 0
-    orthographicSize: 25
-  followSettings:
-    enableFollowTarget: 1
-    target: {fileID: 335958320}
-    followEaseType: 0
-    maxFollowSpeed: 12
-    offset: {x: 0, y: 0, z: 0}
-  zoomSettings:
-    enableZoomControl: 1
-    zoomEaseType: 0
-    maxZoomDelta: 8
+  z: -10
+  dutch: 0
+  orthographicSize: 20
+  enableFollowTarget: 1
+  followTarget: {fileID: 335958320}
+  followEaseType: 0
+  maxFollowSpeed: 20
+  offset: {x: 0, y: 0, z: 0}
+  enableZoomControl: 1
+  zoomEaseType: 0
+  maxZoomDelta: 10
+  shakeSettings: {fileID: 11400000, guid: 4a991e6c9aa7b364bb690ac0a42992c7, type: 2}
 --- !u!1 &1865711368
 GameObject:
   m_ObjectHideFlags: 0

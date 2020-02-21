@@ -21,6 +21,21 @@ namespace Experimental
             {
                transform.position = CameraUtils.MouseToWorldPos(camController.MainCamera, Input.mousePosition);
             }
+
+            float mouseWheelDelta = Input.GetAxis("Mouse ScrollWheel");
+            if (Mathf.Abs(mouseWheelDelta) > 0)
+            {
+                camController.orthographicSize -= mouseWheelDelta;
+            }
+
+
+
+            if (Input.GetButton("Jump"))
+            {
+                camController.StartShake();
+            }
+
+           
         }
     }
 }
