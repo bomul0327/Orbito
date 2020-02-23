@@ -16,18 +16,18 @@ public class StateMachine : IDisposable
             return;
         }
 
-        CurrentState.OnExit(nextState);
-
-        if ( CurrentState is IUpdatable )
+        if (CurrentState is IUpdatable)
         {
-            UpdateManager.Instance.RemoveUpdatable( (IUpdatable) CurrentState);
+            UpdateManager.Instance.RemoveUpdatable((IUpdatable)CurrentState);
         }
+
+        CurrentState.OnExit(nextState);
 
         nextState.OnEnter(CurrentState);
 
-        if ( nextState is IUpdatable )
+        if (nextState is IUpdatable)
         {
-            UpdateManager.Instance.AddUpdatable( (IUpdatable) nextState);
+            UpdateManager.Instance.AddUpdatable((IUpdatable)nextState);
         }
 
         CurrentState = nextState;
