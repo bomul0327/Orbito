@@ -14,13 +14,15 @@ public class CharacterPlayerController : CharacterControllerBase, IUpdatable
 
     public CharacterPlayerController(Character character)
     {
-        Debug.Log(character.name);
         this.character = character;
         UpdateManager.Instance.AddUpdatable(this);
         charStateMachine = this.character.CharacterStateMachine;
 
         // 초기 상태 (직진)
-        CommandDispatcher.Publish(CommandFactory.GetOrCreate<StateChangeCommand>(charStateMachine, new StraightMoveState(character)));
+        using (var cmd = CommandFactory.GetOrCreate<StateChangeCommand>(charStateMachine, new StraightMoveState(character)))
+        {
+            CommandDispatcher.Publish(cmd);
+        }
     }
 
     ~CharacterPlayerController()
@@ -41,7 +43,6 @@ public class CharacterPlayerController : CharacterControllerBase, IUpdatable
             float minDis = Mathf.Infinity;
             foreach (GameObject planet in planetArray)
             {
-                Debug.Log(planet);
                 float t = Vector3.Distance(character.transform.position, planet.transform.position);
                 // TODO : 공전 반경 안인지 확인
                 if (minDis > t)
@@ -59,20 +60,28 @@ public class CharacterPlayerController : CharacterControllerBase, IUpdatable
             if (minDistancePlanet)
             {
                 prevPlanet = minDistancePlanet;
-                CommandDispatcher.Publish(CommandFactory.GetOrCreate<StateChangeCommand>(charStateMachine, new RevolveState(character, minDistancePlanet)));
+                using (var cmd = CommandFactory.GetOrCreate<StateChangeCommand>(charStateMachine, new RevolveState(character, minDistancePlanet)))
+                {
+                    CommandDispatcher.Publish(cmd);
+                }
             }
             else if (prevPlanet)
             {
-                CommandDispatcher.Publish(CommandFactory.GetOrCreate<StateChangeCommand>(charStateMachine, new RevolveState(character, prevPlanet)));
+                using (var cmd = CommandFactory.GetOrCreate<StateChangeCommand>(charStateMachine, new RevolveState(character, prevPlanet)))
+                {
+                    CommandDispatcher.Publish(cmd);
+                }
             }
         }
         else if (Input.GetButtonUp("Revolve"))
         {
-            CommandDispatcher.Publish(CommandFactory.GetOrCreate<StateChangeCommand>(charStateMachine, new StraightMoveState(character)));
+            using (var cmd = CommandFactory.GetOrCreate<StateChangeCommand>(charStateMachine, new StraightMoveState(character)))
+            {
+                CommandDispatcher.Publish(cmd);
+            }
         }
 
-        // FIXME: 예시용 코드입니다. BattleAction 사용하는 방법을 나타내기 위한 코드니깐, 저 부분 최대한 빨리 없애주시길 바랍니다.
-        if (Input.GetKeyDown(KeyCode.Z))
+        if (Input.GetButtonDown("Fire1"))
         {
             character.battleActionDict["NormalBattleAction"].Trigger();
         }

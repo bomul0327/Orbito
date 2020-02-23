@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 예시로 만들어놓은 배틀액션
+/// 일직선으로 총알이 나가는 공격
 /// </summary>
 public class NormalBattleAction : ITriggerBattleAction
 {
@@ -20,7 +20,14 @@ public class NormalBattleAction : ITriggerBattleAction
     }
     void ITriggerBattleAction.Start()
     {
-        Debug.Log("Start");
+        if (character.gameObject.activeSelf == false)
+        {
+            return;
+        }
+
+        var bulletObjectPool = UnityObjectPool.GetOrCreate("Bullet");
+        bulletObjectPool.SetOption(PoolScaleType.Unlimited, PoolReturnType.Manual);
+        bulletObjectPool.Instantiate(character.transform.position, character.transform.rotation);
     }
 
     bool ITriggerBattleAction.Trigger()
