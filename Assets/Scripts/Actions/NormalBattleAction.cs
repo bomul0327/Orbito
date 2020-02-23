@@ -20,11 +20,6 @@ public class NormalBattleAction : ITriggerBattleAction
     }
     void ITriggerBattleAction.Start()
     {
-        if (character.gameObject.activeSelf == false)
-        {
-            return;
-        }
-
         var bulletObjectPool = UnityObjectPool.GetOrCreate("Bullet");
         bulletObjectPool.SetOption(PoolScaleType.Unlimited, PoolReturnType.Manual);
         bulletObjectPool.Instantiate(character.transform.position, character.transform.rotation);
@@ -32,6 +27,11 @@ public class NormalBattleAction : ITriggerBattleAction
 
     bool ITriggerBattleAction.Trigger()
     {
+        if (character.gameObject.activeSelf == false)
+        {
+            return false;
+        }
+
         using (var cmd = CommandFactory.GetOrCreate<TriggerBattleActionCommand>(character, this))
         {
             CommandDispatcher.Publish(cmd);
