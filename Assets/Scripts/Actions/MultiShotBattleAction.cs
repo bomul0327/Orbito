@@ -36,6 +36,16 @@ public class MultiShotBattleAction : ITriggerBattleAction
         set;
     }
 
+    bool ITriggerBattleAction.IsActive { get; }
+
+    bool ITriggerBattleAction.IsPassive { get; }
+
+    int ITriggerBattleAction.Level { get; }
+
+    bool ITriggerBattleAction.IsAvailable { get; }
+
+    bool ITriggerBattleAction.IsLoaded { get; }
+
     private float lastFireSuccessTime;
 
     private string bulletPrefabName = "MultiShotBullet";
@@ -71,14 +81,14 @@ public class MultiShotBattleAction : ITriggerBattleAction
 
         for (int i = 0; i < BulletCountPerShot; i++)
         {
-            var bulletInitPosition = basePosition + new Vector3(0,0,0);
+            var bulletInitPosition = basePosition + new Vector3(0, 0, 0);
             var bulletInitRotation = baseRotation * Quaternion.Euler(0, 0, initAngle - angleDelta * i);
 
             var bulletObject = bulletPool.Instantiate(bulletInitPosition, bulletInitRotation).gameObject;
 
             // FIXME: JSON 시스템이 준비되면 JSON 데이터에서 받아올 것.
             // 지금은 테스트를 위해 여기에서 Projectile의 변수를 바로 설정함.
-            
+
             // FIXME2: Projectile 컴포넌트의 변수값을 설정해주기 위해 모든 총탄 객체에 대해서
             // GetComponent를 사용하는 것이 썩 좋아보이지는 않음.
             // 총탄별로 다른 변수값을 가진다면 모르지만, 그것도 아님.

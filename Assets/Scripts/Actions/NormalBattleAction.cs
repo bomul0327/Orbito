@@ -14,6 +14,16 @@ public class NormalBattleAction : ITriggerBattleAction
         this.character = character;
     }
 
+    bool ITriggerBattleAction.IsActive { get; }
+
+    bool ITriggerBattleAction.IsPassive { get; }
+
+    int ITriggerBattleAction.Level { get; }
+
+    bool ITriggerBattleAction.IsAvailable { get; }
+
+    bool ITriggerBattleAction.IsLoaded { get; }
+
     void ITriggerBattleAction.Cancel()
     {
         Debug.Log("Canceled");
