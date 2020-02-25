@@ -9,9 +9,13 @@ public class NormalBattleAction : ITriggerBattleAction
 {
     Character character;
 
-    public NormalBattleAction(Character character)
+    /// <summary>
+    /// 발사 주기.
+    /// </summary>
+    public float FireRate
     {
-        this.character = character;
+        get;
+        set;
     }
 
     bool ITriggerBattleAction.IsActive { get; }
@@ -24,23 +28,48 @@ public class NormalBattleAction : ITriggerBattleAction
 
     bool ITriggerBattleAction.IsLoaded { get; }
 
+    private float lastFireSuccessTime;
+
+    private string bulletPrefabName = "SingleShotBullet";
+
+    public NormalBattleAction(Character character)
+    {
+        this.character = character;
+
+        // FIXME: JSON 시스템이 준비되면 JSON 데이터에서 받아올 것
+        FireRate = 0.2f;
+        lastFireSuccessTime = -1;
+    }
+
     void ITriggerBattleAction.Cancel()
     {
-        Debug.Log("Canceled");
+        
     }
     void ITriggerBattleAction.Start()
     {
-        var bulletObjectPool = UnityObjectPool.GetOrCreate("Bullet");
+        var bulletObjectPool = UnityObjectPool.GetOrCreate(bulletPrefabName);
         bulletObjectPool.SetOption(PoolScaleType.Unlimited, PoolReturnType.Manual);
-        bulletObjectPool.Instantiate(character.transform.position, character.transform.rotation);
+
+        var bulletObject = bulletObjectPool.Instantiate(character.transform.position, character.transform.rotation).gameObject;
+
+        // FIXME: JSON 시스템이 준비되면 JSON 데이터에서 받아올 것
+        var bulletComponent = bulletObject.GetComponent<Bullet>();
+        bulletComponent.Speed = 50;
+        bulletComponent.MaxDistance = 50;
+
     }
 
     bool ITriggerBattleAction.Trigger()
     {
-        if (character.gameObject.activeSelf == false)
+        float elapsedTime = Time.time - lastFireSuccessTime;
+
+        // 발사주기보다 더 많은 시간이 지나야 다시 발사 가능
+        if (elapsedTime < FireRate)
         {
             return false;
         }
+
+        lastFireSuccessTime = Time.time;
 
         using (var cmd = CommandFactory.GetOrCreate<TriggerBattleActionCommand>(character, this))
         {
