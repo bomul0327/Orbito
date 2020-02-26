@@ -43,6 +43,18 @@ public class CharacterBehaviour
     }
 
     /// <summary>
+    /// 현재 선택된 무기를 slotIndex에 위치한 무기로 변경.
+    /// </summary>
+    /// <param name="slotIndex">변경 대상 무기의 슬롯 번호(zero-based).</param>
+    public void ChangeWeapon(int slotIndex)
+    {
+        var newSelectedWeapon = character.weaponSlot[slotIndex];
+        if (newSelectedWeapon == null || newSelectedWeapon == character.selectedWeapon) return;
+
+        character.selectedWeapon = newSelectedWeapon;
+    }
+
+    /// <summary>
     /// planetPos를 중심으로 MoveSpeed를 각속도로 변환한 속도로 공전
     /// </summary>
     /// <param name="planetPos"></param> character가 공전하는 행성의 위치

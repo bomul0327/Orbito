@@ -43,6 +43,21 @@ public class Character : FieldObject
     /// <returns></returns>
     public Dictionary<string, ITriggerBattleAction> battleActionDict = new Dictionary<string, ITriggerBattleAction>();
 
+    /// <summary>
+    /// Weapon 및 NonWeapon 슬롯.
+    /// </summary>
+    public Equipment[] weaponSlot = new Equipment[InitialWeaponSlotCount];
+    public Equipment[] nonWeaponSlot = new Equipment[InitialNonWeaponSlotCount];
+
+
+    public static readonly int InitialWeaponSlotCount = 4;
+    public static readonly int InitialNonWeaponSlotCount = 4;
+
+    /// <summary>
+    /// 현재 사용중인 Wepon타입 장비.
+    /// </summary>
+    public Equipment selectedWeapon;
+
     private void Awake()
     {
         // Get Controller and Behaviour by something.
@@ -53,6 +68,26 @@ public class Character : FieldObject
 
         // FIXME: 예시를 위해서 임시로 추가한 코드입니다.
         battleActionDict.Add(typeof(NormalBattleAction).Name, new NormalBattleAction(this));
-        battleActionDict.Add(typeof(MultiShotBattleAction).Name, new MultiShotBattleAction(this));   
+        battleActionDict.Add(typeof(MultiShotBattleAction).Name, new MultiShotBattleAction(this));
+
+        //임시로 여기에서 Weapon 타입의 Equipment를 생성.
+        weaponSlot[0] = new Equipment("Normal Shooter", Equipment.EquipmentType.Weapon, battleActionDict["NormalBattleAction"]);
+        weaponSlot[1] = new Equipment("Power Shooter", Equipment.EquipmentType.Weapon, battleActionDict["MultiShotBattleAction"]);
+
+        //임시로 여기에서 NonWeapon 타입의 Equipment를 생성.
+        var normalShieldBattleAction = new HPStatusBattleAction(this, 50, HPStatusBattleAction.ModifyMethod.Fixed, true);
+        var powerShieldBattleAction = new HPStatusBattleAction(this, 50, HPStatusBattleAction.ModifyMethod.Rate, true);
+
+        nonWeaponSlot[0] = new Equipment("Normal Shield", Equipment.EquipmentType.NonWeapon, normalShieldBattleAction);
+        nonWeaponSlot[1] = new Equipment("Super Shield", Equipment.EquipmentType.NonWeapon, powerShieldBattleAction);
+
+        //임시로 여기에서 NonWeapon 타입의 Equipment를 Trigger.
+        foreach (var nonWeapon in nonWeaponSlot)
+        {
+            if (nonWeapon == null) return;
+            nonWeapon.Trigger();
+        }
+
     }
+
 }
