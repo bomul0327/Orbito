@@ -4,5 +4,13 @@ using UnityEngine;
 
 public class GimmickBehaviour
 {
+    public GimmickBehaviour()
+    {
 
+    }
+
+    public void IncreaseResource()
+    {
+
+    }
 }

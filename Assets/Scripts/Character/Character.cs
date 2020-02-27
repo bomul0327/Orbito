@@ -19,6 +19,12 @@ public class Character : FieldObject
         private set;
     }
 
+    public GimmickBehaviour gimmickBehaviour
+    {
+        get;
+        private set;
+    }
+
     public StateMachine CharacterStateMachine = new StateMachine();
 
     public int CurrentHP;
@@ -50,6 +56,7 @@ public class Character : FieldObject
         // 현재 JSON 데이터가 준비되어 있지 않기 때문에 Awake에서 바로 Controller와 Behaviour객체를 생성함.
         Controller = new CharacterPlayerController(this);
         Behaviour = new CharacterBehaviour(this);
+        gimmickBehaviour = new GimmickBehaviour(this);
 
         // FIXME: 예시를 위해서 임시로 추가한 코드입니다.
         battleActionDict.Add(typeof(NormalBattleAction).Name, new NormalBattleAction(this));
