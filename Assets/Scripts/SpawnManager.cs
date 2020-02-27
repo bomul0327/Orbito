@@ -12,7 +12,7 @@ public class SpawnManager : Singleton<SpawnManager>
 
     private void Awake()
     {
-        SpawnPlayer();
+        //SpawnPlayer();
         SpawnPlanets(planetSpawnCount, spawnRange);
     }
 
@@ -20,7 +20,6 @@ public class SpawnManager : Singleton<SpawnManager>
     {
         var playerObjectPool = UnityObjectPool.GetOrCreate("Player");
         playerObjectPool.SetOption(PoolScaleType.Static, PoolReturnType.Manual);
-
         SpawnAt("Player", Vector2.zero, Quaternion.identity);
     }
 
