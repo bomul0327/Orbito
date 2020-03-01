@@ -30,7 +30,7 @@ public class NormalBattleAction : ITriggerBattleAction
 
     private float lastFireSuccessTime;
 
-    private string bulletPrefabName = "SingleShotBullet";
+    private string bulletPrefabName = "MultiShotBullet";
 
     public NormalBattleAction(Character character)
     {
@@ -53,7 +53,7 @@ public class NormalBattleAction : ITriggerBattleAction
         var bulletObject = bulletObjectPool.Instantiate(character.transform.position, character.transform.rotation).gameObject;
 
         // FIXME: JSON 시스템이 준비되면 JSON 데이터에서 받아올 것
-        var bulletComponent = bulletObject.GetComponent<Bullet>();
+        var bulletComponent = bulletObject.GetComponent<Projectile>();
         bulletComponent.Speed = 50;
         bulletComponent.MaxDistance = 50;
 
