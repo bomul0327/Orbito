@@ -13,6 +13,21 @@ public class UpdateManager : Singleton<UpdateManager>
 
     private List<ILateUpdatable> lateList = new List<ILateUpdatable>();
 
+    void Awake()
+    {
+        DontDestroyOnLoad(this.gameObject);
+    }
+
+    void OnDisable()
+    {
+        updatableList.Clear();
+        fixedList.Clear();
+        lateList.Clear();
+
+        updatableList = null;
+        fixedList = null;
+        lateList = null;
+    }
 
     private void Update()
     {
