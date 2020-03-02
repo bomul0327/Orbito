@@ -43,12 +43,12 @@ public class SoundManager : Singleton<SoundManager>
         //@ System 초기설정 part입니다.
 
         result = Factory.System_Create(out system);
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        Error(result); 
         
         // 현재 MaxChannel 개수는 임의로 넣었습니다. 아직 도입 과정이라 channel이 몇개 필요할지 모르겠네요.
         // 나머지는 기본값입니다.
         result = system.init(maxChannelNum, INITFLAGS.VOL0_BECOMES_VIRTUAL | INITFLAGS.PROFILE_METER_ALL, System.IntPtr.Zero);
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        Error(result); 
 
         ADVANCEDSETTINGS advancedSetting = new ADVANCEDSETTINGS();
         advancedSetting.profilePort = 9264;
@@ -57,50 +57,50 @@ public class SoundManager : Singleton<SoundManager>
 
         //@ Channel 초기설정 part입니다.
         result = system.getMasterChannelGroup(out MasterChannelGroup);
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        Error(result); 
 
         result = system.createChannelGroup("SFX", out SFXChannelGroup);
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        Error(result); 
 
         result = system.createChannelGroup("BattleSound", out BattleSoundChannelGroup);
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        Error(result); 
 
         result = system.createChannelGroup("EventSound", out EventSoundChannelGroup);
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        Error(result); 
 
         result = system.createChannelGroup("EnvironmentSound", out EnvironmentSoundChannelGroup);
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        Error(result); 
 
         result = system.createChannelGroup("BGM", out BGMChannelGroup);
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        Error(result); 
 
         result = MasterChannelGroup.addGroup(SFXChannelGroup);
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        Error(result); 
 
         result = MasterChannelGroup.addGroup(BGMChannelGroup);
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        Error(result); 
 
         result = SFXChannelGroup.addGroup(BattleSoundChannelGroup);
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        Error(result); 
 
         result = SFXChannelGroup.addGroup(EventSoundChannelGroup);
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        Error(result); 
 
         result = SFXChannelGroup.addGroup(EnvironmentSoundChannelGroup);
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        Error(result); 
 
         for (int i = 0 ; i < maxChannelNum; i++)
         {
             result = system.getChannel(i, out channelArr[i]);
-            if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+            Error(result); 
         }
 
         //@ DSP 초기설정 part입니다.
         result = system.createDSPByType(DSP_TYPE.PITCHSHIFT, out PitchshiftDSP);
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        Error(result); 
 
         result = MasterChannelGroup.addDSP(CHANNELCONTROL_DSP_INDEX.HEAD, PitchshiftDSP);
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        Error(result); 
 
         //@ Sound 초기설정 part입니다.
 
@@ -110,23 +110,23 @@ public class SoundManager : Singleton<SoundManager>
         foreach (var s in soundDict)
         {
             result = s.Value.release();
-            if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+            Error(result); 
         }
 
         result = MasterChannelGroup.release();
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        Error(result); 
         result = SFXChannelGroup.release();
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        Error(result); 
         result = BattleSoundChannelGroup.release();
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        Error(result); 
         result = EventSoundChannelGroup.release();
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        Error(result); 
         result = EnvironmentSoundChannelGroup.release();
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        Error(result); 
         result = system.close();
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        Error(result); 
         result = system.release();
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        Error(result); 
     }
 
     /// <summary>
@@ -244,22 +244,22 @@ public class SoundManager : Singleton<SoundManager>
                 case SFXEnum.BattleSound :
                     Debug.Log("ChannelIndex = "+channelIndex);
                     result = system.playSound(soundDict[audioName], BattleSoundChannelGroup, true, out channelArr[channelIndex]);
-                    if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+                    Error(result); 
                     break;
                 case SFXEnum.EventSound :
                     Debug.Log("ChannelIndex = "+channelIndex);
                     result = system.playSound(soundDict[audioName], EventSoundChannelGroup, true, out channelArr[channelIndex]);
-                    if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+                    Error(result); 
                     break;
                 case SFXEnum.EnvironmentSound :
                     Debug.Log("ChannelIndex = "+channelIndex);
                     result = system.playSound(soundDict[audioName], EnvironmentSoundChannelGroup, true, out channelArr[channelIndex]);
-                    if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+                    Error(result); 
                     break;
                 case SFXEnum.SFX :
                     Debug.Log("ChannelIndex = "+channelIndex);
                     result = system.playSound(soundDict[audioName], SFXChannelGroup, true, out channelArr[channelIndex]);
-                    if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+                    Error(result); 
                     break;
                     
             }
@@ -269,7 +269,7 @@ public class SoundManager : Singleton<SoundManager>
             // SetSpeed(audioName, playSpeed);
             
             result = channelArr[channelIndex].setPaused(false);
-            if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+            Error(result); 
         }
     }
 
@@ -282,7 +282,7 @@ public class SoundManager : Singleton<SoundManager>
         Load(audioName, false);
         // Todo : Fade in Fade out 기능이 추가되어야 합니다.
         result = system.playSound(soundDict[audioName], BGMChannelGroup, true, out channelArr[BGMChannelIndex]);
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        Error(result); 
 
         if (!currentBGMName.Equals("null"))
         {
@@ -314,7 +314,7 @@ public class SoundManager : Singleton<SoundManager>
         foreach (var c in FindChannelOfSound(audioName))
         {
             result = c.setPaused(true);
-            if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+            Error(result); 
         }
     }
 
@@ -327,7 +327,7 @@ public class SoundManager : Singleton<SoundManager>
         foreach (var c in FindChannelOfSound(audioName))
         {
             result = c.setPaused(false);
-            if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+            Error(result); 
         }
     }
 
@@ -340,7 +340,7 @@ public class SoundManager : Singleton<SoundManager>
         foreach (var c in FindChannelOfSound(audioName))
         {
             result = c.setMute(true);
-            if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+            Error(result); 
         }
     }
 
@@ -353,7 +353,7 @@ public class SoundManager : Singleton<SoundManager>
         foreach (var c in FindChannelOfSound(audioName))
         {
             result = c.setMute(false);
-            if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+            Error(result); 
         }
     }
 
@@ -384,7 +384,7 @@ public class SoundManager : Singleton<SoundManager>
         foreach (var c in FindChannelOfSound(audioName))
         {
             result = c.isPlaying(out isPlaying);
-            if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+            Error(result); 
             if (isPlaying) return isPlaying;
         }
         return false;
@@ -400,7 +400,7 @@ public class SoundManager : Singleton<SoundManager>
         foreach (var c in FindChannelOfSound(audioName))
         {
             result = c.setVolume(playVolume);
-            if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+            Error(result); 
         }
     }
 
@@ -415,15 +415,15 @@ public class SoundManager : Singleton<SoundManager>
         // foreach (var c in FindChannelOfSound(audioName))
         // {
             // result = c.addDSP(0, PitchshiftDSP);
-            // if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+            // Error(result); 
             // result = c.getDSPIndex(PitchshiftDSP, out int DSPIndex);
-            // if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+            // Error(result); 
             // result = c.getDSP(DSPIndex, out DSPTemp);
-            // if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+            // Error(result); 
             // result = DSPTemp.getNumParameters(out int numdsp);
-            // if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+            // Error(result); 
             // result = DSPTemp.getInfo(out string name, out uint version, out int chan, out int cofi, out int cofig);
-            // if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+            // Error(result); 
 
 
             // Debug.Log("Before set the parameter value");
@@ -433,12 +433,12 @@ public class SoundManager : Singleton<SoundManager>
             // for (int j = 0 ; j < numdsp ; j++)
             // {
             //     result = DSPTemp.getParameterFloat(j, out float value);
-            //     if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+            //     Error(result); 
             //     Debug.Log(j+"th parameter is "+value);
             // }
 
             // result = DSPTemp.setParameterFloat(0, playPitch);
-            // if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+            // Error(result); 
 
             // Debug.Log("After set the parameter value");
             // for (int j = 0 ; j < numdsp ; j++)
@@ -450,11 +450,11 @@ public class SoundManager : Singleton<SoundManager>
         
         // }
         result = MasterChannelGroup.getDSPIndex(PitchshiftDSP, out int dspIndex);
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        Error(result); 
         result = MasterChannelGroup.getDSP(dspIndex, out DSPTemp);
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        Error(result); 
         result = DSPTemp.setParameterFloat(0, playPitch);
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        Error(result); 
 
     }
     
@@ -495,10 +495,9 @@ public class SoundManager : Singleton<SoundManager>
         if (!stayOnMemory)
         {
             result = system.createStream(soundPath + soundPathJson["Path"].ToString(), mode, out soundTemp);
-            if (result != RESULT.OK)
+            if (Error(result))
             {
                 Debug.Log(audioName + "을(를) 불러오지 못했습니다.");
-                Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result));
             }
             else
             {
@@ -520,10 +519,9 @@ public class SoundManager : Singleton<SoundManager>
                 // exinfo.length = 797*1024;
                 // exinfo.suggestedsoundtype = SOUND_TYPE.WAV;
                 // result = system.createSound(soundPath + soundPathJson["Path"].ToString(), mode, ref exinfo, out soundTemp);
-                // if (result != RESULT.OK)
+                // Error(result);
                 // {
                 //     Debug.LogWarning(audioName + "을(를) 불러오지 못했습니다.");
-                //     Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result));
                 // }
                 // else
                 // {
@@ -532,10 +530,9 @@ public class SoundManager : Singleton<SoundManager>
             } else
             {
                 result = system.createSound(soundPath + soundPathJson["Path"].ToString(), mode, out soundTemp);
-                if (result != RESULT.OK)
+                if (Error(result))
                 {
                     Debug.LogWarning(audioName + "을(를) 불러오지 못했습니다.");
-                    Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result));
                 }
                 else
                 {
@@ -555,14 +552,16 @@ public class SoundManager : Singleton<SoundManager>
         if (soundDict.ContainsKey(audioName))
         {
             result = soundDict[audioName].release();
-            if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); } 
-            else
+            if(Error(result))
+            {
+                Debug.LogWarning(audioName + "을(를) 정상적으로 UnLoad하지 못했습니다.");
+            } else
             {
                 soundDict.Remove(audioName);
             }
         }
         else
-        { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(RESULT.FILE_NOT_IN)); }
+        { Error(RESULT.FILE_NOT_IN); }
     }
 
     /// <summary>
@@ -572,7 +571,7 @@ public class SoundManager : Singleton<SoundManager>
     public void LoopOn(string audioName)
     {
         result = soundDict[audioName].setMode(MODE.LOOP_NORMAL);
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        Error(result);
     }
 
     /// <summary>
@@ -582,7 +581,7 @@ public class SoundManager : Singleton<SoundManager>
     public void LoopOff(string audioName)
     {
         result = soundDict[audioName].setMode(MODE.LOOP_OFF);
-        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, Error.String(result)); }
+        Error(result); 
     }
 
     /// <summary>
@@ -680,13 +679,17 @@ public class SoundManager : Singleton<SoundManager>
         // Debug.Log("BGMChannelGroup's parrent ChannelGroup is "+strTemp);
     }
 
-    private void SetAsDefault()
-    {
-
-    }
-
     public enum SFXEnum
     {
         BattleSound, EventSound, EnvironmentSound, SFX
+    }
+
+    /// <summary>
+    /// 에러가 있으면 true를 반환, 에러가 없으면 false를 반환
+    /// </summary>
+    private bool Error(RESULT result)
+    {
+        if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, FMOD.Error.String(result)); return true;}
+        else { return false; }
     }
 }
