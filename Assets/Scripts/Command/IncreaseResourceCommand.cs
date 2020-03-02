@@ -13,7 +13,7 @@ public class IncreaseResourceCommand : ICommand
 
     public void Execute()
     {
-        ResourceManager.Instance.StartIncreasing(character);
+        ResourceManager.Instance.StartCoroutine("IncreaseResource");
     }
 
     public void Dispose()
