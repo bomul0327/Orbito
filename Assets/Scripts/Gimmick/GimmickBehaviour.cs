@@ -15,7 +15,7 @@ public class GimmickBehaviour
 
     public void IncreaseResource()
     {
-        resourceManager.currentResource ++;
+        resourceManager.currentResource++;
         Debug.Log(resourceManager.currentResource);
     }
 }

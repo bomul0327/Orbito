@@ -30,6 +30,5 @@ public class RevolveState : IState, IUpdatable
     void IUpdatable.OnUpdate(float dt)
     {
         character.Behaviour.Revolve(targetPlanet.transform.position, isClockwise);
-        CommandDispatcher.Publish(CommandFactory.GetOrCreate<IncreaseResourceCommand>(character));
     }
 }

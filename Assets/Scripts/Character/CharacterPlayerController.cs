@@ -63,6 +63,7 @@ public class CharacterPlayerController : CharacterControllerBase, IUpdatable
                 using (var cmd = CommandFactory.GetOrCreate<StateChangeCommand>(charStateMachine, new RevolveState(character, minDistancePlanet)))
                 {
                     CommandDispatcher.Publish(cmd);
+                    CommandDispatcher.Publish(CommandFactory.GetOrCreate<IncreaseResourceCommand>(character));
                 }
             }
             else if (prevPlanet)
@@ -70,6 +71,7 @@ public class CharacterPlayerController : CharacterControllerBase, IUpdatable
                 using (var cmd = CommandFactory.GetOrCreate<StateChangeCommand>(charStateMachine, new RevolveState(character, prevPlanet)))
                 {
                     CommandDispatcher.Publish(cmd);
+                    CommandDispatcher.Publish(CommandFactory.GetOrCreate<IncreaseResourceCommand>(character));
                 }
             }
         }
@@ -78,6 +80,7 @@ public class CharacterPlayerController : CharacterControllerBase, IUpdatable
             using (var cmd = CommandFactory.GetOrCreate<StateChangeCommand>(charStateMachine, new StraightMoveState(character)))
             {
                 CommandDispatcher.Publish(cmd);
+                ResourceManager.Instance.StopCoroutine("IncreaseResource");
             }
         }
 

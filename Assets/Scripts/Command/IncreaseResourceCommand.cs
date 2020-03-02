@@ -13,7 +13,7 @@ public class IncreaseResourceCommand : ICommand
 
     public void Execute()
     {
-        character.gimmickBehaviour.IncreaseResource();
+        ResourceManager.Instance.StartIncreasing(character);
     }
 
     public void Dispose()
