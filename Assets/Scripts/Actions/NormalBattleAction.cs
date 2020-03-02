@@ -47,15 +47,11 @@ public class NormalBattleAction : ITriggerBattleAction
     }
     void ITriggerBattleAction.Start()
     {
-        var bulletObjectPool = UnityObjectPool.GetOrCreate(bulletPrefabName);
-        bulletObjectPool.SetOption(PoolScaleType.Unlimited, PoolReturnType.Manual);
-
-        var bulletObject = bulletObjectPool.Instantiate(character.transform.position, character.transform.rotation).gameObject;
-
         // FIXME: JSON 시스템이 준비되면 JSON 데이터에서 받아올 것
-        var bulletComponent = bulletObject.GetComponent<Projectile>();
-        bulletComponent.Speed = 50;
-        bulletComponent.MaxDistance = 50;
+        float speed = 50f;
+        float maxDistance = 50f;
+
+        Projectile.Create(bulletPrefabName, character.transform.position, character.transform.rotation, speed, maxDistance);
 
     }
 

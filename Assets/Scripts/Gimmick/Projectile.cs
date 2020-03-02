@@ -22,6 +22,10 @@ public class Projectile : FieldObject, IUpdatable
         set;
     }
 
+    public struct DamageInfo
+    {
+        public int Damage;
+    }
 
     /// <summary>
     /// 현재까지 탄환이 이동한 거리. MaxDistance 이상 이동할 수 없음.
@@ -37,6 +41,26 @@ public class Projectile : FieldObject, IUpdatable
     private void OnDisable()
     {
         UpdateManager.Instance.RemoveUpdatable(this);
+    }
+
+    /// <summary>
+    /// projectile 생성
+    /// </summary>
+    /// <param name="bulletPrefabName">발사할 총알 프리팹</param>
+    /// <param name="position">총알의 초기 위치</param>
+    /// <param name="rotation">총알의 발사 각도</param>
+    /// <param name="speed">총알의 속도</param>
+    /// <param name="maxDistance">총알이 이동 가능한 최대 거리</param>
+    public static void Create(string bulletPrefabName, Vector3 position, Quaternion rotation, float speed, float maxDistance)
+    {
+        var bulletObjectPool = UnityObjectPool.GetOrCreate(bulletPrefabName);
+        bulletObjectPool.SetOption(PoolScaleType.Unlimited, PoolReturnType.Manual);
+
+        var bulletObject = bulletObjectPool.Instantiate(position, rotation).gameObject;
+
+        var bulletComponent = bulletObject.GetComponent<Projectile>();
+        bulletComponent.Speed = speed;
+        bulletComponent.MaxDistance = maxDistance;
     }
 
     public void OnUpdate(float dt)

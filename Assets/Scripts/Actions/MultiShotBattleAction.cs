@@ -70,9 +70,6 @@ public class MultiShotBattleAction : ITriggerBattleAction
 
     void ITriggerBattleAction.Start()
     {
-        var bulletPool = UnityObjectPool.GetOrCreate(bulletPrefabName);
-        bulletPool.SetOption(PoolScaleType.Unlimited, PoolReturnType.Manual);
-
         float angleDelta = Range / BulletCountPerShot;
         float initAngle = (BulletCountPerShot - 1) * 0.5f * angleDelta;
 
@@ -84,8 +81,6 @@ public class MultiShotBattleAction : ITriggerBattleAction
             var bulletInitPosition = basePosition + new Vector3(0, 0, 0);
             var bulletInitRotation = baseRotation * Quaternion.Euler(0, 0, initAngle - angleDelta * i);
 
-            var bulletObject = bulletPool.Instantiate(bulletInitPosition, bulletInitRotation).gameObject;
-
             // FIXME: JSON 시스템이 준비되면 JSON 데이터에서 받아올 것.
             // 지금은 테스트를 위해 여기에서 Projectile의 변수를 바로 설정함.
 
@@ -95,9 +90,10 @@ public class MultiShotBattleAction : ITriggerBattleAction
             // 미리 값이 설정된 Prefab을 사용하는 방법도 있겠지만,
             // 자세한 내용은 TD님과 상의해 볼 것.
 
-            var projectileComponent = bulletObject.GetComponent<Projectile>();
-            projectileComponent.Speed = 50;
-            projectileComponent.MaxDistance = 50;
+            float speed = 50f;
+            float maxDistance = 50f;
+
+            Projectile.Create(bulletPrefabName, bulletInitPosition, bulletInitRotation, speed, maxDistance);
 
         }
 
