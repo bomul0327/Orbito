@@ -108,7 +108,7 @@ public class Projectile : FieldObject, IUpdatable
 
         //지금은 빠른 테스트를 위해 여기서 바로 피격 Effect를 생성하지만, 
         //나중에는 다른 방식으로 변경할 수 있음.
-        var hitParticlePool = UnityObjectPool.GetOrCreate("ExplosionEffect");
+        var hitParticlePool = UnityObjectPool.GetOrCreate("ProjectileExplosionEffect");
         hitParticlePool.SetOption(PoolScaleType.Unlimited, PoolReturnType.Auto);
         hitParticlePool.AutoReturnTime = 1.5f;
         hitParticlePool.Instantiate(transform.position, transform.rotation);
