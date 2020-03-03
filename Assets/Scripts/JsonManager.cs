@@ -14,8 +14,8 @@ public static class JsonManager
     {
         testDict = new Dictionary<string, JObject>();
 
-        string currentDirectory = Directory.GetCurrentDirectory() + "\\Assets\\Scripts\\";
-        string dataAsJson = File.ReadAllText( currentDirectory + "JsonManagerTestData.json" );
+        string jsonPath = Application.streamingAssetsPath + "/JsonFiles/";
+        string dataAsJson = File.ReadAllText( jsonPath + "SoundSourcePath.json" );
         var data = JsonConvert.DeserializeObject<List<JObject>> (dataAsJson);
 
         foreach ( var ob in data)
@@ -26,6 +26,14 @@ public static class JsonManager
 
     public static JObject Find(string name)
     {
-        return testDict[name];
+        if (testDict.ContainsKey(name))
+        {
+            return testDict[name];
+        }
+        else
+        {
+            Debug.Log("There is no JsonFile named like parameter");
+            return null;
+        }
     }
 }
