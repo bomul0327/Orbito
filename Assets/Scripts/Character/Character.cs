@@ -54,5 +54,6 @@ public class Character : FieldObject
         // FIXME: 예시를 위해서 임시로 추가한 코드입니다.
         battleActionDict.Add(typeof(NormalBattleAction).Name, new NormalBattleAction(this));
         battleActionDict.Add(typeof(MultiShotBattleAction).Name, new MultiShotBattleAction(this));  
+        battleActionDict.Add(typeof(AirBombShotBattleAction).Name, new AirBombShotBattleAction(this));  
     }
 }

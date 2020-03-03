@@ -93,5 +93,10 @@ public class CharacterPlayerController : CharacterControllerBase, IUpdatable
         {
             character.battleActionDict["MultiShotBattleAction"].Trigger();
         }
+
+        if (Input.GetButton("AirBomb"))
+        {
+            character.battleActionDict["AirBombShotBattleAction"].Trigger();
+        }
     }
 }
