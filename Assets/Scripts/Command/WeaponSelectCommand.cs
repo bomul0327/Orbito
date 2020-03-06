@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Character의 무기를 변경하는 Command.
+/// Character가 slot에 있는 무기를 선택하는 Command.
 /// </summary>
-public class WeaponChangeCommand : ICommand
+public class WeaponSelectCommand : ICommand
 {
     Character character;
     int slotIndex;
@@ -18,7 +18,7 @@ public class WeaponChangeCommand : ICommand
 
     public void Execute()
     {
-        character.Behaviour.ChangeWeapon(slotIndex);
+        character.Behaviour.SelectWeapon(slotIndex);
     }
 
     public void SetData(params object[] values)

@@ -44,9 +44,13 @@ public class Character : FieldObject
     public Dictionary<string, ITriggerBattleAction> battleActionDict = new Dictionary<string, ITriggerBattleAction>();
 
     /// <summary>
-    /// Weapon 및 NonWeapon 슬롯.
+    /// 장착 중인 Weapon 타입 장비를 보관하는 슬롯.
     /// </summary>
     public Equipment[] weaponSlot = new Equipment[InitialWeaponSlotCount];
+    
+    /// <summary>
+    /// 장착 중인 NonWeapon 타입 장비를 보관하는 슬롯.
+    /// </summary>
     public Equipment[] nonWeaponSlot = new Equipment[InitialNonWeaponSlotCount];
 
 
@@ -54,9 +58,23 @@ public class Character : FieldObject
     public static readonly int InitialNonWeaponSlotCount = 4;
 
     /// <summary>
+    /// 장비/스킬 등에 의한 스탯 변화가 적용된 최종 HP 수치.
+    /// 현재 스탯 시스템 쪽에 대한 논의가 되어 있지 않지만,
+    /// 장비 장착/탈착 시 스탯 변화를 관찰하기 위해 임시로 추가.
+    /// FIXME: 임시로 추가한 변수이므로 외부에서 사용하지 말 것.
+    /// </summary>
+    public int FinalHP;
+
+    /// <summary>
     /// 현재 사용중인 Wepon타입 장비.
     /// </summary>
     public Equipment selectedWeapon;
+
+    /// <summary>
+    /// 테스트를 위해 생성한 Equipment 객체를 보관하는 Dictionary.
+    /// 아직 Inventory 시스템이 완성되지 않았기에 임시로 Dictionary에 장비 객체 관리.
+    /// </summary>
+    public Dictionary<string, Equipment> equipmentDictForTest = new Dictionary<string, Equipment>();
 
     private void Awake()
     {
@@ -70,24 +88,32 @@ public class Character : FieldObject
         battleActionDict.Add(typeof(NormalBattleAction).Name, new NormalBattleAction(this));
         battleActionDict.Add(typeof(MultiShotBattleAction).Name, new MultiShotBattleAction(this));
 
-        //임시로 여기에서 Weapon 타입의 Equipment를 생성.
-        weaponSlot[0] = new Equipment("Normal Shooter", Equipment.EquipmentType.Weapon, battleActionDict["NormalBattleAction"]);
-        weaponSlot[1] = new Equipment("Power Shooter", Equipment.EquipmentType.Weapon, battleActionDict["MultiShotBattleAction"]);
+        SetupEquipmentsForTest();
+    }
+
+    /// <summary>
+    /// Equipment 시스템 테스트를 위해 Character에서 즉시 Equipment 객체를 생성하고, Dictionary에서 관리.
+    /// 원래는 Equipment 생성 시, JSON에서 가져와야 할 것.
+    /// </summary>
+    private void SetupEquipmentsForTest()
+    {
+        //임시로 여기에서 Weapon 타입의 Equipment를 생성하고, 무기슬롯에 할당.
+        weaponSlot[0] = Equipment.CreateWeapon("Normal Shooter", battleActionDict["NormalBattleAction"], StatModifier.Zero);
+        weaponSlot[1] = Equipment.CreateWeapon("Power Shooter", battleActionDict["MultiShotBattleAction"], StatModifier.Zero);
 
         //임시로 여기에서 NonWeapon 타입의 Equipment를 생성.
-        var normalShieldBattleAction = new HPStatusBattleAction(this, 50, HPStatusBattleAction.ModifyMethod.Fixed, true);
-        var powerShieldBattleAction = new HPStatusBattleAction(this, 50, HPStatusBattleAction.ModifyMethod.Rate, true);
+        var normalShieldEquipment = Equipment.CreateNonWeapon("Normal Shield", new StatModifier(25, StatModifier.ModifyMethod.Fixed));
+        var powerShieldEquipment = Equipment.CreateNonWeapon("Power Shield", new StatModifier(75, StatModifier.ModifyMethod.Fixed));
+        var normalCoreEquipment = Equipment.CreateNonWeapon("Normal Core", new StatModifier(50, StatModifier.ModifyMethod.Fixed));
+        var powerCoreEquipment = Equipment.CreateNonWeapon("Power Core", new StatModifier(50, StatModifier.ModifyMethod.Rate));
 
-        nonWeaponSlot[0] = new Equipment("Normal Shield", Equipment.EquipmentType.NonWeapon, normalShieldBattleAction);
-        nonWeaponSlot[1] = new Equipment("Super Shield", Equipment.EquipmentType.NonWeapon, powerShieldBattleAction);
-
-        //임시로 여기에서 NonWeapon 타입의 Equipment를 Trigger.
-        foreach (var nonWeapon in nonWeaponSlot)
-        {
-            if (nonWeapon == null) return;
-            nonWeapon.Trigger();
-        }
-
+        equipmentDictForTest.Add(normalShieldEquipment.name, normalShieldEquipment);
+        equipmentDictForTest.Add(powerShieldEquipment.name, powerShieldEquipment);
+        equipmentDictForTest.Add(normalCoreEquipment.name, normalCoreEquipment);
+        equipmentDictForTest.Add(powerCoreEquipment.name, powerCoreEquipment);
     }
+
+
+
 
 }

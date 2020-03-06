@@ -90,15 +90,44 @@ public class CharacterPlayerController : CharacterControllerBase, IUpdatable
         {
             if (character.selectedWeapon != null)
             {
-                character.selectedWeapon.Trigger();
+                character.selectedWeapon.Use();
             }
         }
 
+
         if (GetWeponSlotButtonsDown(out int slotNumber))
         {
-            using (var cmd = CommandFactory.GetOrCreate<WeaponChangeCommand>(character, slotNumber))
+            using (var cmd = CommandFactory.GetOrCreate<WeaponSelectCommand>(character, slotNumber))
             {
                 CommandDispatcher.Publish(cmd);
+            }
+        }
+
+        //테스트용 NonWeapon 4개를 일시에 장착.
+        //FIXME: 테스트가 끝나면 반드시 삭제할 것.
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            int equipSlotNumber = 0;
+            foreach (var equipment in character.equipmentDictForTest.Values)
+            {
+                using (var cmd = CommandFactory.GetOrCreate<EquipCommand>(character, equipment, equipSlotNumber++))
+                {
+                    CommandDispatcher.Publish(cmd);
+                }
+            }
+        }
+
+        //NonWeapon 슬롯에 있는 모든 장비를 일시에 탈착.
+        //FIXME: 테스트가 끝나면 반드시 삭제할 것.
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            int equipSlotNumber = 0;
+            foreach (var weapon in character.nonWeaponSlot)
+            {
+                using (var cmd = CommandFactory.GetOrCreate<UnequipCommand>(character, Equipment.EquipmentType.NonWeapon, equipSlotNumber++))
+                {
+                    CommandDispatcher.Publish(cmd);
+                }
             }
         }
     }

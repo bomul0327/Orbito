@@ -43,16 +43,125 @@ public class CharacterBehaviour
     }
 
     /// <summary>
-    /// 현재 선택된 무기를 slotIndex에 위치한 무기로 변경.
+    /// 현재 선택중인 무기(selectedWeapon)를 slotIndex에 위치한 무기로 변경.
     /// </summary>
     /// <param name="slotIndex">변경 대상 무기의 슬롯 번호(zero-based).</param>
-    public void ChangeWeapon(int slotIndex)
+    public void SelectWeapon(int slotIndex)
     {
         var newSelectedWeapon = character.weaponSlot[slotIndex];
         if (newSelectedWeapon == null || newSelectedWeapon == character.selectedWeapon) return;
 
         character.selectedWeapon = newSelectedWeapon;
     }
+
+    /// <summary>
+    /// Weapon 장비를 장착한다.
+    /// </summary>
+    /// <param name="newWeapon"></param>
+    /// <param name="slotIndex"></param>
+    public void EquipWeapon(Equipment newWeapon, int slotIndex)
+    {
+        Equipment oldWeapon;
+
+        oldWeapon = character.weaponSlot[slotIndex];
+        character.weaponSlot[slotIndex] = newWeapon;
+
+        UpdateStatModfication();
+    }
+
+    /// <summary>
+    /// Weapon 타입 장비를 탈착함.
+    /// </summary>
+    /// <param name="slotIndex"></param>
+    public void UnequipWeapon(int slotIndex)
+    {
+        Equipment oldWeapon;
+
+        oldWeapon = character.weaponSlot[slotIndex];
+        character.weaponSlot[slotIndex] = null;
+
+        if (oldWeapon == character.selectedWeapon)
+            character.selectedWeapon = null;
+
+        UpdateStatModfication();
+    }
+
+    /// <summary>
+    /// NonWeapon 타입 장비를 장착한다.
+    /// </summary>
+    /// <param name="newNonWeapon"></param>
+    /// <param name="slotIndex"></param>
+    public void EquipNonWeapon(Equipment newNonWeapon, int slotIndex)
+    {
+        Equipment oldNonWeapon;
+
+        oldNonWeapon = character.nonWeaponSlot[slotIndex];
+        character.nonWeaponSlot[slotIndex] = newNonWeapon;
+
+        UpdateStatModfication();
+    }
+
+
+    /// <summary>
+    /// NonWeapon 타입 장비를 탈착한다. 
+    /// </summary>
+    /// <param name="slotIndex"></param>
+    public void UnequipNonWeapon(int slotIndex)
+    {
+        Equipment oldNonWeapon;
+
+        oldNonWeapon = character.nonWeaponSlot[slotIndex];
+        character.nonWeaponSlot[slotIndex] = null;
+
+        UpdateStatModfication();
+    }
+
+    /// <summary>
+    /// 슬롯에 있는 모든 장비의 StatModifier를 주어진 스탯에 적용한다.
+    /// FIXME: 스탯 적용 방식은 아직 합의된 내용이 없으며, 임의로 적용함.
+    /// 실제 적용 방식은 이후 크게 수정될 수 있음.
+    /// </summary>
+    private void UpdateStatModfication()
+    {
+
+        //모든 장비의 StatModifier를 찾음.
+        var statModifiers = new List<StatModifier>();
+
+        foreach (var equipment in character.weaponSlot)
+        {
+            if (equipment == null) continue;
+            statModifiers.Add(equipment.statModifier);
+        }
+
+        foreach (var equipment in character.nonWeaponSlot)
+        {
+            if (equipment == null) continue;
+            statModifiers.Add(equipment.statModifier);
+        }
+
+        int rateSum = 0;
+        int fixedSum = 0;
+        int origin = character.MaxHP;
+
+        foreach (var statModifier in statModifiers)
+        {
+            switch (statModifier.modifyMethod)
+            {
+                case StatModifier.ModifyMethod.Rate:
+                    rateSum += statModifier.amount;
+                    break;
+                case StatModifier.ModifyMethod.Fixed:
+                    fixedSum += statModifier.amount;
+                    break;
+            }
+        }
+        //비율 증가 방식에 의한 스탯 증가량 계산.
+        rateSum = (int)Mathf.Ceil(origin * rateSum * 0.01f);
+
+        int finalValue = origin + rateSum + fixedSum;
+        character.FinalHP = finalValue;
+    }
+
 
     /// <summary>
     /// planetPos를 중심으로 MoveSpeed를 각속도로 변환한 속도로 공전
@@ -94,7 +203,5 @@ public class CharacterBehaviour
     {
         Debug.Log("Air Bomb");
     }
+
 }
-
-
-
