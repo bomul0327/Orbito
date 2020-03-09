@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 일직선으로 총알이 나가는 공격
+/// 일직선으로 Projectile을 발사하는 BattleAction 클래스
 /// </summary>
 public class NormalBattleAction : ITriggerBattleAction
 {

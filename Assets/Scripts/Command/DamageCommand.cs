@@ -4,24 +4,23 @@ using UnityEngine;
 
 public class DamageCommand : ICommand
 {
-    Collider2D target;
-    Projectile.DamageInfo damageInfo;
+    FieldObject target;
+    DamageInfo damageInfo;
 
     public void SetData(params object[] values)
     {
-        this.target = (Collider2D)values[0];
-        this.damageInfo = (Projectile.DamageInfo)values[1];
+        this.target = (FieldObject)values[0];
+        this.damageInfo = (DamageInfo)values[1];
     }
 
     public void Execute()
     {
-        FieldObject fieldObject = target.gameObject.GetComponentInParent<FieldObject>();
-        if (fieldObject == null)
+        if (target == null)
         {
             return;
         }
 
-        fieldObject.HP -= damageInfo.Damage;
+        target.HP -= damageInfo.Damage;
     }
     public void Dispose()
     {

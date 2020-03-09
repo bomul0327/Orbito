@@ -22,10 +22,7 @@ public class Projectile : FieldObject, IUpdatable
         set;
     }
 
-    public struct DamageInfo
-    {
-        public int Damage;
-    }
+    public DamageInfo damageInfo;
 
     /// <summary>
     /// 현재까지 탄환이 이동한 거리. MaxDistance 이상 이동할 수 없음.
@@ -36,6 +33,7 @@ public class Projectile : FieldObject, IUpdatable
     {
         UpdateManager.Instance.AddUpdatable(this);
         currentDistance = 0;
+        damageInfo.Damage = 1;
     }
 
     private void OnDisable()
@@ -105,6 +103,14 @@ public class Projectile : FieldObject, IUpdatable
     public void OnBulletHit(Collider2D other)
     {
         //여기서 탄환 충돌과 관련된 작업을 처리(예: Damage관련 커맨드, 충돌 이펙트 등).
+
+        // Damage 주기
+        FieldObject fieldObject = other.gameObject.GetComponentInParent<FieldObject>();
+        
+        using (var cmd = CommandFactory.GetOrCreate<DamageCommand>(fieldObject, damageInfo))
+        {
+            CommandDispatcher.Publish(cmd);
+        }
 
         //지금은 빠른 테스트를 위해 여기서 바로 피격 Effect를 생성하지만, 
         //나중에는 다른 방식으로 변경할 수 있음.
