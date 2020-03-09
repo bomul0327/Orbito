@@ -5,19 +5,22 @@ using UnityEngine;
 public class IncreaseResourceCommand : ICommand
 {
     Character character;
+    IState currentState;
 
     public void SetData(params object[] values)
     {
-        this.character = (Character)values[0];
+        character = (Character)values[0];
+        currentState = (IState)values[1];
     }
 
     public void Execute()
     {
-        ResourceManager.Instance.StartCoroutine("IncreaseResource");
+        ResourceManager.Instance.StartIncreaseResource(character, currentState);
     }
 
     public void Dispose()
     {
-
+        character = null;
+        currentState = null;
     }
 }
