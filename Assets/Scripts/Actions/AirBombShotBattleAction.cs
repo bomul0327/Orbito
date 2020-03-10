@@ -74,6 +74,11 @@ public class AirBombShotBattleAction : ITriggerBattleAction
         airBombPool.AutoReturnTime = 2f;
 
         airBombPool.Instantiate(character.transform.position + targetPositionDeltaUnit * ExplosionEffectDistance, new Quaternion(0, 0, 0, 0));
+
+        var dir = Vector2.Perpendicular(targetPositionDeltaUnit);        
+        float angle = Mathf.Acos(dir.x) * Mathf.Rad2Deg;
+        if (dir.y < 0) angle *= -1;
+        character.transform.localRotation = Quaternion.Euler(0,0, angle);
     }
 
     bool ITriggerBattleAction.Trigger()
