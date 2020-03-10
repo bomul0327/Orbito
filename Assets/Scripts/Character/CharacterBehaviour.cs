@@ -52,6 +52,7 @@ public class CharacterBehaviour
         if (newSelectedWeapon == null || newSelectedWeapon == character.selectedWeapon) return;
 
         character.selectedWeapon = newSelectedWeapon;
+        character.selectedBattleAction = newSelectedWeapon.BattleAction;
     }
 
     /// <summary>
@@ -80,8 +81,12 @@ public class CharacterBehaviour
         oldWeapon = character.weaponSlot[slotIndex];
         character.weaponSlot[slotIndex] = null;
 
+        //슬롯에서 장착 해제한 무기가 현재 선택된 무기라면, 선택 해제.
         if (oldWeapon == character.selectedWeapon)
+        {
             character.selectedWeapon = null;
+            character.selectedBattleAction = null;
+        }
 
         UpdateStatModfication();
     }

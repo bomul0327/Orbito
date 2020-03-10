@@ -90,7 +90,7 @@ public class CharacterPlayerController : CharacterControllerBase, IUpdatable
         {
             if (character.selectedWeapon != null)
             {
-                character.selectedWeapon.Use();
+                character.selectedBattleAction.Trigger();
             }
         }
 

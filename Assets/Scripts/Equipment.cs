@@ -28,7 +28,11 @@ public class Equipment
     /// <summary>
     /// 장비의 BattleAction. 기본적으로 Weapon 타입 장비에서 사용됨.
     /// </summary>
-    private ITriggerBattleAction triggerBattleAction;
+    public ITriggerBattleAction BattleAction
+    {
+        get;
+        private set;
+    }
 
     /// <summary>
     /// 장비의 스탯 변경 값.
@@ -40,22 +44,9 @@ public class Equipment
         this.name = name;
         this.equipmentType = equipmentType;
 
-        this.triggerBattleAction = battleAction;
+        this.BattleAction = battleAction;
 
         this.statModifier = statModifier;
-    }
-
-
-    /// <summary>
-    /// 장비를 사용할 때 호출.
-    /// </summary>
-    public void Use()
-    {
-        // 현재까지는 장비 타입이 Weapon일 때만 battleAction을 사용하게 만듦.
-        if (equipmentType == EquipmentType.Weapon)
-        {
-            triggerBattleAction.Trigger();
-        }
     }
 
     /// <summary>

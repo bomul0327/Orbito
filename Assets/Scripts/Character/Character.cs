@@ -71,6 +71,12 @@ public class Character : FieldObject
     public Equipment selectedWeapon;
 
     /// <summary>
+    /// 현재 선택된 BattleAction.
+    /// </summary>
+    public ITriggerBattleAction selectedBattleAction;
+
+
+    /// <summary>
     /// 테스트를 위해 생성한 Equipment 객체를 보관하는 Dictionary.
     /// 아직 Inventory 시스템이 완성되지 않았기에 임시로 Dictionary에 장비 객체 관리.
     /// </summary>
