@@ -5,12 +5,12 @@ public class Equipment
     public enum EquipmentType
     {
         /// <summary>
-        /// 공격 조작을 통해 사용할 수 있는 장비 타입.
+        /// 공격 조작을 통해 사용할 수 있는 무기 장비 타입.
         /// </summary>
         Weapon,
 
         /// <summary>
-        /// 별도로 사용하지 않아도 능력치를 올려주는 장비 타입.
+        /// 별도로 사용하지 않아도 능력치를 올려주는 무기 외 장비 타입.
         /// </summary>
         NonWeapon
     }
@@ -35,10 +35,10 @@ public class Equipment
     /// </summary>
     public StatModifier statModifier;
 
-    public Equipment(string name, EquipmentType type, ITriggerBattleAction battleAction, StatModifier statModifier)
+    public Equipment(string name, EquipmentType equipmentType, ITriggerBattleAction battleAction, StatModifier statModifier)
     {
         this.name = name;
-        this.equipmentType = type;
+        this.equipmentType = equipmentType;
 
         this.triggerBattleAction = battleAction;
 
@@ -59,23 +59,12 @@ public class Equipment
     }
 
     /// <summary>
-    /// Weapon 타입 장비 객체를 생성하는 정적 팩토리 메소드.
+    /// 장비 객체를 생성하는 정적 팩토리 메소드.
     /// </summary>
-    /// <param name="battleAction"></param>
+    /// <param name="battleAction">장비에서 사용되는 BattleAction.</param>
     /// <returns></returns>
-    public static Equipment CreateWeapon(string name, ITriggerBattleAction battleAction, StatModifier statModifier)
+    public static Equipment CreateEquipment(string name, EquipmentType equipmentType, ITriggerBattleAction battleAction, StatModifier statModifier)
     {
-        return new Equipment(name, EquipmentType.Weapon, battleAction, statModifier);
+        return new Equipment(name, equipmentType, battleAction, statModifier);
     }
-
-    /// <summary>
-    /// Non-Weapon 타입 장비 객체를 생성하는 정적 팩토리 메소드.
-    /// </summary>
-    /// <param name="statModifier">장비의 스탯 변경 값을 설정.</param>
-    /// <returns></returns>
-    public static Equipment CreateNonWeapon(string name, StatModifier statModifier)
-    {
-        return new Equipment(name, EquipmentType.NonWeapon, null, statModifier);
-    }
-
 }
