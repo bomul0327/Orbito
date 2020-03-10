@@ -8,10 +8,12 @@ using UnityEngine;
 public class EquipCommand : ICommand
 {
     Character character;
+
     /// <summary>
     /// 장착할 장비.
     /// </summary>
     Equipment equipment;
+
     /// <summary>
     /// 장착할 슬롯의 index()
     /// </summary>
@@ -26,10 +28,7 @@ public class EquipCommand : ICommand
 
     public void Execute()
     {
-        if (equipment.equipmentType == Equipment.EquipmentType.Weapon)
-            character.Behaviour.EquipWeapon(equipment, slotIndex);
-        else if (equipment.equipmentType == Equipment.EquipmentType.NonWeapon)
-            character.Behaviour.EquipNonWeapon(equipment, slotIndex);
+        character.Behaviour.Equip(equipment, slotIndex);
     }
 
     public void SetData(params object[] values)

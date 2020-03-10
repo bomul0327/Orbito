@@ -43,83 +43,88 @@ public class CharacterBehaviour
     }
 
     /// <summary>
-    /// 현재 선택중인 무기(selectedWeapon)를 slotIndex에 위치한 무기로 변경.
+    /// 무기 장비 슬롯에서 무기를 선택합니다.
     /// </summary>
-    /// <param name="slotIndex">변경 대상 무기의 슬롯 번호(zero-based).</param>
+    /// <param name="slotIndex">선택할 무기의 슬롯 번호(zero-based).</param>
     public void SelectWeapon(int slotIndex)
     {
         var newSelectedWeapon = character.weaponSlot[slotIndex];
+
+        // 슬롯이 비어있거나 이미 선택된 무기라면 아무것도 하지 않는다.
         if (newSelectedWeapon == null || newSelectedWeapon == character.selectedWeapon) return;
+
+        //현재 선택 중인 무기를 선택 해제한다.
+        UnselectWeapon();
 
         character.selectedWeapon = newSelectedWeapon;
         character.selectedBattleAction = newSelectedWeapon.BattleAction;
     }
 
     /// <summary>
-    /// Weapon 장비를 장착한다.
+    /// 현재 선택 중인 무기를 선택 해제합니다.
     /// </summary>
-    /// <param name="newWeapon"></param>
-    /// <param name="slotIndex"></param>
-    public void EquipWeapon(Equipment newWeapon, int slotIndex)
+    public void UnselectWeapon()
     {
-        Equipment oldWeapon;
+        if (character.selectedWeapon == null) return;
 
-        oldWeapon = character.weaponSlot[slotIndex];
-        character.weaponSlot[slotIndex] = newWeapon;
+        character.selectedWeapon = null;
+        character.selectedBattleAction = null;
+    }
+
+    /// <summary>
+    /// 장비를 장비 슬롯에 장착합니다.
+    /// </summary>
+    /// <param name="newEquipment">슬롯에 새로 장착할 무기</param>
+    /// <param name="slotIndex">무기를 장착할 슬롯의 번호(zero-based).</param>
+    public void Equip(Equipment newEquipment, int slotIndex)
+    {
+        var equipmentSlot = GetEquipmentSlot(newEquipment.equipmentType);
+        
+        //이전에 장착되어 있는 장비를 탈착한다.
+        Unequip(slotIndex, newEquipment.equipmentType);
+
+        equipmentSlot[slotIndex] = newEquipment;
 
         UpdateStatModfication();
     }
 
     /// <summary>
-    /// Weapon 타입 장비를 탈착함.
+    /// 장비 슬롯에서 장비를 탈착합니다.
     /// </summary>
-    /// <param name="slotIndex"></param>
-    public void UnequipWeapon(int slotIndex)
+    /// <param name="slotIndex">탈착할 무기가 있는 슬롯의 번호(zero-based).</param>
+    /// <param name="equipmentType">탈착할 장비의 타입.</param>
+    public void Unequip(int slotIndex, Equipment.EquipmentType equipmentType)
     {
-        Equipment oldWeapon;
+        var equipmentSlot = GetEquipmentSlot(equipmentType);
 
-        oldWeapon = character.weaponSlot[slotIndex];
-        character.weaponSlot[slotIndex] = null;
+        var lastEquipment = equipmentSlot[slotIndex];
 
-        //슬롯에서 장착 해제한 무기가 현재 선택된 무기라면, 선택 해제.
-        if (oldWeapon == character.selectedWeapon)
+        // 슬롯이 비어있다면 아무 것도 하지 않는다.
+        if (lastEquipment == null) return;
+
+        //장착 해제 한 장비가 현재 선택 중인 무기라면, 선택을 해제해야 한다.
+        if (lastEquipment == character.selectedWeapon)
         {
-            character.selectedWeapon = null;
-            character.selectedBattleAction = null;
+            UnselectWeapon();
         }
 
+        equipmentSlot[slotIndex] = null;
+
         UpdateStatModfication();
     }
 
     /// <summary>
-    /// NonWeapon 타입 장비를 장착한다.
+    /// Character의 장비 슬롯을 가져옵니다.
     /// </summary>
-    /// <param name="newNonWeapon"></param>
-    /// <param name="slotIndex"></param>
-    public void EquipNonWeapon(Equipment newNonWeapon, int slotIndex)
+    /// <param name="equipmentSlotType">가져올 장비 슬롯의 타입.</param>
+    private Equipment[] GetEquipmentSlot(Equipment.EquipmentType equipmentSlotType)
     {
-        Equipment oldNonWeapon;
-
-        oldNonWeapon = character.nonWeaponSlot[slotIndex];
-        character.nonWeaponSlot[slotIndex] = newNonWeapon;
-
-        UpdateStatModfication();
+        if (equipmentSlotType == Equipment.EquipmentType.Weapon)
+            return character.weaponSlot;
+        else
+            return character.nonWeaponSlot;
     }
 
-
-    /// <summary>
-    /// NonWeapon 타입 장비를 탈착한다. 
-    /// </summary>
-    /// <param name="slotIndex"></param>
-    public void UnequipNonWeapon(int slotIndex)
-    {
-        Equipment oldNonWeapon;
-
-        oldNonWeapon = character.nonWeaponSlot[slotIndex];
-        character.nonWeaponSlot[slotIndex] = null;
-
-        UpdateStatModfication();
-    }
 
     /// <summary>
     /// 슬롯에 있는 모든 장비의 StatModifier를 주어진 스탯에 적용한다.
