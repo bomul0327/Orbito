@@ -82,10 +82,15 @@ public class CharacterBehaviour
         
         //이전에 장착되어 있는 장비를 탈착한다.
         Unequip(slotIndex, newEquipment.equipmentType);
+        
+        //character의 stat에 장비의 스탯 변경값 추가.
+        foreach (var statModifier in newEquipment.StatModifierList)
+        {
+            character.statForTest.Add(statModifier);
+        }
 
         equipmentSlot[slotIndex] = newEquipment;
 
-        UpdateStatModfication();
     }
 
     /// <summary>
@@ -102,15 +107,20 @@ public class CharacterBehaviour
         // 슬롯이 비어있다면 아무 것도 하지 않는다.
         if (lastEquipment == null) return;
 
+        //character의 stat에 장비의 스탯 변경값 차감.
+        foreach (var statModifier in lastEquipment.StatModifierList)
+        {
+            character.statForTest.Remove(statModifier);
+        }
+
         //장착 해제 한 장비가 현재 선택 중인 무기라면, 선택을 해제해야 한다.
         if (lastEquipment == character.selectedWeapon)
         {
             UnselectWeapon();
         }
 
-        equipmentSlot[slotIndex] = null;
 
-        UpdateStatModfication();
+        equipmentSlot[slotIndex] = null;
     }
 
     /// <summary>
@@ -124,54 +134,6 @@ public class CharacterBehaviour
         else
             return character.nonWeaponSlot;
     }
-
-
-    /// <summary>
-    /// 슬롯에 있는 모든 장비의 StatModifier를 주어진 스탯에 적용한다.
-    /// FIXME: 스탯 적용 방식은 아직 합의된 내용이 없으며, 임의로 적용함.
-    /// 실제 적용 방식은 이후 크게 수정될 수 있음.
-    /// </summary>
-    private void UpdateStatModfication()
-    {
-
-        //모든 장비의 StatModifier를 찾음.
-        var statModifiers = new List<StatModifier>();
-
-        foreach (var equipment in character.weaponSlot)
-        {
-            if (equipment == null) continue;
-            statModifiers.Add(equipment.statModifier);
-        }
-
-        foreach (var equipment in character.nonWeaponSlot)
-        {
-            if (equipment == null) continue;
-            statModifiers.Add(equipment.statModifier);
-        }
-
-        int rateSum = 0;
-        int fixedSum = 0;
-        int origin = character.MaxHP;
-
-        foreach (var statModifier in statModifiers)
-        {
-            switch (statModifier.modifyMethod)
-            {
-                case StatModifier.ModifyMethod.Rate:
-                    rateSum += statModifier.amount;
-                    break;
-                case StatModifier.ModifyMethod.Fixed:
-                    fixedSum += statModifier.amount;
-                    break;
-            }
-        }
-        //비율 증가 방식에 의한 스탯 증가량 계산.
-        rateSum = (int)Mathf.Ceil(origin * rateSum * 0.01f);
-
-        int finalValue = origin + rateSum + fixedSum;
-        character.FinalHP = finalValue;
-    }
-
 
     /// <summary>
     /// planetPos를 중심으로 MoveSpeed를 각속도로 변환한 속도로 공전

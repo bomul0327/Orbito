@@ -3,34 +3,26 @@
 /// </summary>
 public struct StatModifier
 {
+    public readonly string statName;
+
     /// <summary>
-    /// 스테이터스 변경값.
+    /// 고정값. 주어진 수치만큼 스탯 추가.
     /// </summary>
-    public int amount;
-    public ModifyMethod modifyMethod;
+    public float fixedDelta;
+    
+    /// <summary>
+    /// 비율값. 주어진 수치에 해당하는 비율만큼 스탯 추가(합연산).
+    /// </summary>
+    public float rateDelta;
 
-    public enum ModifyMethod
+    public StatModifier(string statName, float fixedDelta, float rateDelta)
     {
-        /// <summary>
-        /// 스탯을 '<see cref ="amount"/>'에 해당하는 퍼센트 비율만큼 값을 변경.
-        /// (예: [origin = 200, value = 30%] => 200 + (200 * 0.3) = 260) 
-        /// </summary> 
-        Rate,
+        this.statName = statName;
 
-        /// <summary>
-        /// 스탯을 '<see cref ="amount"/>'에 해당하는 고정 수치만큼 값을 변경.
-        /// (예: [origin = 200, value = 30] => 200 + 30 = 230) 
-        /// </summary>
-        Fixed
-    }
-    public StatModifier(int amount, ModifyMethod modifyMethod)
-    {
-        this.amount = amount;
-        this.modifyMethod = modifyMethod;
+        this.fixedDelta = fixedDelta;
+        this.rateDelta = rateDelta;
     }
 
-
-
-    public static readonly StatModifier Zero = new StatModifier(0, ModifyMethod.Fixed);
+    public static readonly StatModifier Zero = new StatModifier("", 0, 0);
 
 }
