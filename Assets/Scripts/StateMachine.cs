@@ -2,6 +2,8 @@ using System;
 
 public class StateMachine : IDisposable
 {
+
+    private IState prevState;
     public IState CurrentState { get; private set; }
 
     public StateMachine()
@@ -23,18 +25,20 @@ public class StateMachine : IDisposable
 
         CurrentState.OnExit(nextState);
 
-        nextState.OnEnter(CurrentState);
-
-        if (nextState is IUpdatable)
-        {
-            UpdateManager.Instance.AddUpdatable((IUpdatable)nextState);
-        }
-
+        prevState = CurrentState;
         CurrentState = nextState;
+
+        CurrentState.OnEnter(prevState);
+
+        if (CurrentState is IUpdatable)
+        {
+            UpdateManager.Instance.AddUpdatable((IUpdatable)CurrentState);
+        }
     }
 
     void IDisposable.Dispose()
     {
         CurrentState = null;
+        prevState = null;
     }
 }

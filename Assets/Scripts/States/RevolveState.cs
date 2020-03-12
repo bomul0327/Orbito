@@ -19,7 +19,7 @@ public class RevolveState : IState, IUpdatable
     {
         var antiClockwiseDir = Vector2.Perpendicular(targetPlanet.transform.position - character.transform.position).normalized;
         isClockwise = Vector2.Dot(antiClockwiseDir, character.transform.up) > 0;
-        CommandDispatcher.Publish(CommandFactory.GetOrCreate<IncreaseResourceCommand>(character, this));
+        CommandDispatcher.Publish(CommandFactory.GetOrCreate<IncreaseResourceCommand>(character));
     }
 
     void IState.OnExit(IState nextState)
