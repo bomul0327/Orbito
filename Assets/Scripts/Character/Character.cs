@@ -61,7 +61,7 @@ public class Character : FieldObject
     /// 스탯 증감 테스트를 위해 임의로 추가한 스탯.
     /// 지금 단계에서는 Character에 스탯이 이것 한 종류만 있다고 가정하고 작성함.
     /// </summary>
-    public Stat statForTest = new Stat("StatForTest", 100);
+    public Stats stat;
 
     /// <summary>
     /// 현재 사용중인 Weapon타입 장비.
@@ -92,6 +92,16 @@ public class Character : FieldObject
         battleActionDict.Add(typeof(NormalBattleAction).Name, new NormalBattleAction(this));
         battleActionDict.Add(typeof(MultiShotBattleAction).Name, new MultiShotBattleAction(this));
 
+        stat = new Stats
+        {
+            maxHPBase = MaxHP,
+            defenseBase = Defense,
+            fuelReductionRatioBase = FuelReductionRatio,
+            maxFuelBase = MaxFuel,
+            maxSpeedBase = MoveSpeed
+
+        };
+
         SetupEquipmentsForTest();
     }
 
@@ -101,23 +111,44 @@ public class Character : FieldObject
     /// </summary>
     private void SetupEquipmentsForTest()
     {
+
         //임시로 여기에서 Weapon 타입의 Equipment를 생성하고, 무기슬롯에 할당.
-        weaponSlot[0] = Equipment.CreateEquipment("Normal Shooter", Equipment.EquipmentType.Weapon, battleActionDict["NormalBattleAction"]);
-        weaponSlot[1] = Equipment.CreateEquipment("Power Shooter", Equipment.EquipmentType.Weapon, battleActionDict["MultiShotBattleAction"]);
+        weaponSlot[0] = Equipment.CreateEquipment("Normal Shooter", Equipment.EquipmentType.Weapon, battleActionDict["NormalBattleAction"], new Stats());
+        weaponSlot[1] = Equipment.CreateEquipment("Power Shooter", Equipment.EquipmentType.Weapon, battleActionDict["MultiShotBattleAction"], new Stats());
 
         //임시로 여기에서 NonWeapon 타입의 Equipment를 생성.
-        var normalShieldEquipment = Equipment.CreateEquipment("Normal Shield", Equipment.EquipmentType.NonWeapon, null);
-        normalShieldEquipment.StatModifierList.Add(new StatModifier("StatForTest", 25f, 0f));
-       
-        var powerShieldEquipment = Equipment.CreateEquipment("Power Shield", Equipment.EquipmentType.NonWeapon, null);
-        powerShieldEquipment.StatModifierList.Add(new StatModifier("StatForTest", 75f, 0f));
-        
-        var normalCoreEquipment = Equipment.CreateEquipment("Normal Core", Equipment.EquipmentType.NonWeapon, null);
-        normalCoreEquipment.StatModifierList.Add(new StatModifier("StatForTest", 0, 0.2f));
+        var normalShieldEquipment = Equipment.CreateEquipment("Normal Shield", Equipment.EquipmentType.NonWeapon, null,
+            new Stats
+            {
+                maxHPFixedModifier = 25
+            }
+        );
 
-        var powerCoreEquipment = Equipment.CreateEquipment("Power Core", Equipment.EquipmentType.NonWeapon, null);
-        powerCoreEquipment.StatModifierList.Add(new StatModifier("StatForTest", 0, 0.3f));
+        var powerShieldEquipment = Equipment.CreateEquipment("Power Shield", Equipment.EquipmentType.NonWeapon, null,
+            new Stats
+            {
+                maxHPFixedModifier = 75
+            }
+        );
 
+
+        var normalCoreEquipment = Equipment.CreateEquipment("Normal Core", Equipment.EquipmentType.NonWeapon, null,
+            new Stats
+            {
+                maxHPRateModifier = 0.2f,
+                maxSpeedRateModifier = -0.1f
+
+            }
+        );
+
+        var powerCoreEquipment = Equipment.CreateEquipment("Power Core", Equipment.EquipmentType.NonWeapon, null,
+            new Stats
+            {
+                maxHPRateModifier = 0.3f,
+                maxSpeedRateModifier = -0.15f
+
+            }
+        );
         equipmentDictForTest.Add(normalShieldEquipment.name, normalShieldEquipment);
         equipmentDictForTest.Add(powerShieldEquipment.name, powerShieldEquipment);
         equipmentDictForTest.Add(normalCoreEquipment.name, normalCoreEquipment);

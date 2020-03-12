@@ -34,23 +34,15 @@ public class Equipment
         private set;
     }
 
-    /// <summary>
-    /// 장비의 스탯 변경 값.
-    /// </summary>
-    public List<StatModifier> StatModifierList
-    {
-        get;
-        private set;
-    }
+    public Stats stats;
 
-    public Equipment(string name, EquipmentType equipmentType, ITriggerBattleAction battleAction)
+    public Equipment(string name, EquipmentType equipmentType, ITriggerBattleAction battleAction, Stats stats)
     {
         this.name = name;
         this.equipmentType = equipmentType;
 
         this.BattleAction = battleAction;
-
-        this.StatModifierList = new List<StatModifier>();
+        this.stats = stats;
     }
 
     /// <summary>
@@ -58,8 +50,8 @@ public class Equipment
     /// </summary>
     /// <param name="battleAction">장비에서 사용되는 BattleAction.</param>
     /// <returns></returns>
-    public static Equipment CreateEquipment(string name, EquipmentType equipmentType, ITriggerBattleAction battleAction)
+    public static Equipment CreateEquipment(string name, EquipmentType equipmentType, ITriggerBattleAction battleAction, Stats stats)
     {
-        return new Equipment(name, equipmentType, battleAction);
+        return new Equipment(name, equipmentType, battleAction, stats);
     }
 }
