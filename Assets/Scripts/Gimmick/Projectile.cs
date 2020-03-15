@@ -36,11 +36,6 @@ public class Projectile : FieldObject, IUpdatable
         damageInfo.Damage = 1;
     }
 
-    private void OnDisable()
-    {
-        UpdateManager.Instance?.RemoveUpdatable(this);
-    }
-
     /// <summary>
     /// projectile 생성
     /// </summary>
@@ -121,6 +116,7 @@ public class Projectile : FieldObject, IUpdatable
 
         //피격 작업이 끝나면 이 객체를 ObjectPool에 반환.
         UnityObjectPool.GetOrCreate("MultiShotBullet").Return(GetComponent<PooledUnityObject>());
+        UpdateManager.Instance.RemoveUpdatable(this);
 
     }
 
