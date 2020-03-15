@@ -15,10 +15,10 @@ public class UpdateManager : Singleton<UpdateManager>
 
     void Awake()
     {
-        DontDestroyOnLoad(this.gameObject);
+
     }
 
-    void OnDisable()
+    void OnDestroy()
     {
         updatableList.Clear();
         fixedList.Clear();

@@ -12,23 +12,23 @@ using System.Collections;
 /// </example>
 public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
 {
-    private static T _instance;
+    protected static T instance;
 
     public static T Instance
     {
         get
         {
-            if (_instance == null)
+            if (instance == null)
             {
-                _instance = FindObjectOfType(typeof(T)) as T;
+                instance = FindObjectOfType(typeof(T)) as T;
 
-                if (_instance == null)
+                if (instance == null)
                 {
                     Debug.LogError("There's no active " + typeof(T) + " in this scene");
                 }
             }
 
-            return _instance;
+            return instance;
         }
     }
 }

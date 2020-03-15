@@ -38,7 +38,7 @@ public class Projectile : FieldObject, IUpdatable
 
     private void OnDisable()
     {
-        UpdateManager.Instance.RemoveUpdatable(this);
+        UpdateManager.Instance?.RemoveUpdatable(this);
     }
 
     /// <summary>
