@@ -205,10 +205,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 006c184a9f98fb7478734df2b03ab24e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CurrentHP: 100
-  MaxHP: 100
-  CurrentFuel: 100
-  MaxFuel: 100
-  FuelReductionRatio: 1
-  Defense: 10
-  MoveSpeed: 3
+  currentHp: 100
+  maxHp: 100
+  currentFuel: 100
+  maxFuel: 100
+  fuelReductionRatio: 1
+  defense: 10
+  moveSpeed: 1
+  stats:
+    maxHpBase: 0
+    maxHpFixedModifier: 0
+    maxHpRateModifier: 0
+    maxSpeedBase: 0
+    maxSpeedFixedModifier: 0
+    maxSpeedRateModifier: 0
+    maxFuelBase: 0
+    maxFuelFixedModifier: 0
+    maxFuelRateModifier: 0
+    fuelReductionRatioBase: 0
+    fuelReductionRatioFixedModifier: 0
+    fuelReductionRatioRateModifier: 0
+    defenseBase: 0
+    defenseFixedModifier: 0
+    defenseRateModifier: 0

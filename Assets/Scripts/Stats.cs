@@ -4,9 +4,22 @@
 [System.Serializable]
 public struct Stats
 {
-    public float maxHPBase;
-    public float maxHPFixedModifier;
-    public float maxHPRateModifier;
+    /*
+     [스탯 관련 변수]
+     -Base: 장비 등에 의해 영향받지 않은 스탯의 기본값.
+     
+     -FixedModifier: 수치만큼 스탯을 추가.
+      (예: fixedModifier = 30f => 30만큼 스탯 증가)
+
+     -RateModifier: 수치에 해당하는 비율만큼 스탯을 추가. (합연산으로 적용)
+      (예: rateModifier = 0.3f => Base의 30%만큼 스탯 증가)
+
+     [스탯 계산 공식]
+      최종값 = base * (1 + rateModifier) + fixedModifier
+     */
+    public float maxHpBase;
+    public float maxHpFixedModifier;
+    public float maxHpRateModifier;
 
     public float maxSpeedBase;
     public float maxSpeedFixedModifier;
@@ -27,9 +40,9 @@ public struct Stats
 
     public void Add(Stats other)
     {
-        maxHPBase += other.maxHPBase;
-        maxHPFixedModifier += other.maxHPFixedModifier;
-        maxHPRateModifier += other.maxHPRateModifier;
+        maxHpBase += other.maxHpBase;
+        maxHpFixedModifier += other.maxHpFixedModifier;
+        maxHpRateModifier += other.maxHpRateModifier;
 
         maxSpeedBase += other.maxSpeedBase;
         maxSpeedFixedModifier += other.maxSpeedFixedModifier;
@@ -51,9 +64,9 @@ public struct Stats
 
     public void Sub(Stats other)
     {
-        maxHPBase -= other.maxHPBase;
-        maxHPFixedModifier -= other.maxHPFixedModifier;
-        maxHPRateModifier -= other.maxHPRateModifier;
+        maxHpBase -= other.maxHpBase;
+        maxHpFixedModifier -= other.maxHpFixedModifier;
+        maxHpRateModifier -= other.maxHpRateModifier;
 
         maxSpeedBase -= other.maxSpeedBase;
         maxSpeedFixedModifier -= other.maxSpeedFixedModifier;
@@ -72,15 +85,15 @@ public struct Stats
         defenseRateModifier -= other.defenseRateModifier;
     }
 
-    public static Stats operator +(Stats a, Stats b)
+    public static Stats operator +(Stats left, Stats right)
     {
-        a.Add(b);
-        return a;
+        left.Add(right);
+        return left;
     }
 
-    public static Stats operator -(Stats a, Stats b)
+    public static Stats operator -(Stats left, Stats right)
     {
-        a.Sub(b);
-        return a;
+        left.Sub(right);
+        return left;
     }
 }
