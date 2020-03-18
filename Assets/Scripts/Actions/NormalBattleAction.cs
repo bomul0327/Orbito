@@ -50,8 +50,10 @@ public class NormalBattleAction : ITriggerBattleAction
         // FIXME: JSON 시스템이 준비되면 JSON 데이터에서 받아올 것
         float speed = 50f;
         float maxDistance = 50f;
+        DamageInfo damageInfo;
+        damageInfo.Damage = 1;
 
-        Projectile.Create(bulletPrefabName, character.transform.position, character.transform.rotation, speed, maxDistance);
+        Projectile.Create(bulletPrefabName, character.transform.position, character.transform.rotation, speed, maxDistance, damageInfo);
 
     }
 

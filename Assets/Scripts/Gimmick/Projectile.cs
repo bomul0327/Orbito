@@ -22,7 +22,7 @@ public class Projectile : FieldObject, IUpdatable
         set;
     }
 
-    public DamageInfo damageInfo;
+    public DamageInfo DamageInfo;
 
     /// <summary>
     /// 현재까지 탄환이 이동한 거리. MaxDistance 이상 이동할 수 없음.
@@ -33,7 +33,7 @@ public class Projectile : FieldObject, IUpdatable
     {
         UpdateManager.Instance.AddUpdatable(this);
         currentDistance = 0;
-        damageInfo.Damage = 1;
+        DamageInfo.Damage = 1;
     }
 
     /// <summary>
@@ -44,7 +44,7 @@ public class Projectile : FieldObject, IUpdatable
     /// <param name="rotation">총알의 발사 각도</param>
     /// <param name="speed">총알의 속도</param>
     /// <param name="maxDistance">총알이 이동 가능한 최대 거리</param>
-    public static void Create(string bulletPrefabName, Vector3 position, Quaternion rotation, float speed, float maxDistance)
+    public static void Create(string bulletPrefabName, Vector3 position, Quaternion rotation, float speed, float maxDistance, DamageInfo damageInfo)
     {
         var bulletObjectPool = UnityObjectPool.GetOrCreate(bulletPrefabName);
         bulletObjectPool.SetOption(PoolScaleType.Unlimited, PoolReturnType.Manual);
@@ -54,6 +54,7 @@ public class Projectile : FieldObject, IUpdatable
         var bulletComponent = bulletObject.GetComponent<Projectile>();
         bulletComponent.Speed = speed;
         bulletComponent.MaxDistance = maxDistance;
+        bulletComponent.DamageInfo = damageInfo;
     }
 
     public void OnUpdate(float dt)
@@ -102,7 +103,7 @@ public class Projectile : FieldObject, IUpdatable
         // Damage 주기
         FieldObject fieldObject = other.gameObject.GetComponentInParent<FieldObject>();
         
-        using (var cmd = CommandFactory.GetOrCreate<DamageCommand>(fieldObject, damageInfo))
+        using (var cmd = CommandFactory.GetOrCreate<DamageCommand>(fieldObject, DamageInfo))
         {
             CommandDispatcher.Publish(cmd);
         }

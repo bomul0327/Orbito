@@ -92,8 +92,10 @@ public class MultiShotBattleAction : ITriggerBattleAction
 
             float speed = 50f;
             float maxDistance = 50f;
+            DamageInfo damageInfo;
+            damageInfo.Damage = 1;
 
-            Projectile.Create(bulletPrefabName, bulletInitPosition, bulletInitRotation, speed, maxDistance);
+            Projectile.Create(bulletPrefabName, bulletInitPosition, bulletInitRotation, speed, maxDistance, damageInfo);
 
         }
 
