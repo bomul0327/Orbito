@@ -108,7 +108,7 @@ public class CharacterPlayerController : CharacterControllerBase, IUpdatable
         if (Input.GetKeyDown(KeyCode.E))
         {
             int equipSlotNumber = 0;
-            foreach (var equipment in character.equipmentDict.Values)
+            foreach (var equipment in character.equipmentDictForTest.Values)
             {
                 using (var cmd = CommandFactory.GetOrCreate<EquipCommand>(character, equipment, equipSlotNumber++))
                 {
@@ -122,7 +122,7 @@ public class CharacterPlayerController : CharacterControllerBase, IUpdatable
         if (Input.GetKeyDown(KeyCode.R))
         {
             int equipSlotNumber = 0;
-            foreach (var weapon in character.nonWeaponSlots)
+            foreach (var weapon in character.nonWeaponSlot)
             {
                 using (var cmd = CommandFactory.GetOrCreate<UnequipCommand>(character, Equipment.EquipmentType.NonWeapon, equipSlotNumber++))
                 {

@@ -28,7 +28,11 @@ public class Equipment
     /// <summary>
     /// 장비의 BattleAction. 기본적으로 Weapon 타입 장비에서 사용됨.
     /// </summary>
-    public ITriggerBattleAction battleAction;
+    public ITriggerBattleAction BattleAction
+    {
+        get;
+        private set;
+    }
 
     public Stats stats;
 
@@ -37,7 +41,7 @@ public class Equipment
         this.name = name;
         this.equipmentType = equipmentType;
 
-        this.battleAction = battleAction;
+        this.BattleAction = battleAction;
         this.stats = stats;
     }
 

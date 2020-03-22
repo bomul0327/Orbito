@@ -24,7 +24,7 @@ public class CharacterBehaviour
     /// </summary>
     public void MoveFront()
     {
-        charTransform.Translate(0, character.moveSpeed * Time.deltaTime, 0);
+        charTransform.Translate(0, character.MoveSpeed * Time.deltaTime, 0);
     }
 
     /// <summary>
@@ -48,7 +48,7 @@ public class CharacterBehaviour
     /// <param name="slotIndex">선택할 무기의 슬롯 번호(zero-based).</param>
     public void SelectWeapon(int slotIndex)
     {
-        var newSelectedWeapon = character.weaponSlots[slotIndex];
+        var newSelectedWeapon = character.weaponSlot[slotIndex];
 
         // 슬롯이 비어있거나 이미 선택된 무기라면 아무것도 하지 않는다.
         if (newSelectedWeapon == null || newSelectedWeapon == character.selectedWeapon) return;
@@ -57,7 +57,7 @@ public class CharacterBehaviour
         UnselectWeapon();
 
         character.selectedWeapon = newSelectedWeapon;
-        character.selectedBattleAction = newSelectedWeapon.battleAction;
+        character.selectedBattleAction = newSelectedWeapon.BattleAction;
     }
 
     /// <summary>
@@ -83,8 +83,8 @@ public class CharacterBehaviour
         //이전에 장착되어 있는 장비를 탈착한다.
         Unequip(slotIndex, newEquipment.equipmentType);
 
-        // 장착한 장비의 스탯 적용.
-        character.stats += newEquipment.stats;
+        // 탈착한 장비의 스탯 적용.
+        character.stat += newEquipment.stats;
 
         equipmentSlot[slotIndex] = newEquipment;
 
@@ -105,7 +105,7 @@ public class CharacterBehaviour
         if (lastEquipment == null) return;
 
         // 탈착한 장비의 스탯 해제.
-        character.stats -= lastEquipment.stats;
+        character.stat -= lastEquipment.stats;
 
         //장착 해제 한 장비가 현재 선택 중인 무기라면, 선택을 해제해야 한다.
         if (lastEquipment == character.selectedWeapon)
@@ -124,9 +124,9 @@ public class CharacterBehaviour
     private Equipment[] GetEquipmentSlot(Equipment.EquipmentType equipmentSlotType)
     {
         if (equipmentSlotType == Equipment.EquipmentType.Weapon)
-            return character.weaponSlots;
+            return character.weaponSlot;
         else
-            return character.nonWeaponSlots;
+            return character.nonWeaponSlot;
     }
 
     /// <summary>
@@ -146,7 +146,7 @@ public class CharacterBehaviour
 
         // 공전
         float radius = Vector3.Distance(planetPos, charTransform.position);
-        float deltaAngle = (character.moveSpeed / radius) * Time.deltaTime;
+        float deltaAngle = (character.MoveSpeed / radius) * Time.deltaTime;
         float rotAngle = Mathf.Acos((charTransform.position - planetPos).normalized.x);
 
         if (charTransform.position.y < planetPos.y) rotAngle = -rotAngle;

@@ -21,19 +21,19 @@ public class Character : FieldObject
 
     public StateMachine CharacterStateMachine = new StateMachine();
 
-    public int currentHp;
+    public int CurrentHP;
 
-    public int maxHp;
+    public int MaxHP;
 
-    public float currentFuel;
+    public float CurrentFuel;
 
-    public float maxFuel;
+    public float MaxFuel;
 
-    public float fuelReductionRatio;
+    public float FuelReductionRatio;
 
-    public float defense;
+    public float Defense;
 
-    public float moveSpeed;
+    public float MoveSpeed;
 
     /// <summary>
     /// 사용할 수 있는 배틀액션들
@@ -46,21 +46,22 @@ public class Character : FieldObject
     /// <summary>
     /// 장착 중인 Weapon 타입 장비를 보관하는 슬롯.
     /// </summary>
-    public Equipment[] weaponSlots = new Equipment[InitialWeaponSlotCount];
+    public Equipment[] weaponSlot = new Equipment[InitialWeaponSlotCount];
 
     /// <summary>
     /// 장착 중인 NonWeapon 타입 장비를 보관하는 슬롯.
     /// </summary>
-    public Equipment[] nonWeaponSlots = new Equipment[InitialNonWeaponSlotCount];
+    public Equipment[] nonWeaponSlot = new Equipment[InitialNonWeaponSlotCount];
 
 
     public static readonly int InitialWeaponSlotCount = 4;
     public static readonly int InitialNonWeaponSlotCount = 4;
 
     /// <summary>
-    /// 캐릭터의 스탯.
+    /// 스탯 증감 테스트를 위해 임의로 추가한 스탯.
+    /// 지금 단계에서는 Character에 스탯이 이것 한 종류만 있다고 가정하고 작성함.
     /// </summary>
-    public Stats stats;
+    public Stats stat;
 
     /// <summary>
     /// 현재 사용중인 Weapon타입 장비.
@@ -77,7 +78,7 @@ public class Character : FieldObject
     /// 테스트를 위해 생성한 Equipment 객체를 보관하는 Dictionary.
     /// 아직 Inventory 시스템이 완성되지 않았기에 임시로 Dictionary에 장비 객체 관리.
     /// </summary>
-    public Dictionary<string, Equipment> equipmentDict = new Dictionary<string, Equipment>();
+    public Dictionary<string, Equipment> equipmentDictForTest = new Dictionary<string, Equipment>();
 
     private void Awake()
     {
@@ -91,13 +92,13 @@ public class Character : FieldObject
         battleActionDict.Add(typeof(NormalBattleAction).Name, new NormalBattleAction(this));
         battleActionDict.Add(typeof(MultiShotBattleAction).Name, new MultiShotBattleAction(this));
 
-        stats = new Stats
+        stat = new Stats
         {
-            maxHpBase = maxHp,
-            defenseBase = defense,
-            fuelReductionRatioBase = fuelReductionRatio,
-            maxFuelBase = maxFuel,
-            maxSpeedBase = moveSpeed
+            maxHPBase = MaxHP,
+            defenseBase = Defense,
+            fuelReductionRatioBase = FuelReductionRatio,
+            maxFuelBase = MaxFuel,
+            maxSpeedBase = MoveSpeed
 
         };
 
@@ -112,21 +113,21 @@ public class Character : FieldObject
     {
 
         //임시로 여기에서 Weapon 타입의 Equipment를 생성하고, 무기슬롯에 할당.
-        weaponSlots[0] = Equipment.CreateEquipment("Normal Shooter", Equipment.EquipmentType.Weapon, battleActionDict["NormalBattleAction"], new Stats());
-        weaponSlots[1] = Equipment.CreateEquipment("Power Shooter", Equipment.EquipmentType.Weapon, battleActionDict["MultiShotBattleAction"], new Stats());
+        weaponSlot[0] = Equipment.CreateEquipment("Normal Shooter", Equipment.EquipmentType.Weapon, battleActionDict["NormalBattleAction"], new Stats());
+        weaponSlot[1] = Equipment.CreateEquipment("Power Shooter", Equipment.EquipmentType.Weapon, battleActionDict["MultiShotBattleAction"], new Stats());
 
         //임시로 여기에서 NonWeapon 타입의 Equipment를 생성.
         var normalShieldEquipment = Equipment.CreateEquipment("Normal Shield", Equipment.EquipmentType.NonWeapon, null,
             new Stats
             {
-                maxHpFixedModifier = 25
+                maxHPFixedModifier = 25
             }
         );
 
         var powerShieldEquipment = Equipment.CreateEquipment("Power Shield", Equipment.EquipmentType.NonWeapon, null,
             new Stats
             {
-                maxHpFixedModifier = 75
+                maxHPFixedModifier = 75
             }
         );
 
@@ -134,7 +135,7 @@ public class Character : FieldObject
         var normalCoreEquipment = Equipment.CreateEquipment("Normal Core", Equipment.EquipmentType.NonWeapon, null,
             new Stats
             {
-                maxHpRateModifier = 0.2f,
+                maxHPRateModifier = 0.2f,
                 maxSpeedRateModifier = -0.1f
 
             }
@@ -143,15 +144,14 @@ public class Character : FieldObject
         var powerCoreEquipment = Equipment.CreateEquipment("Power Core", Equipment.EquipmentType.NonWeapon, null,
             new Stats
             {
-                maxHpRateModifier = 0.3f,
+                maxHPRateModifier = 0.3f,
                 maxSpeedRateModifier = -0.15f
 
             }
         );
-
-        equipmentDict.Add(normalShieldEquipment.name, normalShieldEquipment);
-        equipmentDict.Add(powerShieldEquipment.name, powerShieldEquipment);
-        equipmentDict.Add(normalCoreEquipment.name, normalCoreEquipment);
-        equipmentDict.Add(powerCoreEquipment.name, powerCoreEquipment);
+        equipmentDictForTest.Add(normalShieldEquipment.name, normalShieldEquipment);
+        equipmentDictForTest.Add(powerShieldEquipment.name, powerShieldEquipment);
+        equipmentDictForTest.Add(normalCoreEquipment.name, normalCoreEquipment);
+        equipmentDictForTest.Add(powerCoreEquipment.name, powerCoreEquipment);
     }
 }

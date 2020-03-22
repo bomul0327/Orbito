@@ -23,6 +23,6 @@ public class StraightMoveState : IState, IUpdatable
     void IUpdatable.OnUpdate(float dt)
     {
         character.Behaviour.MoveFront();
-        character.currentFuel -= character.fuelReductionRatio;
+        character.CurrentFuel -= character.FuelReductionRatio;
     }
 }
