@@ -83,14 +83,14 @@ public class CharacterPlayerController : CharacterControllerBase, IUpdatable
 
         if (Input.GetButtonDown("Fire1"))
         {
-            character.battleActionDict["NormalBattleAction"].Trigger();
+            character.BattleActionDict["NormalBattleAction"].Trigger();
         }
 
         if (Input.GetButton("Fire2"))
         {
-            if (character.selectedWeapon != null)
+            if (character.SelectedWeapon != null)
             {
-                character.selectedBattleAction.Trigger();
+                character.SelectedBattleAction.Trigger();
             }
         }
 
@@ -108,7 +108,7 @@ public class CharacterPlayerController : CharacterControllerBase, IUpdatable
         if (Input.GetKeyDown(KeyCode.E))
         {
             int equipSlotNumber = 0;
-            foreach (var equipment in character.equipmentDictForTest.Values)
+            foreach (var equipment in character.EquipmentDictForTest.Values)
             {
                 using (var cmd = CommandFactory.GetOrCreate<EquipCommand>(character, equipment, equipSlotNumber++))
                 {
@@ -122,9 +122,9 @@ public class CharacterPlayerController : CharacterControllerBase, IUpdatable
         if (Input.GetKeyDown(KeyCode.R))
         {
             int equipSlotNumber = 0;
-            foreach (var weapon in character.nonWeaponSlot)
+            foreach (var weapon in character.NonweaponSlots)
             {
-                using (var cmd = CommandFactory.GetOrCreate<UnequipCommand>(character, Equipment.EquipmentType.NonWeapon, equipSlotNumber++))
+                using (var cmd = CommandFactory.GetOrCreate<UnequipCommand>(character, EquipmentType.NonWeapon, equipSlotNumber++))
                 {
                     CommandDispatcher.Publish(cmd);
                 }

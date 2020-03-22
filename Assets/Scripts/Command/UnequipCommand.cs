@@ -7,7 +7,7 @@ public class UnequipCommand : ICommand
     /// <summary>
     /// 탈착할 장비슬롯의 타입.
     /// </summary>
-    Equipment.EquipmentType equipmentSlotType;
+    EquipmentType equipmentSlotType;
 
     /// <summary>
     /// 탈착할 장비 슬롯의 index(zero-based).
@@ -28,7 +28,7 @@ public class UnequipCommand : ICommand
     public void SetData(params object[] values)
     {
         character = values[0] as Character;
-        equipmentSlotType = (Equipment.EquipmentType)values[1];
+        equipmentSlotType = (EquipmentType)values[1];
         slotIndex = (int)values[2];
     }
 }

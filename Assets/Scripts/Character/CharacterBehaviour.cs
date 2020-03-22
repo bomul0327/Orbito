@@ -48,16 +48,16 @@ public class CharacterBehaviour
     /// <param name="slotIndex">선택할 무기의 슬롯 번호(zero-based).</param>
     public void SelectWeapon(int slotIndex)
     {
-        var newSelectedWeapon = character.weaponSlot[slotIndex];
+        var newSelectedWeapon = character.WeaponSlots[slotIndex];
 
         // 슬롯이 비어있거나 이미 선택된 무기라면 아무것도 하지 않는다.
-        if (newSelectedWeapon == null || newSelectedWeapon == character.selectedWeapon) return;
+        if (newSelectedWeapon == null || newSelectedWeapon == character.SelectedWeapon) return;
 
         //현재 선택 중인 무기를 선택 해제한다.
         UnselectWeapon();
 
-        character.selectedWeapon = newSelectedWeapon;
-        character.selectedBattleAction = newSelectedWeapon.BattleAction;
+        character.SelectedWeapon = newSelectedWeapon;
+        character.SelectedBattleAction = newSelectedWeapon.BattleAction;
     }
 
     /// <summary>
@@ -65,10 +65,10 @@ public class CharacterBehaviour
     /// </summary>
     public void UnselectWeapon()
     {
-        if (character.selectedWeapon == null) return;
+        if (character.SelectedWeapon == null) return;
 
-        character.selectedWeapon = null;
-        character.selectedBattleAction = null;
+        character.SelectedWeapon = null;
+        character.SelectedBattleAction = null;
     }
 
     /// <summary>
@@ -78,13 +78,13 @@ public class CharacterBehaviour
     /// <param name="slotIndex">무기를 장착할 슬롯의 번호(zero-based).</param>
     public void Equip(Equipment newEquipment, int slotIndex)
     {
-        var equipmentSlot = GetEquipmentSlot(newEquipment.equipmentType);
+        var equipmentSlot = GetEquipmentSlot(newEquipment.EquipmentType);
         
         //이전에 장착되어 있는 장비를 탈착한다.
-        Unequip(slotIndex, newEquipment.equipmentType);
+        Unequip(slotIndex, newEquipment.EquipmentType);
 
-        // 탈착한 장비의 스탯 적용.
-        character.stat += newEquipment.stats;
+        // 장착한 장비의 스탯 적용.
+        character.Stats += newEquipment.Stats;
 
         equipmentSlot[slotIndex] = newEquipment;
 
@@ -95,7 +95,7 @@ public class CharacterBehaviour
     /// </summary>
     /// <param name="slotIndex">탈착할 무기가 있는 슬롯의 번호(zero-based).</param>
     /// <param name="equipmentType">탈착할 장비의 타입.</param>
-    public void Unequip(int slotIndex, Equipment.EquipmentType equipmentType)
+    public void Unequip(int slotIndex, EquipmentType equipmentType)
     {
         var equipmentSlot = GetEquipmentSlot(equipmentType);
 
@@ -105,10 +105,10 @@ public class CharacterBehaviour
         if (lastEquipment == null) return;
 
         // 탈착한 장비의 스탯 해제.
-        character.stat -= lastEquipment.stats;
+        character.Stats -= lastEquipment.Stats;
 
         //장착 해제 한 장비가 현재 선택 중인 무기라면, 선택을 해제해야 한다.
-        if (lastEquipment == character.selectedWeapon)
+        if (lastEquipment == character.SelectedWeapon)
         {
             UnselectWeapon();
         }
@@ -121,12 +121,12 @@ public class CharacterBehaviour
     /// Character의 장비 슬롯을 가져옵니다.
     /// </summary>
     /// <param name="equipmentSlotType">가져올 장비 슬롯의 타입.</param>
-    private Equipment[] GetEquipmentSlot(Equipment.EquipmentType equipmentSlotType)
+    private Equipment[] GetEquipmentSlot(EquipmentType equipmentSlotType)
     {
-        if (equipmentSlotType == Equipment.EquipmentType.Weapon)
-            return character.weaponSlot;
+        if (equipmentSlotType == EquipmentType.Weapon)
+            return character.WeaponSlots;
         else
-            return character.nonWeaponSlot;
+            return character.NonweaponSlots;
     }
 
     /// <summary>

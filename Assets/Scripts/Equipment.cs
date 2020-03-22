@@ -1,29 +1,29 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+public enum EquipmentType
+{
+    /// <summary>
+    /// 공격 조작을 통해 사용할 수 있는 무기 장비 타입.
+    /// </summary>
+    Weapon,
+
+    /// <summary>
+    /// 별도로 사용하지 않아도 능력치를 올려주는 무기 외 장비 타입.
+    /// </summary>
+    NonWeapon
+}
+
 public class Equipment
 {
-    public enum EquipmentType
-    {
-        /// <summary>
-        /// 공격 조작을 통해 사용할 수 있는 무기 장비 타입.
-        /// </summary>
-        Weapon,
-
-        /// <summary>
-        /// 별도로 사용하지 않아도 능력치를 올려주는 무기 외 장비 타입.
-        /// </summary>
-        NonWeapon
-    }
-
     /// <summary>
     /// 장비의 이름, 또는 ID.
     /// </summary>
-    public readonly string name;
+    public readonly string Name;
 
     /// <summary>
     /// 장비의 타입.
     /// </summary>
-    public readonly EquipmentType equipmentType;
+    public readonly EquipmentType EquipmentType;
 
     /// <summary>
     /// 장비의 BattleAction. 기본적으로 Weapon 타입 장비에서 사용됨.
@@ -34,15 +34,15 @@ public class Equipment
         private set;
     }
 
-    public Stats stats;
+    public Stats Stats;
 
     public Equipment(string name, EquipmentType equipmentType, ITriggerBattleAction battleAction, Stats stats)
     {
-        this.name = name;
-        this.equipmentType = equipmentType;
+        this.Name = name;
+        this.EquipmentType = equipmentType;
 
         this.BattleAction = battleAction;
-        this.stats = stats;
+        this.Stats = stats;
     }
 
     /// <summary>
@@ -55,3 +55,4 @@ public class Equipment
         return new Equipment(name, equipmentType, battleAction, stats);
     }
 }
+

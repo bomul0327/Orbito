@@ -4,72 +4,85 @@
 [System.Serializable]
 public struct Stats
 {
-    public float maxHPBase;
-    public float maxHPFixedModifier;
-    public float maxHPRateModifier;
+    /*
+      [스탯 관련 변수]
+      -Base: 장비 등에 의해 영향받지 않은 스탯의 기본값.
 
-    public float maxSpeedBase;
-    public float maxSpeedFixedModifier;
-    public float maxSpeedRateModifier;
+      -FixedModifier: 수치만큼 스탯을 추가.
+       (예: fixedModifier = 30f => 30만큼 스탯 증가)
 
-    public float maxFuelBase;
-    public float maxFuelFixedModifier;
-    public float maxFuelRateModifier;
+      -RateModifier: 수치에 해당하는 비율만큼 스탯을 추가. (합연산으로 적용)
+       (예: rateModifier = 0.3f => Base의 30%만큼 스탯 증가)
 
-    public float fuelReductionRatioBase;
-    public float fuelReductionRatioFixedModifier;
-    public float fuelReductionRatioRateModifier;
+      [스탯 계산 공식]
+       최종값 = base * (1 + rateModifier) + fixedModifier
+    */
+    public float MaxHPBase;
+    public float MaxHPFixedModifier;
+    public float MaxHPRateModifier;
 
-    public float defenseBase;
-    public float defenseFixedModifier;
-    public float defenseRateModifier;
+    public float MaxSpeedBase;
+    public float MaxSpeedFixedModifier;
+    public float MaxSpeedRateModifier;
+
+    public float MaxFuelBase;
+    public float MaxFuelFixedModifier;
+    public float MaxFuelRateModifier;
+
+    public float FuelReductionRatioBase;
+    public float FuelReductionRatioFixedModifier;
+    public float FuelReductionRatioRateModifier;
+
+    public float DefenseBase;
+    public float DefenseFixedModifier;
+    public float DefenseRateModifier;
 
 
     public void Add(Stats other)
     {
-        maxHPBase += other.maxHPBase;
-        maxHPFixedModifier += other.maxHPFixedModifier;
-        maxHPRateModifier += other.maxHPRateModifier;
+        MaxHPBase += other.MaxHPBase;
+        MaxHPFixedModifier += other.MaxHPFixedModifier;
+        MaxHPRateModifier += other.MaxHPRateModifier;
 
-        maxSpeedBase += other.maxSpeedBase;
-        maxSpeedFixedModifier += other.maxSpeedFixedModifier;
-        maxSpeedRateModifier += other.maxSpeedRateModifier;
+        MaxSpeedBase += other.MaxSpeedBase;
+        MaxSpeedFixedModifier += other.MaxSpeedFixedModifier;
+        MaxSpeedRateModifier += other.MaxSpeedRateModifier;
 
-        maxFuelBase += other.maxFuelBase;
-        maxFuelFixedModifier += other.maxFuelFixedModifier;
-        maxFuelRateModifier += other.maxFuelRateModifier;
+        MaxFuelBase += other.MaxFuelBase;
+        MaxFuelFixedModifier += other.MaxFuelFixedModifier;
+        MaxFuelRateModifier += other.MaxFuelRateModifier;
 
-        fuelReductionRatioBase += other.fuelReductionRatioBase;
-        fuelReductionRatioFixedModifier += other.fuelReductionRatioFixedModifier;
-        fuelReductionRatioRateModifier += other.fuelReductionRatioRateModifier;
+        FuelReductionRatioBase += other.FuelReductionRatioBase;
+        FuelReductionRatioFixedModifier += other.FuelReductionRatioFixedModifier;
+        FuelReductionRatioRateModifier += other.FuelReductionRatioRateModifier;
 
-        defenseBase += other.defenseBase;
-        defenseFixedModifier += other.defenseFixedModifier;
-        defenseRateModifier += other.defenseRateModifier;
+        DefenseBase += other.DefenseBase;
+        DefenseFixedModifier += other.DefenseFixedModifier;
+        DefenseRateModifier += other.DefenseRateModifier;
 
     }
 
     public void Sub(Stats other)
     {
-        maxHPBase -= other.maxHPBase;
-        maxHPFixedModifier -= other.maxHPFixedModifier;
-        maxHPRateModifier -= other.maxHPRateModifier;
+        MaxHPBase -= other.MaxHPBase;
+        MaxHPFixedModifier -= other.MaxHPFixedModifier;
+        MaxHPRateModifier -= other.MaxHPRateModifier;
 
-        maxSpeedBase -= other.maxSpeedBase;
-        maxSpeedFixedModifier -= other.maxSpeedFixedModifier;
-        maxSpeedRateModifier -= other.maxSpeedRateModifier;
+        MaxSpeedBase -= other.MaxSpeedBase;
+        MaxSpeedFixedModifier -= other.MaxSpeedFixedModifier;
+        MaxSpeedRateModifier -= other.MaxSpeedRateModifier;
 
-        maxFuelBase -= other.maxFuelBase;
-        maxFuelFixedModifier -= other.maxFuelFixedModifier;
-        maxFuelRateModifier -= other.maxFuelRateModifier;
+        MaxFuelBase -= other.MaxFuelBase;
+        MaxFuelFixedModifier -= other.MaxFuelFixedModifier;
+        MaxFuelRateModifier -= other.MaxFuelRateModifier;
 
-        fuelReductionRatioBase -= other.fuelReductionRatioBase;
-        fuelReductionRatioFixedModifier -= other.fuelReductionRatioFixedModifier;
-        fuelReductionRatioRateModifier -= other.fuelReductionRatioRateModifier;
+        FuelReductionRatioBase -= other.FuelReductionRatioBase;
+        FuelReductionRatioFixedModifier -= other.FuelReductionRatioFixedModifier;
+        FuelReductionRatioRateModifier -= other.FuelReductionRatioRateModifier;
 
-        defenseBase -= other.defenseBase;
-        defenseFixedModifier -= other.defenseFixedModifier;
-        defenseRateModifier -= other.defenseRateModifier;
+        DefenseBase -= other.DefenseBase;
+        DefenseFixedModifier -= other.DefenseFixedModifier;
+        DefenseRateModifier -= other.DefenseRateModifier;
     }
 
     public static Stats operator +(Stats a, Stats b)
