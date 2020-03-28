@@ -12,7 +12,6 @@ public class Gimmick : FieldObject
         get; private set;
     }
 
-
     private void Awake()
     {
         // Get Behaviour by something.

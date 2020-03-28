@@ -9,6 +9,7 @@ public class ResourceManager : Singleton<ResourceManager>
     /// </summary>
     public int currentResource = 0;
     float waitingTimeForIR = 0.1f;
+    public TestItem item;
 
     public void Awake()
     {
@@ -27,6 +28,11 @@ public class ResourceManager : Singleton<ResourceManager>
                 Debug.Log(Time.time + " - " + currentResource);
             }
         }
+    }
+
+    public void CreateItem(Vector3 enemyPos)
+    {
+        Instantiate(item, enemyPos, Quaternion.identity);
     }
 }
 

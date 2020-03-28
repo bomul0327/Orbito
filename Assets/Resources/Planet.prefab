@@ -90,6 +90,7 @@ GameObject:
   m_Component:
   - component: {fileID: 221567585042085185}
   - component: {fileID: 221567585042085186}
+  - component: {fileID: 1120004426177137820}
   m_Layer: 0
   m_Name: Planet
   m_TagString: Planet
@@ -124,4 +125,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfef1e7d41e0f6d4590ea46d4b63398c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Radius: 0
+  Selectable: 0
   MoveSpeed: 10
+  GravityScale: 0
+--- !u!58 &1120004426177137820
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 221567585042085187}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
+  m_Radius: 1
