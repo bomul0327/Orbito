@@ -83,17 +83,77 @@ public class CharacterPlayerController : CharacterControllerBase, IUpdatable
 
         if (Input.GetButtonDown("Fire1"))
         {
-            character.battleActionDict["NormalBattleAction"].Trigger();
+            character.BattleActionDict["NormalBattleAction"].Trigger();
         }
 
         if (Input.GetButton("Fire2"))
         {
-            character.battleActionDict["MultiShotBattleAction"].Trigger();
+            if (character.SelectedWeapon != null)
+            {
+                character.SelectedBattleAction.Trigger();
+            }
         }
 
-        if (Input.GetButton("AirBomb"))
+
+        if (GetWeponSlotButtonsDown(out int slotNumber))
         {
-            character.battleActionDict["AirBombShotBattleAction"].Trigger();
+            using (var cmd = CommandFactory.GetOrCreate<WeaponSelectCommand>(character, slotNumber))
+            {
+                CommandDispatcher.Publish(cmd);
+            }
         }
+
+        //테스트용 NonWeapon 4개를 일시에 장착.
+        //FIXME: 테스트가 끝나면 반드시 삭제할 것.
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            int equipSlotNumber = 0;
+            foreach (var equipment in character.EquipmentDictForTest.Values)
+            {
+                using (var cmd = CommandFactory.GetOrCreate<EquipCommand>(character, equipment, equipSlotNumber++))
+                {
+                    CommandDispatcher.Publish(cmd);
+                }
+            }
+        }
+
+        //NonWeapon 슬롯에 있는 모든 장비를 일시에 탈착.
+        //FIXME: 테스트가 끝나면 반드시 삭제할 것.
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            int equipSlotNumber = 0;
+            foreach (var weapon in character.NonweaponSlots)
+            {
+                using (var cmd = CommandFactory.GetOrCreate<UnequipCommand>(character, EquipmentType.NonWeapon, equipSlotNumber++))
+                {
+                    CommandDispatcher.Publish(cmd);
+                }
+            }
+        }
+    }
+
+    private static readonly string[] WeaponSlotButtonNames = { "WeaponSelect_1", "WeaponSelect_2", "WeaponSelect_3", "WeaponSelect_4" };
+
+    /// <summary>
+    /// WeaponSlot 버튼들의 입력을 확인하고, 그에 해당하는 slot의 Index를 출력.
+    /// </summary>
+    /// <param name="slotIndex">슬롯 버튼이 눌렸다면, 그 버튼에 상응하는 무기 slot의 index를 출력</param>
+    /// <returns>어떤 WeaponSlot 버튼이 눌렸다면, true. 아무 버튼도 눌리지 않았다면, false.</returns>
+    private bool GetWeponSlotButtonsDown(out int slotIndex)
+    {
+        for (int i = 0; i < WeaponSlotButtonNames.Length; i++)
+        {
+            // 동시에 여러 개의 슬롯 버튼을 입력받았어도, 가장 앞쪽에 있는 슬롯 버튼의 입력 하나만 인정됨에 유의.
+            // 따라서, 한 번에 여러 개의 슬롯이 선택되는 경우는 없다.
+            if (Input.GetButtonDown(WeaponSlotButtonNames[i]))
+            {
+                slotIndex = i;
+                return true;
+            }
+        }
+
+        // 아무 버튼도 눌리지 않았을 경우, index를 -1로 설정하여 오용 방지.
+        slotIndex = -1;
+        return false;
     }
 }

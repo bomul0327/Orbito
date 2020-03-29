@@ -43,6 +43,93 @@ public class CharacterBehaviour
     }
 
     /// <summary>
+    /// 무기 장비 슬롯에서 무기를 선택합니다.
+    /// </summary>
+    /// <param name="slotIndex">선택할 무기의 슬롯 번호(zero-based).</param>
+    public void SelectWeapon(int slotIndex)
+    {
+        var newSelectedWeapon = character.WeaponSlots[slotIndex];
+
+        // 슬롯이 비어있거나 이미 선택된 무기라면 아무것도 하지 않는다.
+        if (newSelectedWeapon == null || newSelectedWeapon == character.SelectedWeapon) return;
+
+        //현재 선택 중인 무기를 선택 해제한다.
+        UnselectWeapon();
+
+        character.SelectedWeapon = newSelectedWeapon;
+        character.SelectedBattleAction = newSelectedWeapon.BattleAction;
+    }
+
+    /// <summary>
+    /// 현재 선택 중인 무기를 선택 해제합니다.
+    /// </summary>
+    public void UnselectWeapon()
+    {
+        if (character.SelectedWeapon == null) return;
+
+        character.SelectedWeapon = null;
+        character.SelectedBattleAction = null;
+    }
+
+    /// <summary>
+    /// 장비를 장비 슬롯에 장착합니다.
+    /// </summary>
+    /// <param name="newEquipment">슬롯에 새로 장착할 무기</param>
+    /// <param name="slotIndex">무기를 장착할 슬롯의 번호(zero-based).</param>
+    public void Equip(Equipment newEquipment, int slotIndex)
+    {
+        var equipmentSlot = GetEquipmentSlot(newEquipment.EquipmentType);
+        
+        //이전에 장착되어 있는 장비를 탈착한다.
+        Unequip(slotIndex, newEquipment.EquipmentType);
+
+        // 장착한 장비의 스탯 적용.
+        character.Stats += newEquipment.Stats;
+
+        equipmentSlot[slotIndex] = newEquipment;
+
+    }
+
+    /// <summary>
+    /// 장비 슬롯에서 장비를 탈착합니다.
+    /// </summary>
+    /// <param name="slotIndex">탈착할 무기가 있는 슬롯의 번호(zero-based).</param>
+    /// <param name="equipmentType">탈착할 장비의 타입.</param>
+    public void Unequip(int slotIndex, EquipmentType equipmentType)
+    {
+        var equipmentSlot = GetEquipmentSlot(equipmentType);
+
+        var lastEquipment = equipmentSlot[slotIndex];
+
+        // 슬롯이 비어있다면 아무 것도 하지 않는다.
+        if (lastEquipment == null) return;
+
+        // 탈착한 장비의 스탯 해제.
+        character.Stats -= lastEquipment.Stats;
+
+        //장착 해제 한 장비가 현재 선택 중인 무기라면, 선택을 해제해야 한다.
+        if (lastEquipment == character.SelectedWeapon)
+        {
+            UnselectWeapon();
+        }
+
+
+        equipmentSlot[slotIndex] = null;
+    }
+
+    /// <summary>
+    /// Character의 장비 슬롯을 가져옵니다.
+    /// </summary>
+    /// <param name="equipmentSlotType">가져올 장비 슬롯의 타입.</param>
+    private Equipment[] GetEquipmentSlot(EquipmentType equipmentSlotType)
+    {
+        if (equipmentSlotType == EquipmentType.Weapon)
+            return character.WeaponSlots;
+        else
+            return character.NonweaponSlots;
+    }
+
+    /// <summary>
     /// planetPos를 중심으로 MoveSpeed를 각속도로 변환한 속도로 공전
     /// </summary>
     /// <param name="planetPos"></param> character가 공전하는 행성의 위치
@@ -82,7 +169,5 @@ public class CharacterBehaviour
     {
         Debug.Log("Air Bomb");
     }
+
 }
-
-
-
