@@ -45,7 +45,7 @@ public class AirBombShotBattleAction : ITriggerBattleAction
 
     private float lastFireSuccessTime;
 
-    private string bulletPrefabName = "AirBomb";
+    private string AirBombPrefabName = "AirBombExplosionEffect";
 
     public AirBombShotBattleAction(Character character)
     {
@@ -66,7 +66,7 @@ public class AirBombShotBattleAction : ITriggerBattleAction
     {
         Vector3 targetPositionDeltaUnit = (Input.mousePosition - Camera.main.WorldToScreenPoint(character.transform.position)).normalized;
 
-        var airBombPool = UnityObjectPool.GetOrCreate("AirBombExplosionEffect");
+        var airBombPool = UnityObjectPool.GetOrCreate(AirBombPrefabName);
         airBombPool.SetOption(PoolScaleType.Limited, PoolReturnType.Auto);
         airBombPool.MaxPoolCapacity = 1;
 

@@ -5,9 +5,17 @@ using UnityEngine;
 
 public class MapManager : Singleton<MapManager>, IUpdatable
 {
-    public const int ChunkWidth = 100;
-    public const int ChunkHeight = 60;
-    public int Seed;
+    public static int ChunkWidth = 100;
+    public static int ChunkHeight = 60;
+    public static int Seed;
+    // json이 완성되면 이 멤버를 없애고 json으로 받아올 것
+    [SerializeField]
+    public int seed;
+    public void OnAfterDeserialize()
+    {
+        Seed = seed;
+    }
+
     private BoxCollider2D ChunkBoundaryCollider;
     /// <summary>
     /// 초기설정
@@ -65,18 +73,19 @@ public class MapManager : Singleton<MapManager>, IUpdatable
         // ChunkBoundaryCollider.offset = new Vector2(Camera.main.transform.position.x, Camera.main.transform.position.y);
 
         // 시험용 인풋 테스트입니다.
-        // if (Input.GetKey(KeyCode.Q))
-        // {
-        //     Camera.main.transform.Translate(new Vector3(0f, dt*5, 0f));
-        // }
-        // if (Input.GetKeyDown(KeyCode.W))
-        // {
-        //     Camera.main.transform.Translate(new Vector3(dt*5, 0f, 0f));
-        // }
+        if (Input.GetKey(KeyCode.Q))
+        {
+            Camera.main.transform.Translate(new Vector3(0f, dt*10, 0f));
+        }
+        if (Input.GetKey(KeyCode.W))
+        {
+            Camera.main.transform.Translate(new Vector3(dt*10, 0f, 0f));
+        }
     }
-
-    private void OnTriggerExit(Collider chunkReturn)
+ 
+    void OnTriggerExit(Collider chunkReturn)
     {
+        Debug.Log(chunkReturn.name);
         UnityObjectPool.GetOrCreate("ChunkSpawner").Return(chunkReturn.gameObject.GetComponent<PooledUnityObject>());
     }
     
