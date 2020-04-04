@@ -1,0 +1,42 @@
+[
+  {
+    "AssetName": "Player",
+    "PoolCapacity": 10,
+    "MaxPoolCapacity": 0,
+    "MyPoolScaleType": "Static",
+    "MyPoolReturnType": "Manual",
+    "AutoReturnTime": 0
+  },
+  {
+    "AssetName": "Planet",
+    "PoolCapacity": 10,
+    "MaxPoolCapacity": 1000,
+    "MyPoolScaleType": "Limited",
+    "MyPoolReturnType": "Manual",
+    "AutoReturnTime": 0
+  },
+  {
+    "AssetName": "ChunkSpawner",
+    "PoolCapacity": 9,
+    "MaxPoolCapacity": 0,
+    "MyPoolScaleType": "Static",
+    "MyPoolReturnType": "Manual",
+    "AutoReturnTime": 0
+  },
+  {
+    "AssetName": "AirBombExplosionEffect",
+    "PoolCapacity": 10,
+    "MaxPoolCapacity": 15,
+    "MyPoolScaleType": "Limited",
+    "MyPoolReturnType": "Auto",
+    "AutoReturnTime": 2
+  },
+  {
+    "AssetName": "ProjectileExplosionEffect",
+    "PoolCapacity": 10,
+    "MaxPoolCapacity": 0,
+    "MyPoolScaleType": "Unlimited",
+    "MyPoolReturnType": "Auto",
+    "AutoReturnTime": 1.5
+  }
+]

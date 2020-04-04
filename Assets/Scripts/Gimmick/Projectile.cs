@@ -47,7 +47,7 @@ public class Projectile : FieldObject, IUpdatable
     public static void Create(string bulletPrefabName, Vector3 position, Quaternion rotation, float speed, float maxDistance, DamageInfo damageInfo)
     {
         var bulletObjectPool = UnityObjectPool.GetOrCreate(bulletPrefabName);
-        bulletObjectPool.SetOption(PoolScaleType.Unlimited, PoolReturnType.Manual);
+        //bulletObjectPool.SetOption(PoolScaleType.Unlimited, PoolReturnType.Manual);
 
         var bulletObject = bulletObjectPool.Instantiate(position, rotation).gameObject;
 
@@ -111,8 +111,8 @@ public class Projectile : FieldObject, IUpdatable
         //지금은 빠른 테스트를 위해 여기서 바로 피격 Effect를 생성하지만, 
         //나중에는 다른 방식으로 변경할 수 있음.
         var hitParticlePool = UnityObjectPool.GetOrCreate("ProjectileExplosionEffect");
-        hitParticlePool.SetOption(PoolScaleType.Unlimited, PoolReturnType.Auto);
-        hitParticlePool.AutoReturnTime = 1.5f;
+        //hitParticlePool.SetOption(PoolScaleType.Unlimited, PoolReturnType.Auto);
+        //hitParticlePool.AutoReturnTime = 1.5f;
         hitParticlePool.Instantiate(transform.position, transform.rotation);
 
         //피격 작업이 끝나면 이 객체를 ObjectPool에 반환.

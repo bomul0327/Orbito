@@ -67,11 +67,11 @@ public class AirBombShotBattleAction : ITriggerBattleAction
         Vector3 targetPositionDeltaUnit = (Input.mousePosition - Camera.main.WorldToScreenPoint(character.transform.position)).normalized;
 
         var airBombPool = UnityObjectPool.GetOrCreate(AirBombPrefabName);
-        airBombPool.SetOption(PoolScaleType.Limited, PoolReturnType.Auto);
-        airBombPool.MaxPoolCapacity = 1;
+        //airBombPool.SetOption(PoolScaleType.Limited, PoolReturnType.Auto);
+        //airBombPool.MaxPoolCapacity = 1;
 
-        // FIXME: JSON 시스템이 준비되면 JSON 데이터에서 받아올 것
-        airBombPool.AutoReturnTime = 2f;
+        //// FIXME: JSON 시스템이 준비되면 JSON 데이터에서 받아올 것
+        //airBombPool.AutoReturnTime = 2f;
 
         airBombPool.Instantiate(character.transform.position + targetPositionDeltaUnit * ExplosionEffectDistance, new Quaternion(0, 0, 0, 0));
 

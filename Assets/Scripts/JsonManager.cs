@@ -1,39 +1,106 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System;
 using UnityEngine;
 
+using FMOD;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+using Debug = UnityEngine.Debug;
+
 public static class JsonManager 
 {
-    private static Dictionary<string, JObject> testDict;
+    private static Dictionary<string, object> infoObjDict;
+    private static string jsonPath;
 
     static JsonManager()
     {
-        testDict = new Dictionary<string, JObject>();
+        infoObjDict = new Dictionary<string, object>();
+        jsonPath = System.IO.Path.Combine(Application.streamingAssetsPath, "JsonFiles");
+        ReadSoundSourcePaths("SoundSourcePath.json");
+        ReadObjectPoolSpecs("ObjectPoolSpecs.json");
+    }
+    public static void ReadSoundSourcePaths(string fileName)
+    {
+        string filePath = System.IO.Path.Combine(jsonPath, fileName);
+        string dataAsjson = File.ReadAllText(filePath);
+        var data = JsonConvert.DeserializeObject<List<JObject>>(dataAsjson);
 
-        string jsonPath = Application.streamingAssetsPath + "/JsonFiles/";
-        string dataAsJson = File.ReadAllText( jsonPath + "SoundSourcePath.json" );
-        var data = JsonConvert.DeserializeObject<List<JObject>> (dataAsJson);
-
-        foreach ( var ob in data)
+        foreach (JObject ob in data)
         {
-            testDict.Add(ob["AssetName"].ToString(), ob);
+            SoundSourcePath sound = new SoundSourcePath();
+            sound.AssetName = ob["AssetName"].ToString();
+            string[] modesString = ob["MODE"].ToString().Split(',');
+            sound.Modes = new MODE[modesString.Length];
+            try
+            {
+                for(int i = 0; i < modesString.Length; ++i)
+                {
+                    sound.Modes[i] = (MODE)Enum.Parse(typeof(MODE), modesString[i]);
+                }
+            }
+            catch (ArgumentException)
+            {
+                Debug.Log("There is an error on " + ob["AssetName"].ToString() + "'s MODE");
+            }
+            sound.Path = ob["Path"].ToString();
+
+            infoObjDict.Add(sound.AssetName, sound);
         }
     }
 
-    public static JObject Find(string name)
+    public static SoundSourcePath GetSoundSourcePath(string assetName)
     {
-        if (testDict.ContainsKey(name))
+        if (infoObjDict.ContainsKey(assetName))
         {
-            return testDict[name];
+            return (SoundSourcePath)infoObjDict[assetName];
         }
         else
         {
-            Debug.Log("There is no JsonFile named like parameter");
+            Debug.Log("There is no SoundSourcePath named " + assetName);
             return null;
         }
     }
+    public static void ReadObjectPoolSpecs(string fileName)
+    {
+        string filePath = System.IO.Path.Combine(jsonPath, fileName);
+        string dataAsJson = File.ReadAllText(filePath);
+        var data = JsonConvert.DeserializeObject<List<JObject>>(dataAsJson);
+
+        foreach(JObject info in data)
+        {
+            ObjectPoolSpec spec = new ObjectPoolSpec();
+            spec.AssetName = info["AssetName"].ToString();
+            spec.PoolCapacity = (int)info["PoolCapacity"];
+            spec.MaxPoolCapacity = (int)info["MaxPoolCapacity"];
+            try
+            {
+                spec.MyPoolScaleType = (PoolScaleType)Enum.Parse(typeof(PoolScaleType), info["MyPoolScaleType"].ToString());
+                spec.MyPoolReturnType = (PoolReturnType)Enum.Parse(typeof(PoolReturnType), info["MyPoolReturnType"].ToString());
+            }
+            catch (ArgumentException)
+            {
+                Debug.Log("There is an error on " + info["AssetName"].ToString() + "'s MyPoolScaleType or MyPoolReturnType in ObjectPoolSpecs.json");
+            }
+            spec.AutoReturnTime = (float)info["AutoReturnTime"];
+
+            infoObjDict.Add(spec.AssetName + "PoolSpec", spec);
+        }
+    }
+
+    public static ObjectPoolSpec GetObjectPoolSpec(string assetName)
+    {
+        if(infoObjDict.ContainsKey(assetName + "PoolSpec"))
+        {
+            return (ObjectPoolSpec)infoObjDict[assetName + "PoolSpec"];
+        }
+        else
+        {
+            Debug.Log("There is no " + assetName + "'s PoolSpec");
+            return null;
+        }
+    }
+   
 }

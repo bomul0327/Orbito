@@ -24,17 +24,14 @@ public class UnityObjectPool : MonoBehaviour
     /// </summary>
     private static Dictionary<string, UnityObjectPool> poolDict = new Dictionary<string, UnityObjectPool>();
 
-    //기본 capacity : 현재 임시로 설정
-    public static int DefaultPoolCapacity = 10;
-
     /// <summary>
     /// UnityObjectPool을 만들거나, 이미 존재한다면 그 인스턴스를 가져옵니다.
-    /// Default : poolCapacity=10, PoolScaleType=Static, PoolReturnType=Manual
+    /// ObjectPoolSpecs.json파일에 명시된 오브젝트를 대상으로만 가능합니다.
     /// </summary>
     /// <param name="assetFileName">풀링하고자 하는 파일 이름</param>
     public static UnityObjectPool GetOrCreate(string assetFileName)
     {
-        UnityObjectPool instance;
+        UnityObjectPool instance = null;
 
         if (poolDict.TryGetValue(assetFileName, out instance))
         {
@@ -43,15 +40,25 @@ public class UnityObjectPool : MonoBehaviour
         else
         {
             //UnityObjectPool을 만든다
-            instance = new GameObject(assetFileName + "ObjectPool").AddComponent<UnityObjectPool>();
-            instance.AssetName = assetFileName;
-            instance.PoolCapacity = DefaultPoolCapacity;
-            instance.myPoolScaleType = PoolScaleType.Static;
-            instance.myPoolReturnType = PoolReturnType.Manual;
-            var targetObj = Resources.Load(assetFileName, typeof(GameObject)) as GameObject;
-            instance.PooledObj = targetObj;
-            instance.Allocate();
-            poolDict.Add(assetFileName, instance);
+            ObjectPoolSpec spec = JsonManager.GetObjectPoolSpec(assetFileName);
+            if(spec != null)
+            {
+                instance = new GameObject(assetFileName + "ObjectPool").AddComponent<UnityObjectPool>();
+                instance.AssetName = spec.AssetName;
+                instance.PoolCapacity = spec.PoolCapacity;
+                instance.MaxPoolCapacity = spec.MaxPoolCapacity;
+                instance.myPoolScaleType = spec.MyPoolScaleType;
+                instance.myPoolReturnType = spec.MyPoolReturnType;
+                instance.AutoReturnTime = spec.AutoReturnTime;
+                var targetObj = Resources.Load(assetFileName, typeof(GameObject)) as GameObject;
+                instance.PooledObj = targetObj;
+                instance.Allocate();
+                poolDict.Add(assetFileName, instance);
+            }
+            else
+            {
+                Debug.Log(assetFileName + "isn't defined in ObjectPoolSpecs.json");
+            }
         }
         return instance;
     }
@@ -60,18 +67,18 @@ public class UnityObjectPool : MonoBehaviour
     public string AssetName { get; private set; }
 
     // 이 풀에서 Instantiate를 할 오브젝트
-    public GameObject PooledObj;
+    public GameObject PooledObj { get; private set; }
 
     // 풀링이 되고 있는 오브젝트를 관리할 리스트
     private Queue<PooledUnityObject> availablePool = new Queue<PooledUnityObject>();
     private List<PooledUnityObject> activePool = new List<PooledUnityObject>();
 
     public int PoolCapacity { get; private set; }
-    public int MaxPoolCapacity = 15; //PoolScaleTypeType이 Limited인 경우 늘어날 수 있는 최대 capacity
+    public int MaxPoolCapacity { get; private set; } //PoolScaleTypeType이 Limited인 경우 늘어날 수 있는 최대 capacity
 
     private PoolScaleType myPoolScaleType;
     private PoolReturnType myPoolReturnType;
-    public float AutoReturnTime = 10.0f;//자동 반환까지 걸리는 시간(10초로 임시 설정)
+    public float AutoReturnTime { get; private set; } //자동 반환까지 걸리는 시간
     private Queue<IEnumerator> timerQueue = new Queue<IEnumerator>(); // 코루틴 관리를 위한 큐
 
     /// <summary>
@@ -81,16 +88,16 @@ public class UnityObjectPool : MonoBehaviour
     /// <param name="cap">PoolScaleType 종류</param>
     /// <param name="ret">PoolReturnType 종류</param>
     /// <returns></returns>
-    public bool SetOption(PoolScaleType cap, PoolReturnType ret)
-    {
-        if(activePool.Count > 0)
-        {
-            return false;
-        }
-        myPoolScaleType = cap;
-        myPoolReturnType = ret;
-        return true;
-    }
+    //public bool SetOption(PoolScaleType cap, PoolReturnType ret)
+    //{
+    //    if(activePool.Count > 0)
+    //    {
+    //        return false;
+    //    }
+    //    myPoolScaleType = cap;
+    //    myPoolReturnType = ret;
+    //    return true;
+    //}
 
     //만약에 정해진 pool count를 넘어갈 때는, 새로운 PooledUnityObject를 만들어주고, 그걸 List나 Array 등에 넣어서 추가도 해줘야 합니다.
     // 파라메터들은 추후에도 추가가 될 수 있습니다. 예를 들면 이 오브젝트는 지정한 오브젝트를 따라갈 수 있게 만든다던지, 혹은 일정 시간이 지나면 자동으로 반환이 된다던지

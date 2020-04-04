@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// 이거 using 안하고 쓸수 있도록? 가능한건감
-using Newtonsoft.Json.Linq;
-
 using FMOD;
 using Debug = UnityEngine.Debug;
 
@@ -24,7 +21,7 @@ public class SoundManager : Singleton<SoundManager>
     const int maxChannelNum = 21, BattleSoundChannelIndex = 0, EventSoundChannelIndex = 10,
              EnvironmentSoundChannelIndex = 15, BGMChannelIndex = 20;
 
-    string soundPath = Application.streamingAssetsPath + "/Sounds/";
+    string soundPath = System.IO.Path.Combine(Application.streamingAssetsPath, "Sounds");
     FMOD.System system;
     static RESULT result; DSP_TYPE typeTemp; Sound soundTemp; string strTemp;
     ChannelGroup MasterChannelGroup, SFXChannelGroup, BattleSoundChannelGroup, EventSoundChannelGroup, 
@@ -35,7 +32,7 @@ public class SoundManager : Singleton<SoundManager>
     List<DSPConnection> DSPConnectionsList;
     Dictionary<string, Sound> soundDict;
     string currentBGMName = "null";
-    JObject soundPathJson;
+    
     void Start()
     {
         soundDict = new Dictionary<string, Sound>();
@@ -436,20 +433,20 @@ public class SoundManager : Singleton<SoundManager>
     public void Load(string audioName, bool stayOnMemory)
     {
         // 예외처리를 어디까지 해줘야 할까요? 
-        soundPathJson = JsonManager.Find(audioName);
-        MODE mode;
-        string[] modesString = soundPathJson["MODE"].ToString().Split(',');
-        
-        // null | MODE 연산이 안되서 먼저 하나 넣고 중첩합니다.
-        mode = (MODE) System.Enum.Parse(typeof(MODE), modesString[0]);
-        for (int i =1 ; i < modesString.Length; i++)
+        SoundSourcePath soundSource = JsonManager.GetSoundSourcePath(audioName);
+
+        // null | MODE 연산이 안돼서 먼저 하나 넣고 중첩합니다.
+        MODE mode = soundSource.Modes[0];
+        for (int i =1 ; i < soundSource.Modes.Length; i++)
         {
-            mode = mode | (MODE) System.Enum.Parse(typeof(MODE), modesString[i]);
+            mode = mode | soundSource.Modes[i];
         }
+
         // 아직 폴더구조가 정리가 안된 상태에서의 soundPath입니다.
+        string filePath = System.IO.Path.Combine(soundPath, soundSource.Path);
         if (!stayOnMemory)
         {
-            result = system.createStream(soundPath + soundPathJson["Path"].ToString(), mode, out soundTemp);
+            result = system.createStream(filePath, mode, out soundTemp);
             if (Error(result))
             {
                 Debug.Log(audioName + "을(를) 불러오지 못했습니다.");
@@ -466,7 +463,7 @@ public class SoundManager : Singleton<SoundManager>
                 // Todo 메모리 최적화시에 필요한 부분입니다.
             } else
             {
-                result = system.createSound(soundPath + soundPathJson["Path"].ToString(), mode, out soundTemp);
+                result = system.createSound(filePath, mode, out soundTemp);
                 if (Error(result))
                 {
                     Debug.LogWarning(audioName + "을(를) 불러오지 못했습니다.");

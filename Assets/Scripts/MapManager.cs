@@ -52,7 +52,7 @@ public class MapManager : Singleton<MapManager>, IUpdatable
 
         UnityObjectPool ChunkPool;
         ChunkPool = UnityObjectPool.GetOrCreate(chunkPrefabPath);
-        ChunkPool.SetOption(PoolScaleType.Static, PoolReturnType.Manual);
+        //ChunkPool.SetOption(PoolScaleType.Static, PoolReturnType.Manual);
         // UnityObjectPool.PoolCapacity 가 private set; 으로 설정되어 있어 지금은 불가능
         // ChunkPool.PoolCapacity = 9;
 

@@ -19,15 +19,15 @@ public class SpawnManager : Singleton<SpawnManager>
     public void SpawnPlayer()
     {
         var playerObjectPool = UnityObjectPool.GetOrCreate("Player");
-        playerObjectPool.SetOption(PoolScaleType.Static, PoolReturnType.Manual);
+        //playerObjectPool.SetOption(PoolScaleType.Static, PoolReturnType.Manual);
         SpawnAt("Player", Vector2.zero, Quaternion.identity);
     }
 
     public void SpawnPlanets(int spawnCount, float spawnRange)
     {
         var planetObjectPool = UnityObjectPool.GetOrCreate("Planet");
-        planetObjectPool.SetOption(PoolScaleType.Limited, PoolReturnType.Manual);
-        planetObjectPool.MaxPoolCapacity = 1000;
+        //planetObjectPool.SetOption(PoolScaleType.Limited, PoolReturnType.Manual);
+        //planetObjectPool.MaxPoolCapacity = 1000;
 
         SpawnInCircle("Planet", spawnCount, Vector2.zero, radius: spawnRange);
     }
