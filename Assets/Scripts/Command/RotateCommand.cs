@@ -19,7 +19,7 @@ public class RotateCommand : ICommand
 
     public void Execute()
     {
-        character.Behaviour.Rotate(planetPos);
+        //character.Behaviour.Rotate(planetPos);
     }
     public void Dispose()
     {

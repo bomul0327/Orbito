@@ -11,7 +11,6 @@ public class CharacterBehaviour
 
     Character character;
     Transform charTransform;
-    Vector3 mousePos;
 
     public CharacterBehaviour(Character character)
     {
@@ -31,15 +30,11 @@ public class CharacterBehaviour
     /// 공전을 시작했을 때, 공전하는 방향을 character가 바라보게 한다.
     /// </summary>
     /// <param name="planetPos"></param>
-    public void Rotate(Vector3 planetPos)
+    public void LookPerpendicular(Vector3 planetPos, bool isClockwise)
     {
-        var dir = (planetPos - charTransform.position).normalized;
-        var antiClockwiseDir = Vector2.Perpendicular(charTransform.position - charTransform.up).normalized;
-        if (Vector2.Dot(antiClockwiseDir, charTransform.position) > 0) dir = -dir;
-
-        float angle = Mathf.Acos(dir.x) * Mathf.Rad2Deg;
-        if (dir.y < 0) angle *= -1;
-        charTransform.localRotation = Quaternion.Euler(0, 0, angle);
+        Vector3 direction = Circle.Perpendicular(planetPos, charTransform.position, isClockwise);
+        Debug.DrawLine(charTransform.position, charTransform.position + direction * 10);
+        charTransform.rotation = Quaternion.LookRotation(Vector3.forward, direction);
     }
 
     /// <summary>
@@ -79,7 +74,7 @@ public class CharacterBehaviour
     public void Equip(Equipment newEquipment, int slotIndex)
     {
         var equipmentSlot = GetEquipmentSlot(newEquipment.EquipmentType);
-        
+
         //이전에 장착되어 있는 장비를 탈착한다.
         Unequip(slotIndex, newEquipment.EquipmentType);
 
@@ -129,36 +124,41 @@ public class CharacterBehaviour
             return character.NonweaponSlots;
     }
 
+
     /// <summary>
-    /// planetPos를 중심으로 MoveSpeed를 각속도로 변환한 속도로 공전
+    /// planetPos를 중심으로 MoveSpeed를 각속도로 변환한 속도로 공전.
     /// </summary>
-    /// <param name="planetPos"></param> character가 공전하는 행성의 위치
+    /// <param name="center"></param> character가 공전하는 행성의 위치
     /// <param name="isClockwise"></param> character의 공전 방향
-    public void Revolve(Vector3 planetPos, bool isClockwise)
+    public void Revolve(Vector3 center, bool isClockwise)
     {
-        // player가 바라보는 방향 설정
-        var dir = Vector2.Perpendicular(planetPos - charTransform.position).normalized;
-        if (!isClockwise) dir = -dir;
+        Vector3 position = charTransform.position;
 
-        float angle = Mathf.Acos(dir.y) * Mathf.Rad2Deg;
-        if (dir.x > 0) angle *= -1;
-        charTransform.localRotation = Quaternion.Euler(0, 0, angle);
+        float radius = Vector2.Distance(center, position);
+        float deltaAngle = Circle.LinearToAngleSpeed(character.MoveSpeed, radius) * Time.deltaTime;
+        deltaAngle = isClockwise ? -deltaAngle : deltaAngle;
 
-        // 공전
-        float radius = Vector3.Distance(planetPos, charTransform.position);
-        float deltaAngle = (character.MoveSpeed / radius) * Time.deltaTime;
-        float rotAngle = Mathf.Acos((charTransform.position - planetPos).normalized.x);
-
-        if (charTransform.position.y < planetPos.y) rotAngle = -rotAngle;
-        if (isClockwise) deltaAngle = -deltaAngle;
-
-        rotAngle += deltaAngle;
-        float cos = Mathf.Cos(rotAngle);
-        float sin = Mathf.Sin(rotAngle);
-        Vector3 direction = new Vector2(cos, sin);
-        Vector3 position = direction * radius;
-        charTransform.position = position + planetPos;
+        charTransform.RotateAround(center, -Vector3.forward, deltaAngle);
     }
+
+
+    /// <summary>
+    /// center에 대한 Local 좌표계에서의 Revolve를 수행합니다.
+    /// <param name="center">공전 궤도 중심.</param>
+    /// <param name="radius">공전 궤도의 반지름.</param>
+    /// <param name="normal">공전 중심에서 공전하는 물체까지의 unit 방향 벡터.</param>
+    /// <param name="isClockwise"></param>
+    public void LocalRevolve(Vector3 center, float radius, ref Vector3 normal, bool isClockwise)
+    {
+        float angleSpeed = Circle.LinearToAngleSpeed(character.MoveSpeed, radius) * Time.deltaTime;
+        angleSpeed = isClockwise ? -angleSpeed : angleSpeed;
+
+        Quaternion revolveRotation = Quaternion.Euler(0, 0, angleSpeed);
+        normal = revolveRotation * normal;
+
+        charTransform.position = center + normal * radius;
+    }
+
 
     public void Attack()
     {
