@@ -15,6 +15,7 @@ public class MapManager : Singleton<MapManager>, IUpdatable
     {
         Seed = seed;
     }
+    private Rigidbody2D rb2D;
 
     private BoxCollider2D ChunkBoundaryCollider;
     /// <summary>
@@ -22,6 +23,7 @@ public class MapManager : Singleton<MapManager>, IUpdatable
     /// </summary>
     void Start()
     {
+        rb2D = GetComponent<Rigidbody2D>();
         // 추후에 json으로 받기
         // ChunkWidth = JsonManager.~~~~;
         // ChunkHeight = JsonManager.~~~~;
@@ -52,9 +54,6 @@ public class MapManager : Singleton<MapManager>, IUpdatable
 
         UnityObjectPool ChunkPool;
         ChunkPool = UnityObjectPool.GetOrCreate(chunkPrefabPath);
-        //ChunkPool.SetOption(PoolScaleType.Static, PoolReturnType.Manual);
-        // UnityObjectPool.PoolCapacity 가 private set; 으로 설정되어 있어 지금은 불가능
-        // ChunkPool.PoolCapacity = 9;
 
         ChunkPool.Instantiate(new Vector3(-ChunkWidth,  ChunkHeight,  0), Quaternion.identity);
         ChunkPool.Instantiate(new Vector3(0,            ChunkHeight,  0), Quaternion.identity);
@@ -68,9 +67,7 @@ public class MapManager : Singleton<MapManager>, IUpdatable
     }
     public void OnUpdate(float dt)
     {
-        // 둘중에 어떤걸 쓰는게 더 좋은지 모르겠습니다.
-        transform.position = Camera.main.transform.position;
-        // ChunkBoundaryCollider.offset = new Vector2(Camera.main.transform.position.x, Camera.main.transform.position.y);
+        rb2D.MovePosition(Camera.main.transform.position);
 
         // 시험용 인풋 테스트입니다.
         if (Input.GetKey(KeyCode.Q))
@@ -83,7 +80,7 @@ public class MapManager : Singleton<MapManager>, IUpdatable
         }
     }
  
-    void OnTriggerExit(Collider chunkReturn)
+    void OnTriggerExit2D(Collider2D chunkReturn)
     {
         Debug.Log(chunkReturn.name);
         UnityObjectPool.GetOrCreate("ChunkSpawner").Return(chunkReturn.gameObject.GetComponent<PooledUnityObject>());

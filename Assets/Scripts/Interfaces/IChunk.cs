@@ -6,10 +6,16 @@ using UnityEngine;
 /// </summary>
 public abstract class IChunk : MonoBehaviour
 {
-    public Vector3 LocalPos (FieldObject obj)
+    public Vector3 LocalPos (Vector3 pos)
     {
-        return obj.transform.position - transform.position + 
+        return pos - transform.position + 
                 new Vector3(MapManager.ChunkWidth*1/2, MapManager.ChunkHeight*1/2, 0);
     }
+    public Vector3 GlobalPos (Vector3 pos)
+    {
+        return pos + transform.position - 
+                new Vector3(MapManager.ChunkWidth*1/2, MapManager.ChunkHeight*1/2, 0);
+    }
+
     public abstract void Spawn ();
 }

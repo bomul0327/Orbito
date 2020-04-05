@@ -25,8 +25,8 @@
   },
   {
     "AssetName": "AirBombExplosionEffect",
-    "PoolCapacity": 10,
-    "MaxPoolCapacity": 15,
+    "PoolCapacity": 1,
+    "MaxPoolCapacity": 5,
     "MyPoolScaleType": "Limited",
     "MyPoolReturnType": "Auto",
     "AutoReturnTime": 2
