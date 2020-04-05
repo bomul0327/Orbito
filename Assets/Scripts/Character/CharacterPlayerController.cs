@@ -8,7 +8,6 @@ using UnityEngine;
 public class CharacterPlayerController : CharacterControllerBase, IUpdatable
 {
     public Character character;
-    GameObject[] planetArray;
     StateMachine charStateMachine;
     Planet prevPlanet = null;
 
@@ -32,42 +31,15 @@ public class CharacterPlayerController : CharacterControllerBase, IUpdatable
 
     public void OnUpdate(float dt)
     {
-        planetArray = GameObject.FindGameObjectsWithTag("Planet");
-
-        // TODO: 공전영역을 벗어나면 prevPlanet = null;
-
         if (Input.GetButtonDown("Revolve"))
         {
             // 우선순위가 가장 높은 행성 찾기
-            Planet minDistancePlanet = null;
-            float minDis = Mathf.Infinity;
-            foreach (GameObject planet in planetArray)
-            {
-                float t = Vector3.Distance(character.transform.position, planet.transform.position);
-                // TODO : 공전 반경 안인지 확인
-                if (minDis > t)
-                {
-                    if (prevPlanet != null && planet.GetComponent<Planet>() == prevPlanet)
-                    {
-                        // 이전에 공전한 행성이 가장 가까우면 무시
-                        continue;
-                    }
-                    minDis = t;
-                    minDistancePlanet = planet.GetComponent<Planet>();
-                }
-            }
+            var revolvePlanet = FindRevolvePlanet();
 
-            if (minDistancePlanet)
+            if (revolvePlanet)
             {
-                prevPlanet = minDistancePlanet;
-                using (var cmd = CommandFactory.GetOrCreate<StateChangeCommand>(charStateMachine, new RevolveState(character, minDistancePlanet)))
-                {
-                    CommandDispatcher.Publish(cmd);
-                }
-            }
-            else if (prevPlanet)
-            {
-                using (var cmd = CommandFactory.GetOrCreate<StateChangeCommand>(charStateMachine, new RevolveState(character, prevPlanet)))
+                prevPlanet = revolvePlanet;
+                using (var cmd = CommandFactory.GetOrCreate<StateChangeCommand>(charStateMachine, new RevolveState(character, revolvePlanet)))
                 {
                     CommandDispatcher.Publish(cmd);
                 }
@@ -130,6 +102,50 @@ public class CharacterPlayerController : CharacterControllerBase, IUpdatable
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// 공전 가능한 행성들 중에서, 가장 가까운 행성을 찾습니다.
+    /// 이전에 공전했던 행성은 가장 낮은 우선순위를 가집니다.
+    /// </summary>
+    /// <returns></returns>
+    private Planet FindRevolvePlanet()
+    {
+        //TODO: FindGameObjectsWithTag는 오버헤드가 크므로 다른 방법을 고려할 필요가 있음.
+        var planetObjects = GameObject.FindGameObjectsWithTag("Planet");
+
+        Planet minDistancePlanet = null;
+        float minDistance = Mathf.Infinity;
+
+        Vector3 characterPosition = character.transform.position;
+
+        bool canUseLastPlanet = false;
+        foreach (var planetObject in planetObjects)
+        {
+            var planet = planetObject.GetComponent<Planet>();
+            float distance = Vector3.Distance(characterPosition, planetObject.transform.position);
+
+            // 1. Character가 행성 공전 영역 밖에 있을 경우.
+            if (distance > planet.Radius) continue;
+            // 2. 이 행성이 가장 가까운 행성이 아닐 경우.
+            if (distance > minDistance) continue;
+            // 3. 이 행성이 이전에 공전했던 행성일 경우.
+            if (prevPlanet != null && planet == prevPlanet)
+            {
+                canUseLastPlanet = true;
+                continue;
+            }
+
+            minDistancePlanet = planet;
+            minDistance = distance;
+        }
+        //다른 행성들이 공전 가능 대상에 없다면 prevPlanet 사용.
+        if (minDistancePlanet == null && canUseLastPlanet)
+        {
+            minDistancePlanet = prevPlanet;
+        }
+            
+        return minDistancePlanet;
     }
 
     private static readonly string[] WeaponSlotButtonNames = { "WeaponSelect_1", "WeaponSelect_2", "WeaponSelect_3", "WeaponSelect_4" };
