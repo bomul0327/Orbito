@@ -50,7 +50,7 @@ public class CharacterBehaviour
         float deltaAngle = Circle.LinearToAngleSpeed(character.MoveSpeed, radius) * Time.deltaTime;
         deltaAngle = isClockwise ? -deltaAngle : deltaAngle;
 
-        charTransform.RotateAround(center, -Vector3.forward, deltaAngle);
+        charTransform.RotateAround(center, Vector3.forward, deltaAngle);
     }
 
 
@@ -77,7 +77,7 @@ public class CharacterBehaviour
     /// <param name="direction">Character가 바라볼 방향.</param>
     public void LookDirection(Vector3 direction)
     {
-        charTransform.rotation = Quaternion.LookRotation(-Vector3.forward, direction);
+        charTransform.rotation = Quaternion.LookRotation(Vector3.forward, direction);
     }
     
 
