@@ -6,7 +6,7 @@ public class ChunkSpawner : MonoBehaviour
     private int seed;
     void Awake()
     {
-        seed = MapManager.Seed;
+        seed = ChunkManager.Seed;
 
         Random.InitState(seed);
         // 여기 중요합니다. 어떤 청크가 생성될지 거리에 비례해서 만드는 식인데 적절한 식이 필요

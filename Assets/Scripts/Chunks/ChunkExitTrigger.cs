@@ -9,6 +9,6 @@ public class ChunkExitTrigger : MonoBehaviour
         {
             return;
         }
-         UnityObjectPool.GetOrCreate(MapManager.chunkPrefabPath).Return(chunkReturn.gameObject.GetComponent<PooledUnityObject>());
+         UnityObjectPool.GetOrCreate(ChunkManager.chunkPrefabPath).Return(chunkReturn.gameObject.GetComponent<PooledUnityObject>());
     }
 }

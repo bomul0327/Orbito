@@ -2,16 +2,16 @@ using UnityEngine;
 
 public class ChunkEnterTrigger : MonoBehaviour
 {
-    int ChunkWidth = MapManager.ChunkWidth;
-    int ChunkHeight = MapManager.ChunkHeight;
+    int ChunkWidth = ChunkManager.ChunkWidth;
+    int ChunkHeight = ChunkManager.ChunkHeight;
     Vector3 chunkExitColliderSize;
     UnityObjectPool ChunkPool;
     void Start()
     {
-        ChunkWidth = MapManager.ChunkWidth;
-        ChunkHeight = MapManager.ChunkHeight;
+        ChunkWidth = ChunkManager.ChunkWidth;
+        ChunkHeight = ChunkManager.ChunkHeight;
         chunkExitColliderSize = new Vector3(ChunkWidth*2 + 10, ChunkHeight * 2 + 10);
-        ChunkPool = UnityObjectPool.GetOrCreate(MapManager.chunkPrefabPath);
+        ChunkPool = UnityObjectPool.GetOrCreate(ChunkManager.chunkPrefabPath);
     }
     void OnTriggerEnter2D(Collider2D newCenterOfChunk)
     {
@@ -33,7 +33,7 @@ public class ChunkEnterTrigger : MonoBehaviour
         };
 
         RaycastHit2D[] Checker;
-        Checker = Physics2D.BoxCastAll(newCenterPos, chunkExitColliderSize, 0f, Vector2.zero, 0f, MapManager.chunkLayerMask);
+        Checker = Physics2D.BoxCastAll(newCenterPos, chunkExitColliderSize, 0f, Vector2.zero, 0f, ChunkManager.chunkLayerMask);
         foreach (var c in Checker)
         {
             for (int i =0; i < newChunksPos.Length ; i++)

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class MapManager : Singleton<MapManager>, IUpdatable
+public class ChunkManager : Singleton<ChunkManager>, IUpdatable
 {
     public static int ChunkWidth = 100;
     public static int ChunkHeight = 60;
@@ -55,15 +55,7 @@ public class MapManager : Singleton<MapManager>, IUpdatable
 
         ChunkPool = UnityObjectPool.GetOrCreate(chunkPrefabPath);
 
-        // ChunkPool.Instantiate(new Vector3(-ChunkWidth,  ChunkHeight,  0), Quaternion.identity);
-        // ChunkPool.Instantiate(new Vector3(0,            ChunkHeight,  0), Quaternion.identity);
-        // ChunkPool.Instantiate(new Vector3(ChunkWidth,   ChunkHeight,  0), Quaternion.identity);
-        // ChunkPool.Instantiate(new Vector3(-ChunkWidth,  0,            0), Quaternion.identity);
         ChunkPool.Instantiate(new Vector3(0,            0,            0), Quaternion.identity);
-        // ChunkPool.Instantiate(new Vector3(ChunkWidth,   0,            0), Quaternion.identity);
-        // ChunkPool.Instantiate(new Vector3(-ChunkWidth,  -ChunkHeight, 0), Quaternion.identity);
-        // ChunkPool.Instantiate(new Vector3(0,            -ChunkHeight, 0), Quaternion.identity);
-        // ChunkPool.Instantiate(new Vector3(ChunkWidth,   -ChunkHeight, 0), Quaternion.identity);
     }
     public void OnUpdate(float dt)
     {
