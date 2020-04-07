@@ -9,18 +9,20 @@ using UnityEngine;
 public class AirBombCommand : ICommand
 {
     Character character;
-    Vector3 dir;
+    Vector3 explosionCenter;
 
     public void SetData(params object[] values)
     {
         this.character = (Character)values[0];
-        this.dir = (Vector3)values[1];
+        this.explosionCenter = (Vector3)values[1];
     }
 
     public void Execute()
     {
-        character.Behaviour.AirBomb(dir);
+        Vector3 affectedDirection = character.transform.position - explosionCenter;
+        character.Behaviour.LookDirection(affectedDirection);
     }
+
     public void Dispose()
     {
         character = null;
