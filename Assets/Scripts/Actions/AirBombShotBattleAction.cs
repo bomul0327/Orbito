@@ -24,15 +24,6 @@ public class AirBombShotBattleAction : ITriggerBattleAction
         set;
     }
 
-    /// <summary>
-    /// 발사 방향
-    /// </summary>
-    public Vector3 dir
-    {
-        get;
-        set;
-    }
-
     bool ITriggerBattleAction.IsActive { get; }
 
     bool ITriggerBattleAction.IsPassive { get; }
@@ -50,7 +41,6 @@ public class AirBombShotBattleAction : ITriggerBattleAction
     public AirBombShotBattleAction(Character character)
     {
         this.character = character;
-        this.dir = dir;
 
         // FIXME: JSON 시스템이 준비되면 JSON 데이터에서 받아올 것
         FireRate = 3f;
@@ -75,6 +65,7 @@ public class AirBombShotBattleAction : ITriggerBattleAction
 
         airBombPool.Instantiate(character.transform.position + targetPositionDeltaUnit * ExplosionEffectDistance, new Quaternion(0, 0, 0, 0));
 
+        // character.Behaviour.LookDirection(character.transform.position - 2 * targetPositionDeltaUnit);
         var dir = Vector2.Perpendicular(targetPositionDeltaUnit);        
         float angle = Mathf.Acos(dir.x) * Mathf.Rad2Deg;
         if (dir.y < 0) angle *= -1;
