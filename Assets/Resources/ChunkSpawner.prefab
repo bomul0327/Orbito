@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1344602875659250853}
   - component: {fileID: 3408729462186110229}
   - component: {fileID: 543810716226801180}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: ChunkSpawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -70,4 +70,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e0cdc557ebd99f54fa2323d042c3d5a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Chunk: {fileID: 0}

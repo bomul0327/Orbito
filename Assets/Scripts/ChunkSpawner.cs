@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class ChunkSpawner : MonoBehaviour
 {
@@ -29,9 +27,11 @@ public class ChunkSpawner : MonoBehaviour
 
         Chunk.Spawn();
 
-        // 여러 chunk가 중첩된다거나 추가적으로 chunk를 만들어낸다거나 하는 상황이
-        // 올지 모르겠습니다만 하나의 chunk만이 사용됨이 보장될때 Destroy함이 맞아 보입니다.
-        // Destroy(this); 
+    }
+
+    void OnDisable()
+    {
+        Destroy(GetComponent<IChunk>());
     }
 
     static float ChunkMaxDifficulty = 2.9f;

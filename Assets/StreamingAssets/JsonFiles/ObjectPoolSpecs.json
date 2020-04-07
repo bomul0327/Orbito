@@ -17,7 +17,7 @@
   },
   {
     "AssetName": "ChunkSpawner",
-    "PoolCapacity": 9,
+    "PoolCapacity": 16,
     "MaxPoolCapacity": 0,
     "MyPoolScaleType": "Static",
     "MyPoolReturnType": "Manual",
