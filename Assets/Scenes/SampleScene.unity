@@ -162,7 +162,7 @@ GameObject:
   - component: {fileID: 46524197}
   - component: {fileID: 46524200}
   m_Layer: 0
-  m_Name: MapManager
+  m_Name: ChunkManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -180,7 +180,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 787d8a9683e56184da18017c51589a6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  seed: 0
 --- !u!4 &46524198
 Transform:
   m_ObjectHideFlags: 0

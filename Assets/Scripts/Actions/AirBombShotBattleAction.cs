@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// 마우스 방향으로 유탄을 발사하는 액션
 /// </summary>
-public class AirBombShotBattleAction : ITriggerBattleAction
+public class AirbombShotBattleAction : ITriggerBattleAction
 {
     Character character;
 
@@ -18,7 +18,7 @@ public class AirBombShotBattleAction : ITriggerBattleAction
         set;
     }
 
-    public float ExplosionEffectDistance
+    public float Distance
     {
         get;
         set;
@@ -36,16 +36,16 @@ public class AirBombShotBattleAction : ITriggerBattleAction
 
     private float lastFireSuccessTime;
 
-    private string AirBombPrefabName = "AirBombExplosionEffect";
+    string airbombPrefabName = "AirbombExplosionEffect";
 
-    public AirBombShotBattleAction(Character character)
+    public AirbombShotBattleAction(Character character)
     {
         this.character = character;
 
         // FIXME: JSON 시스템이 준비되면 JSON 데이터에서 받아올 것
         FireRate = 3f;
         lastFireSuccessTime = -1;
-        ExplosionEffectDistance = 5f;
+        Distance = 5f;
     }
 
     void ITriggerBattleAction.Cancel()
@@ -54,19 +54,14 @@ public class AirBombShotBattleAction : ITriggerBattleAction
     }
     void ITriggerBattleAction.Start()
     {
-        Vector3 targetPositionDeltaUnit = (Input.mousePosition - Camera.main.WorldToScreenPoint(character.transform.position)).normalized;
+        Vector3 targetUnitVector = (Input.mousePosition - Camera.main.WorldToScreenPoint(character.transform.position)).normalized;
 
-        var airBombPool = UnityObjectPool.GetOrCreate(AirBombPrefabName);
-        //airBombPool.SetOption(PoolScaleType.Limited, PoolReturnType.Auto);
-        //airBombPool.MaxPoolCapacity = 1;
+        var airBombPool = UnityObjectPool.GetOrCreate(airbombPrefabName);
 
-        //// FIXME: JSON 시스템이 준비되면 JSON 데이터에서 받아올 것
-        //airBombPool.AutoReturnTime = 2f;
+        airBombPool.Instantiate(character.transform.position + targetUnitVector * Distance, new Quaternion(0, 0, 0, 0));
 
-        airBombPool.Instantiate(character.transform.position + targetPositionDeltaUnit * ExplosionEffectDistance, new Quaternion(0, 0, 0, 0));
-
-        // character.Behaviour.LookDirection(character.transform.position - 2 * targetPositionDeltaUnit);
-        var dir = Vector2.Perpendicular(targetPositionDeltaUnit);        
+        // character.Behaviour.LookDirection(character.transform.position - targetUnitVector);
+        var dir = Vector2.Perpendicular(targetUnitVector);        
         float angle = Mathf.Acos(dir.x) * Mathf.Rad2Deg;
         if (dir.y < 0) angle *= -1;
         character.transform.localRotation = Quaternion.Euler(0,0, angle);

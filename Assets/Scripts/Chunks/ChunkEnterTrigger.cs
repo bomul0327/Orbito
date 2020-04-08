@@ -2,54 +2,56 @@ using UnityEngine;
 
 public class ChunkEnterTrigger : MonoBehaviour
 {
-    int ChunkWidth = ChunkManager.ChunkWidth;
-    int ChunkHeight = ChunkManager.ChunkHeight;
-    Vector3 chunkExitColliderSize;
-    UnityObjectPool ChunkPool;
-    void Start()
+    static Vector3 checkerSize = new Vector3(ChunkManager.Width + 10, ChunkManager.Height + 10);
+    static Vector3[] checkingPos = 
+        {
+            new Vector3(-ChunkManager.Width, ChunkManager.Height ),
+            new Vector3(-ChunkManager.Width, 0                   ),
+            new Vector3(-ChunkManager.Width, -ChunkManager.Height),
+            new Vector3(0,                   ChunkManager.Height ),
+            new Vector3(0,                   -ChunkManager.Height),
+            new Vector3(ChunkManager.Width,  ChunkManager.Height ),
+            new Vector3(ChunkManager.Width,  0                   ),
+            new Vector3(ChunkManager.Width,  -ChunkManager.Height)
+        };
+    Vector3[] newChunks = new Vector3[8];
+
+    void Awake()
     {
-        ChunkWidth = ChunkManager.ChunkWidth;
-        ChunkHeight = ChunkManager.ChunkHeight;
-        chunkExitColliderSize = new Vector3(ChunkWidth*2 + 10, ChunkHeight * 2 + 10);
-        ChunkPool = UnityObjectPool.GetOrCreate(ChunkManager.chunkPrefabPath);
+        checkingPos.CopyTo(newChunks, 0);
     }
-    void OnTriggerEnter2D(Collider2D newCenterOfChunk)
+    
+    void OnTriggerEnter2D(Collider2D centerChunk)
     {
-        if (newCenterOfChunk.gameObject.layer != LayerMask.NameToLayer("Chunk"))
+        Debug.Log(centerChunk.name);
+        if (centerChunk.gameObject.layer != LayerMask.NameToLayer("Chunk"))
         {
             return;
         }
-        Vector3 newCenterPos = newCenterOfChunk.transform.position;
-        Vector3[] newChunksPos =
-        {
-            newCenterPos + new Vector3(-ChunkWidth, ChunkHeight),
-            newCenterPos + new Vector3(-ChunkWidth, 0),
-            newCenterPos + new Vector3(-ChunkWidth, -ChunkHeight),
-            newCenterPos + new Vector3(0,           ChunkHeight),
-            newCenterPos + new Vector3(0,           -ChunkHeight),
-            newCenterPos + new Vector3(ChunkWidth,  ChunkHeight),
-            newCenterPos + new Vector3(ChunkWidth,  0),
-            newCenterPos + new Vector3(ChunkWidth,  -ChunkHeight)
-        };
 
-        RaycastHit2D[] Checker;
-        Checker = Physics2D.BoxCastAll(newCenterPos, chunkExitColliderSize, 0f, Vector2.zero, 0f, ChunkManager.chunkLayerMask);
-        foreach (var c in Checker)
+        RaycastHit2D[] checker;
+        checker = Physics2D.BoxCastAll(centerChunk.transform.position, checkerSize, 0f, Vector2.zero, 0f, LayerMask.GetMask("Chunk"));
+
+        foreach (var c in checker)
         {
-            for (int i =0; i < newChunksPos.Length ; i++)
+            for (int i = 0 ; i < checkingPos.Length; i++)
             {
-                if (newChunksPos[i] == c.collider.transform.position)
+                if (checkingPos[i] == c.collider.transform.position - centerChunk.transform.position)
                 {
-                    newChunksPos[i] = Vector3.zero;
+                    newChunks[i] = Vector3.zero;
                 }
             }
         }
-        foreach (var c in newChunksPos)
+
+        foreach (var c in newChunks)
         {
+            Debug.Log(c);
             if (c != Vector3.zero)
             {
-                ChunkPool.Instantiate(c, Quaternion.identity);
+                Debug.Log(c);
+                UnityObjectPool.GetOrCreate(ChunkManager.ChunkPoolName).Instantiate(c + centerChunk.transform.position, Quaternion.identity);
             }
         }
+        checkingPos.CopyTo(newChunks, 0);
     }
 }
