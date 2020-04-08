@@ -23,7 +23,6 @@ public class ChunkEnterTrigger : MonoBehaviour
     
     void OnTriggerEnter2D(Collider2D centerChunk)
     {
-        Debug.Log(centerChunk.name);
         if (centerChunk.gameObject.layer != LayerMask.NameToLayer("Chunk"))
         {
             return;
@@ -45,10 +44,8 @@ public class ChunkEnterTrigger : MonoBehaviour
 
         foreach (var c in newChunks)
         {
-            Debug.Log(c);
             if (c != Vector3.zero)
             {
-                Debug.Log(c);
                 UnityObjectPool.GetOrCreate(ChunkManager.ChunkPoolName).Instantiate(c + centerChunk.transform.position, Quaternion.identity);
             }
         }
