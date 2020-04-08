@@ -12,13 +12,12 @@ using Debug = UnityEngine.Debug;
 
 public static class JsonManager 
 {
-    private static Dictionary<string, object> infoObjDict;
-    private static string jsonPath;
+    private static Dictionary<string, SoundSourcePath> soundDict = new Dictionary<string, SoundSourcePath>();
+    private static Dictionary<string, ObjectPoolSpec> poolSpecDict = new Dictionary<string, ObjectPoolSpec>();
+    private static string jsonPath = System.IO.Path.Combine(Application.streamingAssetsPath, "JsonFiles");
 
     static JsonManager()
     {
-        infoObjDict = new Dictionary<string, object>();
-        jsonPath = System.IO.Path.Combine(Application.streamingAssetsPath, "JsonFiles");
         ReadSoundSourcePaths("SoundSourcePath.json");
         ReadObjectPoolSpecs("ObjectPoolSpecs.json");
     }
@@ -47,15 +46,15 @@ public static class JsonManager
             }
             sound.Path = ob["Path"].ToString();
 
-            infoObjDict.Add(sound.AssetName, sound);
+            soundDict.Add(sound.AssetName, sound);
         }
     }
 
     public static SoundSourcePath GetSoundSourcePath(string assetName)
     {
-        if (infoObjDict.ContainsKey(assetName))
+        if (soundDict.ContainsKey(assetName))
         {
-            return (SoundSourcePath)infoObjDict[assetName];
+            return (SoundSourcePath)soundDict[assetName];
         }
         else
         {
@@ -86,15 +85,15 @@ public static class JsonManager
             }
             spec.AutoReturnTime = (float)info["AutoReturnTime"];
 
-            infoObjDict.Add(spec.AssetName + "PoolSpec", spec);
+            poolSpecDict.Add(spec.AssetName, spec);
         }
     }
 
     public static ObjectPoolSpec GetObjectPoolSpec(string assetName)
     {
-        if(infoObjDict.ContainsKey(assetName + "PoolSpec"))
+        if(poolSpecDict.ContainsKey(assetName))
         {
-            return (ObjectPoolSpec)infoObjDict[assetName + "PoolSpec"];
+            return (ObjectPoolSpec)poolSpecDict[assetName];
         }
         else
         {
