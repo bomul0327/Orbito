@@ -46,15 +46,15 @@ public static class JsonManager
             }
             sound.Path = ob["Path"].ToString();
 
-            soundDict.Add(sound.AssetName, sound);
+            SoundDict.Add(sound.AssetName, sound);
         }
     }
 
     public static SoundSourcePath GetSoundSourcePath(string assetName)
     {
-        if (soundDict.ContainsKey(assetName))
+        if (SoundDict.ContainsKey(assetName))
         {
-            return soundDict[assetName];
+            return SoundDict[assetName];
         }
         else
         {
@@ -85,15 +85,15 @@ public static class JsonManager
             }
             spec.AutoReturnTime = (float)info["AutoReturnTime"];
 
-            poolSpecDict.Add(spec.AssetName, spec);
+            PoolSpecDict.Add(spec.AssetName, spec);
         }
     }
 
     public static ObjectPoolSpec GetObjectPoolSpec(string assetName)
     {
-        if(poolSpecDict.ContainsKey(assetName))
+        if(PoolSpecDict.ContainsKey(assetName))
         {
-            return poolSpecDict[assetName];
+            return PoolSpecDict[assetName];
         }
         else
         {
