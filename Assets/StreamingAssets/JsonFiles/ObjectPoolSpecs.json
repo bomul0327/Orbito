@@ -38,5 +38,13 @@
     "MyPoolScaleType": "Unlimited",
     "MyPoolReturnType": "Auto",
     "AutoReturnTime": 1.5
+  },
+  {
+    "AssetName": "MultiShotBullet",
+    "PoolCapacity": 10,
+    "MaxPoolCapacity": 0,
+    "MyPoolScaleType": "Unlimited",
+    "MyPoolReturnType": "Manual",
+    "AutoReturnTime": 0
   }
 ]
