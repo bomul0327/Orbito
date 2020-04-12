@@ -54,11 +54,11 @@ public static class JsonManager
     {
         if (soundDict.ContainsKey(assetName))
         {
-            return (SoundSourcePath)soundDict[assetName];
+            return soundDict[assetName];
         }
         else
         {
-            Debug.Log("There is no SoundSourcePath named " + assetName);
+            Debug.LogError("There is no SoundSourcePath named " + assetName);
             return null;
         }
     }
@@ -93,11 +93,11 @@ public static class JsonManager
     {
         if(poolSpecDict.ContainsKey(assetName))
         {
-            return (ObjectPoolSpec)poolSpecDict[assetName];
+            return poolSpecDict[assetName];
         }
         else
         {
-            Debug.Log("There is no " + assetName + "'s PoolSpec");
+            Debug.LogError("There is no " + assetName + "'s PoolSpec");
             return null;
         }
     }
