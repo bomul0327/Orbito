@@ -32,7 +32,7 @@ public class CharacterBehaviour
     /// <param name="planetPos"></param>
     public void LookPerpendicular(Vector3 planetPos, bool isClockwise)
     {
-        Vector3 direction = Circle.Perpendicular(planetPos, charTransform.position, isClockwise);
+        Vector3 direction = MathExtension.Perpendicular(planetPos, charTransform.position, isClockwise);
         LookDirection(direction);
     }
 
@@ -47,7 +47,7 @@ public class CharacterBehaviour
         Vector3 position = charTransform.position;
 
         float radius = Vector2.Distance(center, position);
-        float deltaAngle = Circle.LinearToAngleSpeed(character.MoveSpeed, radius) * Time.deltaTime;
+        float deltaAngle = MathExtension.LinearToAngleSpeed(character.MoveSpeed, radius) * Time.deltaTime;
         deltaAngle = isClockwise ? -deltaAngle : deltaAngle;
 
         charTransform.RotateAround(center, Vector3.forward, deltaAngle);
@@ -62,7 +62,7 @@ public class CharacterBehaviour
     /// <param name="isClockwise"></param>
     public void LocalRevolve(Vector3 center, float radius, ref Vector3 normal, bool isClockwise)
     {
-        float angleSpeed = Circle.LinearToAngleSpeed(character.MoveSpeed, radius) * Time.deltaTime;
+        float angleSpeed = MathExtension.LinearToAngleSpeed(character.MoveSpeed, radius) * Time.deltaTime;
         angleSpeed = isClockwise ? -angleSpeed : angleSpeed;
 
         Quaternion revolveRotation = Quaternion.Euler(0, 0, angleSpeed);

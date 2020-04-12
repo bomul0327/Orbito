@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// 원과 관련된 수학 연산 함수 라이브러리 클래스.
-/// </summary>
-public struct Circle
+public sealed class MathExtension
 {
     /// <summary>
     /// 선형 속도를 각속도로 변환합니다.

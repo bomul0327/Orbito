@@ -49,7 +49,7 @@ public class RevolveState : IState, IUpdatable
         normal = (characterPos - planetPos).normalized;
 
         //현재 character의 위치를 기준으로 공전 방향을 결정합니다.
-        isClockwise = Circle.ClosestRevolveDirection(planetPos, characterPos, character.transform.up);
+        isClockwise = MathExtension.ClosestRevolveDirection(planetPos, characterPos, character.transform.up);
     }
 
     void IState.OnExit(IState nextState)
