@@ -12,8 +12,8 @@ using Debug = UnityEngine.Debug;
 
 public static class JsonManager 
 {
-    private static Dictionary<string, SoundSourcePath> soundDict = new Dictionary<string, SoundSourcePath>();
-    private static Dictionary<string, ObjectPoolSpec> poolSpecDict = new Dictionary<string, ObjectPoolSpec>();
+    public static Dictionary<string, SoundSourcePath> SoundDict = new Dictionary<string, SoundSourcePath>();
+    public static Dictionary<string, ObjectPoolSpec> PoolSpecDict = new Dictionary<string, ObjectPoolSpec>();
     private static string jsonPath = System.IO.Path.Combine(Application.streamingAssetsPath, "JsonFiles");
 
     static JsonManager()
