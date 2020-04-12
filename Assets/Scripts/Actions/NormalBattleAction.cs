@@ -69,10 +69,7 @@ public class NormalBattleAction : ITriggerBattleAction
 
         lastFireSuccessTime = Time.time;
 
-        using (var cmd = CommandFactory.GetOrCreate<TriggerBattleActionCommand>(character, this))
-        {
-            CommandDispatcher.Publish(cmd);
-            return true;
-        }
+        CommandFactory.CreateAndPublish<TriggerBattleActionCommand>(character, this);
+        return true;
     }
 }

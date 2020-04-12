@@ -102,11 +102,8 @@ public class Projectile : FieldObject, IUpdatable
 
         // Damage 주기
         FieldObject fieldObject = other.gameObject.GetComponentInParent<FieldObject>();
-        
-        using (var cmd = CommandFactory.GetOrCreate<DamageCommand>(fieldObject, DamageInfo))
-        {
-            CommandDispatcher.Publish(cmd);
-        }
+
+        CommandFactory.CreateAndPublish<DamageCommand>(fieldObject, DamageInfo);
 
         //지금은 빠른 테스트를 위해 여기서 바로 피격 Effect를 생성하지만, 
         //나중에는 다른 방식으로 변경할 수 있음.

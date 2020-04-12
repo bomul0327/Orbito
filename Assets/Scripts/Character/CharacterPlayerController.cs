@@ -18,10 +18,7 @@ public class CharacterPlayerController : CharacterControllerBase, IUpdatable
         charStateMachine = this.character.CharacterStateMachine;
 
         // 초기 상태 (직진)
-        using (var cmd = CommandFactory.GetOrCreate<StateChangeCommand>(charStateMachine, new StraightMoveState(character)))
-        {
-            CommandDispatcher.Publish(cmd);
-        }
+        CommandFactory.CreateAndPublish<StateChangeCommand>(charStateMachine, new StraightMoveState(character));
     }
 
     ~CharacterPlayerController()
@@ -39,18 +36,12 @@ public class CharacterPlayerController : CharacterControllerBase, IUpdatable
             if (revolvePlanet)
             {
                 prevPlanet = revolvePlanet;
-                using (var cmd = CommandFactory.GetOrCreate<StateChangeCommand>(charStateMachine, new RevolveState(character, revolvePlanet)))
-                {
-                    CommandDispatcher.Publish(cmd);
-                }
+                CommandFactory.CreateAndPublish<StateChangeCommand>(charStateMachine, new RevolveState(character, revolvePlanet));
             }
         }
         else if (Input.GetButtonUp("Revolve"))
         {
-            using (var cmd = CommandFactory.GetOrCreate<StateChangeCommand>(charStateMachine, new StraightMoveState(character)))
-            {
-                CommandDispatcher.Publish(cmd);
-            }
+            CommandFactory.CreateAndPublish<StateChangeCommand>(charStateMachine, new StraightMoveState(character));
         }
 
         if (Input.GetButtonDown("Fire1"))
@@ -69,10 +60,7 @@ public class CharacterPlayerController : CharacterControllerBase, IUpdatable
 
         if (GetWeponSlotButtonsDown(out int slotNumber))
         {
-            using (var cmd = CommandFactory.GetOrCreate<WeaponSelectCommand>(character, slotNumber))
-            {
-                CommandDispatcher.Publish(cmd);
-            }
+            CommandFactory.CreateAndPublish<WeaponSelectCommand>(character, slotNumber);
         }
 
         //테스트용 NonWeapon 4개를 일시에 장착.
@@ -82,10 +70,7 @@ public class CharacterPlayerController : CharacterControllerBase, IUpdatable
             int equipSlotNumber = 0;
             foreach (var equipment in character.EquipmentDictForTest.Values)
             {
-                using (var cmd = CommandFactory.GetOrCreate<EquipCommand>(character, equipment, equipSlotNumber++))
-                {
-                    CommandDispatcher.Publish(cmd);
-                }
+                CommandFactory.CreateAndPublish<EquipCommand>(character, equipment, equipSlotNumber++);
             }
         }
 
@@ -96,10 +81,7 @@ public class CharacterPlayerController : CharacterControllerBase, IUpdatable
             int equipSlotNumber = 0;
             foreach (var weapon in character.NonweaponSlots)
             {
-                using (var cmd = CommandFactory.GetOrCreate<UnequipCommand>(character, EquipmentType.NonWeapon, equipSlotNumber++))
-                {
-                    CommandDispatcher.Publish(cmd);
-                }
+                CommandFactory.CreateAndPublish<UnequipCommand>(character, EquipmentType.NonWeapon, equipSlotNumber++);
             }
         }
     }
@@ -144,7 +126,7 @@ public class CharacterPlayerController : CharacterControllerBase, IUpdatable
         {
             minDistancePlanet = prevPlanet;
         }
-            
+
         return minDistancePlanet;
     }
 

@@ -29,4 +29,17 @@ public static class CommandFactory
         resCommand.SetData(values);
         return (T)resCommand;
     }
-}
+
+    /// <summary>
+    /// 주어진 커맨드를 즉시 수행합니다.
+    /// </summary>
+    /// <typeparam name="T">커맨드 타입.</typeparam>
+    /// <param name="values"></param>
+    public static void CreateAndPublish<T>(params object[] values) where T : class, ICommand, new()
+    {
+        using (var cmd = GetOrCreate<T>(values))
+        {
+            CommandDispatcher.Publish(cmd);
+        }
+    }
+}   

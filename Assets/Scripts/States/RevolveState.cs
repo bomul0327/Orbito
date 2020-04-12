@@ -33,7 +33,7 @@ public class RevolveState : IState, IUpdatable
 
     void IState.OnEnter(IState prevState)
     {
-        CommandDispatcher.Publish(CommandFactory.GetOrCreate<IncreaseResourceCommand>(character));
+        CommandFactory.CreateAndPublish<IncreaseResourceCommand>(character);
 
         // 매 프레임마다 공전 방향과 공전 반경을 계산하는 대신, 처음 공전을 시작했을 때 한 번만 계산해놓고 사용합니다.
         // revolve 함수는 미리 계산된 공전 방향과 반경 값을 바탕으로 공전을 수행하기 때문에
