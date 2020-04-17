@@ -16,14 +16,6 @@
     "AutoReturnTime": 0
   },
   {
-    "AssetName": "ChunkSpawner",
-    "PoolCapacity": 16,
-    "MaxPoolCapacity": 0,
-    "MyPoolScaleType": "Static",
-    "MyPoolReturnType": "Manual",
-    "AutoReturnTime": 0
-  },
-  {
     "AssetName": "AirBombExplosionEffect",
     "PoolCapacity": 1,
     "MaxPoolCapacity": 5,
