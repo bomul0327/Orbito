@@ -7,7 +7,6 @@ public class ChunkManager : Singleton<ChunkManager>, IUpdatable
     public int Width = 100;
     public int Height = 60;
     private Rigidbody2D RB2D;
-    private TinyObjectPool<Chunk> ChunkPool;
     private List<Chunk> ChunkList;
     private List<Int32> RemoveList; 
     /// <summary>
@@ -18,20 +17,15 @@ public class ChunkManager : Singleton<ChunkManager>, IUpdatable
         RB2D = GetComponent<Rigidbody2D>();
 
         ChunkList = new List<Chunk>();
-        ChunkPool = new TinyObjectPool<Chunk>();
-        for (int i = 0; i < 9; i++)
-        {
-            ChunkList.Add(ChunkPool.GetOrCreate());
-        }
-        ChunkList[0].Position = new Vector3(-Width, Height  );
-        ChunkList[1].Position = new Vector3(-Width, 0       );
-        ChunkList[2].Position = new Vector3(-Width, -Height );
-        ChunkList[3].Position = new Vector3(0,      Height  );
-        ChunkList[4].Position = new Vector3(0,      0       );
-        ChunkList[5].Position = new Vector3(0,      -Height );
-        ChunkList[6].Position = new Vector3(Width,  Height  );
-        ChunkList[7].Position = new Vector3(Width,  0       );
-        ChunkList[8].Position = new Vector3(Width,  -Height );
+        ChunkList.Add(new Chunk(new Vector3(-Width, Height  )));
+        ChunkList.Add(new Chunk(new Vector3(-Width, 0       )));
+        ChunkList.Add(new Chunk(new Vector3(-Width, -Height )));
+        ChunkList.Add(new Chunk(new Vector3(0,      Height  )));
+        ChunkList.Add(new Chunk(new Vector3(0,      0       )));
+        ChunkList.Add(new Chunk(new Vector3(0,      -Height )));
+        ChunkList.Add(new Chunk(new Vector3(Width,  Height  )));
+        ChunkList.Add(new Chunk(new Vector3(Width,  0       )));
+        ChunkList.Add(new Chunk(new Vector3(Width,  -Height )));
 
 
         UpdateManager.instance.AddUpdatable(this);

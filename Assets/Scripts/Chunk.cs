@@ -7,8 +7,9 @@ using Random = UnityEngine.Random;
 
 public enum ChunkDifficulty{Easy, Normal, Hard}
 
-public class Chunk : IDisposable
+public class Chunk
 {
+    public Dictionary<string,FieldObject> SpawnedObj;
     private Vector3 position;
     public Vector3 Position
     {
@@ -17,6 +18,7 @@ public class Chunk : IDisposable
             position = value;
             Seed = position.magnitude;
             Difficulty = (ChunkDifficulty)(int)(position.magnitude/MapSize * Random.value);
+            Reset();
         }
         get{return position;}
     }
@@ -26,6 +28,13 @@ public class Chunk : IDisposable
     public Chunk()
     {
         position = Vector3.zero;
+        SpawnedObj = new Dictionary<string, FieldObject>();
+    }
+
+    public Chunk(Vector3 pos)
+    {
+        Position = pos;
+        SpawnedObj = new Dictionary<string, FieldObject>();
     }
     public void Spawn ()
     {
@@ -50,9 +59,9 @@ public class Chunk : IDisposable
                 new Vector3(ChunkManager.Instance.Width*1/2, ChunkManager.Instance.Height*1/2, 0);
     }
 
-    void IDisposable.Dispose()
+    private void Reset()
     {
-        position = Vector3.zero;
+        SpawnedObj.Clear();
     }
 
 }
