@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public sealed class MathExtension
+public static class MathExtension
 {
     /// <summary>
     /// 선형 속도를 각속도로 변환합니다.
