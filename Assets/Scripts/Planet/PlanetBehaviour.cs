@@ -34,4 +34,16 @@ public class PlanetBehaviour
         planetTransform.RotateAround(center, -Vector3.forward, deg);
     }
 
+    /// <summary>
+    /// 행성이 갖고 있는 자원을 줄인다.
+    /// </summary>
+    /// <param name="resourceAmount">감소시킬 자원량</param>
+    public void ReduceResource(int resourceAmount)
+    {
+        if (planet.Resources > 0)
+        {
+            planet.Resources -= resourceAmount;
+            Debug.Log(planet.Resources);
+        }
+    }
 }
