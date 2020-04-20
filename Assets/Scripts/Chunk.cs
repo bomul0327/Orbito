@@ -27,14 +27,14 @@ public class Chunk
     const int MapSize = 1000; 
     public Chunk()
     {
-        position = Vector3.zero;
         SpawnedObj = new Dictionary<string, FieldObject>();
+        position = Vector3.zero;
     }
 
     public Chunk(Vector3 pos)
     {
-        Position = pos;
         SpawnedObj = new Dictionary<string, FieldObject>();
+        Position = pos;
     }
     public void Spawn ()
     {
@@ -43,7 +43,7 @@ public class Chunk
     }
 
     /// <summary>
-    /// Global Position을 Chunk의 Local Position으로 변환해줍니다.
+    /// Global Position을 Chunk의 Local Position으로 변환해줍니다. 
     /// </summary>
     public Vector3 LocalPos (Vector3 globalPos)
     {
