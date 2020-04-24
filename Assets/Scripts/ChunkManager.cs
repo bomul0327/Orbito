@@ -36,15 +36,6 @@ public class ChunkManager : Singleton<ChunkManager>, IUpdatable
                 ChunkList.Add(new Chunk(new Vector3(Width*(i-((ChunkColumnSize-1)/2)), Height*(j-((ChunkRowSize-1)/2)))));
             }
         }
-        // ChunkList.Add(new Chunk(new Vector3(-Width, Height  )));
-        // ChunkList.Add(new Chunk(new Vector3(-Width, 0       )));
-        // ChunkList.Add(new Chunk(new Vector3(-Width, -Height )));
-        // ChunkList.Add(new Chunk(new Vector3(0,      Height  )));
-        // ChunkList.Add(new Chunk(new Vector3(0,      0       )));
-        // ChunkList.Add(new Chunk(new Vector3(0,      -Height )));
-        // ChunkList.Add(new Chunk(new Vector3(Width,  Height  )));
-        // ChunkList.Add(new Chunk(new Vector3(Width,  0       )));
-        // ChunkList.Add(new Chunk(new Vector3(Width,  -Height )));
 
         UpdateManager.Instance.AddUpdatable(this);
     }
@@ -60,7 +51,6 @@ public class ChunkManager : Singleton<ChunkManager>, IUpdatable
                 var prev = ChunkList[i].Position;
                 ChunkList[i].Position = new Vector3(ChunkList[i].Position.x - Width * ChunkColumnSize, ChunkList[i].Position.y);
                 var cur = ChunkList[i].Position;
-                Debug.Log("Chunk renewal from "+ prev + " to "+ cur);
                 continue;
             }
 
@@ -69,7 +59,6 @@ public class ChunkManager : Singleton<ChunkManager>, IUpdatable
                 var prev = ChunkList[i].Position;
                 ChunkList[i].Position = new Vector3(ChunkList[i].Position.x + Width * ChunkColumnSize, ChunkList[i].Position.y);
                 var cur = ChunkList[i].Position;
-                Debug.Log("Chunk renewal from "+ prev + " to "+ cur);
                 continue;
             }
 
@@ -78,7 +67,6 @@ public class ChunkManager : Singleton<ChunkManager>, IUpdatable
                 var prev = ChunkList[i].Position;
                 ChunkList[i].Position = new Vector3(ChunkList[i].Position.x, ChunkList[i].Position.y - Height * ChunkRowSize);
                 var cur = ChunkList[i].Position;
-                Debug.Log("Chunk renewal from "+ prev + " to "+ cur);
                 continue;
             }
 
@@ -87,7 +75,6 @@ public class ChunkManager : Singleton<ChunkManager>, IUpdatable
                 var prev = ChunkList[i].Position;
                 ChunkList[i].Position = new Vector3(ChunkList[i].Position.x, ChunkList[i].Position.y + Height * ChunkRowSize);
                 var cur = ChunkList[i].Position;
-                Debug.Log("Chunk renewal from "+ prev + " to "+ cur);
                 continue;
             }
         }
@@ -108,6 +95,20 @@ public class ChunkManager : Singleton<ChunkManager>, IUpdatable
         if (Input.GetKey(KeyCode.LeftArrow))
         {
             Camera.main.transform.Translate(new Vector3(-dt*20, 0f, 0f));
+        }
+        if (Input.GetKey(KeyCode.S))
+        {
+            foreach(var c in ChunkList)
+            {
+                c.Spawn();
+            }
+        }
+        if (Input.GetKey(KeyCode.R))
+        {
+            foreach(var c in ChunkList)
+            {
+                c.Reset();
+            }
         }
     }
 }

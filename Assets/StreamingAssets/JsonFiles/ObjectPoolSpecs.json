@@ -38,5 +38,13 @@
     "MyPoolScaleType": "Unlimited",
     "MyPoolReturnType": "Manual",
     "AutoReturnTime": 0
+  },
+  {
+    "AssetName": "Enemy",
+    "PoolCapacity": 20,
+    "MaxPoolCapacity": 100,
+    "MyPoolScaleType": "Limited",
+    "MyPoolReturnType": "Manual",
+    "AutoReturnTime": 0
   }
 ]

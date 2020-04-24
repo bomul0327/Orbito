@@ -14,12 +14,14 @@ public static class JsonManager
 {
     public static Dictionary<string, SoundSourcePath> SoundDict = new Dictionary<string, SoundSourcePath>();
     public static Dictionary<string, ObjectPoolSpec> PoolSpecDict = new Dictionary<string, ObjectPoolSpec>();
+    public static Dictionary<string, ChunkInitSpawn> ChunkDict = new Dictionary<string, ChunkInitSpawn>();
     private static string jsonPath = System.IO.Path.Combine(Application.streamingAssetsPath, "JsonFiles");
 
     static JsonManager()
     {
         ReadSoundSourcePaths("SoundSourcePath.json");
         ReadObjectPoolSpecs("ObjectPoolSpecs.json");
+        ReadChunkInitSpawns("ChunkInitSpawn.json");
     }
     public static void ReadSoundSourcePaths(string fileName)
     {
@@ -98,6 +100,52 @@ public static class JsonManager
         else
         {
             Debug.LogError("There is no " + assetName + "'s PoolSpec");
+            return null;
+        }
+    }
+
+    public static void ReadChunkInitSpawns(string fileName)
+    {
+        string filePath = System.IO.Path.Combine(jsonPath, fileName);
+        string dataAsJson = File.ReadAllText(filePath);
+        var data = JsonConvert.DeserializeObject<List<JObject>>(dataAsJson);
+
+        foreach(JObject info in data)
+        {
+            ChunkInitSpawn chunk = new ChunkInitSpawn();
+            chunk.Targets = new List<SpawnStruct>();
+            chunk.AssetName = info["AssetName"].ToString();
+            try
+            {
+                chunk.ChunkDifficulty = (ChunkDifficulty)Enum.Parse(typeof(ChunkDifficulty), info["ChunkDifficulty"].ToString());
+            }
+            catch (ArgumentException)
+            {
+                Debug.Log("There is an error on " + info["AssetName"].ToString() + "'s ChunkDifficulty in ChunkInitSpawn.json");
+            }
+            foreach(var Target in info["Targets"])
+            {
+                SpawnStruct s = new SpawnStruct();
+                s.TargetPoolName = Target["TargetPoolName"].ToString();
+                s.LocalPosition.x = (float)Target["LocalPos"]["X"];
+                s.LocalPosition.y = (float)Target["LocalPos"]["Y"];
+                s.Rotation = (Quaternion)(new Quaternion((float)Target["Quater"]["X"],(float)Target["Quater"]["Y"],(float)Target["Quater"]["Z"],(float)Target["Quater"]["W"]));
+                chunk.Targets.Add(s);
+            }
+
+            ChunkDict.Add(chunk.AssetName, chunk);
+        }
+    }
+
+    public static ChunkInitSpawn GetChunkInitSpawn(string assetName)
+    {
+        if(ChunkDict.ContainsKey(assetName))
+        {
+            return ChunkDict[assetName];
+        }
+        else
+        {
+            Debug.LogError("There is no " + assetName + "'s ChunkInitSpawn");
             return null;
         }
     }

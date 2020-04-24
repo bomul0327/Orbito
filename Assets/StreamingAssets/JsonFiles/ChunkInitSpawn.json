@@ -1,0 +1,38 @@
+[
+    {
+        "AssetName": "EasyChunk",
+        "ChunkDifficulty": "Easy",
+        "Targets":[
+            {
+                "TargetPoolName": "Enemy", 
+                "LocalPos":
+                {
+                    "X": 50,
+                    "Y": 50
+                },
+                "Quater":
+                {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": 0,
+                    "W": 0
+                }
+            },
+            {
+                "TargetPoolName": "Planet", 
+                "LocalPos":
+                {
+                    "X": 60,
+                    "Y": 50
+                },
+                "Quater":
+                {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": 0,
+                    "W": 0
+                }
+            }
+        ]
+    }
+]
