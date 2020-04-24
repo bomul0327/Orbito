@@ -80,35 +80,35 @@ public class ChunkManager : Singleton<ChunkManager>, IUpdatable
         }
 
         // 시험용 인풋 테스트입니다.
-        if (Input.GetKey(KeyCode.UpArrow))
-        {
-            Camera.main.transform.Translate(new Vector3(0f, dt*20, 0f));
-        }
-        if (Input.GetKey(KeyCode.RightArrow))
-        {
-            Camera.main.transform.Translate(new Vector3(dt*20, 0f, 0f));
-        }
-        if (Input.GetKey(KeyCode.DownArrow))
-        {
-            Camera.main.transform.Translate(new Vector3(0f, -dt*20, 0f));
-        }
-        if (Input.GetKey(KeyCode.LeftArrow))
-        {
-            Camera.main.transform.Translate(new Vector3(-dt*20, 0f, 0f));
-        }
-        if (Input.GetKey(KeyCode.S))
-        {
-            foreach(var c in ChunkList)
-            {
-                c.Spawn();
-            }
-        }
-        if (Input.GetKey(KeyCode.R))
-        {
-            foreach(var c in ChunkList)
-            {
-                c.Reset();
-            }
-        }
+        // if (Input.GetKey(KeyCode.UpArrow))
+        // {
+        //     Camera.main.transform.Translate(new Vector3(0f, dt*20, 0f));
+        // }
+        // if (Input.GetKey(KeyCode.RightArrow))
+        // {
+        //     Camera.main.transform.Translate(new Vector3(dt*20, 0f, 0f));
+        // }
+        // if (Input.GetKey(KeyCode.DownArrow))
+        // {
+        //     Camera.main.transform.Translate(new Vector3(0f, -dt*20, 0f));
+        // }
+        // if (Input.GetKey(KeyCode.LeftArrow))
+        // {
+        //     Camera.main.transform.Translate(new Vector3(-dt*20, 0f, 0f));
+        // }
+        // if (Input.GetKey(KeyCode.S))
+        // {
+        //     foreach(var c in ChunkList)
+        //     {
+        //         c.Spawn();
+        //     }
+        // }
+        // if (Input.GetKey(KeyCode.R))
+        // {
+        //     foreach(var c in ChunkList)
+        //     {
+        //         c.Reset();
+        //     }
+        // }
     }
 }

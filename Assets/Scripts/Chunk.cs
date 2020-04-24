@@ -9,7 +9,7 @@ public enum ChunkDifficulty{Easy, Normal, Hard, MAX}
 
 public class Chunk
 {
-    public Dictionary<string,List<PooledUnityObject>> SpawnedObj;
+    public Dictionary<string,List<PooledUnityObject>> SpawnedObjDict;
     private Vector3 position;
     public Vector3 Position
     {
@@ -28,17 +28,18 @@ public class Chunk
     public float Seed;
     public ChunkDifficulty Difficulty;
     const int MapSize = 1000; 
+    ChunkInitSpawn ChunkInitSpawn;
 
-    public Chunk(Vector3? pos = null)
+    public Chunk(Vector3 pos = default(Vector3))
     {
-        SpawnedObj = new Dictionary<string, List<PooledUnityObject>>();
-        SpawnedObj.Add("Enemy", new List<PooledUnityObject>());
-        SpawnedObj.Add("Planet", new List<PooledUnityObject>());
-        Position = pos ?? Vector3.zero;
+        SpawnedObjDict = new Dictionary<string, List<PooledUnityObject>>();
+        SpawnedObjDict.Add("Enemy", new List<PooledUnityObject>());
+        SpawnedObjDict.Add("Planet", new List<PooledUnityObject>());
+        ChunkInitSpawn = new ChunkInitSpawn();
+        Position = pos;
     }
     public void Spawn ()
     {
-        ChunkInitSpawn ChunkInitSpawn = new ChunkInitSpawn();
         switch (Difficulty)
         {
             case ChunkDifficulty.Easy:
@@ -54,35 +55,8 @@ public class Chunk
 
         foreach (var target in ChunkInitSpawn.Targets)
         {
-                SpawnedObj[target.TargetPoolName].Add(UnityObjectPool.GetOrCreate(target.TargetPoolName).Instantiate(GlobalPos(target.LocalPosition), target.Rotation));
+                SpawnedObjDict[target.TargetPoolName].Add(UnityObjectPool.GetOrCreate(target.TargetPoolName).Instantiate(GlobalPos(target.LocalPosition), target.Rotation));
         }
-        // switch (ChunkInitSpawn.ChunkDifficulty)
-        // {
-        //     case ChunkDifficulty.Easy :
-        //         SpawnedObj["Enemy"].Add(UnityObjectPool.GetOrCreate("Enemy").Instantiate(GlobalPos(new Vector3(ChunkManager.Instance.Width/2, ChunkManager.Instance.Height/2)), Quaternion.identity));
-        //         SpawnedObj["Enemy"].Add(UnityObjectPool.GetOrCreate("Enemy").Instantiate(GlobalPos(new Vector3(ChunkManager.Instance.Width/2-20, ChunkManager.Instance.Height/2)), Quaternion.identity));
-        //         SpawnedObj["Enemy"].Add(UnityObjectPool.GetOrCreate("Enemy").Instantiate(GlobalPos(new Vector3(ChunkManager.Instance.Width/2+20, ChunkManager.Instance.Height/2)), Quaternion.identity));
-        //         SpawnedObj["Planet"].Add(UnityObjectPool.GetOrCreate("Planet").Instantiate(GlobalPos(new Vector3(ChunkManager.Instance.Width/2, ChunkManager.Instance.Height/2 + 10)), Quaternion.identity));
-        //         SpawnedObj["Planet"].Add(UnityObjectPool.GetOrCreate("Planet").Instantiate(GlobalPos(new Vector3(ChunkManager.Instance.Width/2-20, ChunkManager.Instance.Height/2 + 10)), Quaternion.identity));
-        //         SpawnedObj["Planet"].Add(UnityObjectPool.GetOrCreate("Planet").Instantiate(GlobalPos(new Vector3(ChunkManager.Instance.Width/2+20, ChunkManager.Instance.Height/2 + 10)), Quaternion.identity));
-        //         break;
-        //     case ChunkDifficulty.Normal :
-        //         SpawnedObj["Enemy"].Add(UnityObjectPool.GetOrCreate("Enemy").Instantiate(GlobalPos(new Vector3(ChunkManager.Instance.Width/2, ChunkManager.Instance.Height/2)), Quaternion.identity));
-        //         SpawnedObj["Enemy"].Add(UnityObjectPool.GetOrCreate("Enemy").Instantiate(GlobalPos(new Vector3(ChunkManager.Instance.Width/2-20, ChunkManager.Instance.Height/2)), Quaternion.identity));
-        //         SpawnedObj["Enemy"].Add(UnityObjectPool.GetOrCreate("Enemy").Instantiate(GlobalPos(new Vector3(ChunkManager.Instance.Width/2+20, ChunkManager.Instance.Height/2)), Quaternion.identity));
-        //         SpawnedObj["Planet"].Add(UnityObjectPool.GetOrCreate("Planet").Instantiate(GlobalPos(new Vector3(ChunkManager.Instance.Width/2, ChunkManager.Instance.Height/2 + 10)), Quaternion.identity));
-        //         SpawnedObj["Planet"].Add(UnityObjectPool.GetOrCreate("Planet").Instantiate(GlobalPos(new Vector3(ChunkManager.Instance.Width/2-20, ChunkManager.Instance.Height/2 + 10)), Quaternion.identity));
-        //         SpawnedObj["Planet"].Add(UnityObjectPool.GetOrCreate("Planet").Instantiate(GlobalPos(new Vector3(ChunkManager.Instance.Width/2+20, ChunkManager.Instance.Height/2 + 10)), Quaternion.identity));
-        //         break;
-        //     case ChunkDifficulty.Hard :
-        //         SpawnedObj["Enemy"].Add(UnityObjectPool.GetOrCreate("Enemy").Instantiate(GlobalPos(new Vector3(ChunkManager.Instance.Width/2, ChunkManager.Instance.Height/2)), Quaternion.identity));
-        //         SpawnedObj["Enemy"].Add(UnityObjectPool.GetOrCreate("Enemy").Instantiate(GlobalPos(new Vector3(ChunkManager.Instance.Width/2-20, ChunkManager.Instance.Height/2)), Quaternion.identity));
-        //         SpawnedObj["Enemy"].Add(UnityObjectPool.GetOrCreate("Enemy").Instantiate(GlobalPos(new Vector3(ChunkManager.Instance.Width/2+20, ChunkManager.Instance.Height/2)), Quaternion.identity));
-        //         SpawnedObj["Planet"].Add(UnityObjectPool.GetOrCreate("Planet").Instantiate(GlobalPos(new Vector3(ChunkManager.Instance.Width/2, ChunkManager.Instance.Height/2 + 10)), Quaternion.identity));
-        //         SpawnedObj["Planet"].Add(UnityObjectPool.GetOrCreate("Planet").Instantiate(GlobalPos(new Vector3(ChunkManager.Instance.Width/2-20, ChunkManager.Instance.Height/2 + 10)), Quaternion.identity));
-        //         SpawnedObj["Planet"].Add(UnityObjectPool.GetOrCreate("Planet").Instantiate(GlobalPos(new Vector3(ChunkManager.Instance.Width/2+20, ChunkManager.Instance.Height/2 + 10)), Quaternion.identity));
-        //         break;
-        // }
         return;
     }
 
@@ -105,11 +79,12 @@ public class Chunk
 
     public void Reset()
     {
-        foreach (var s in SpawnedObj)
+        foreach (var s in SpawnedObjDict)
         {
             foreach(var obj in s.Value)
             {
                 UnityObjectPool.GetOrCreate("Enemy").Return(obj.GetComponent<PooledUnityObject>());
+                UnityObjectPool.GetOrCreate("Planet").Return(obj.GetComponent<PooledUnityObject>());
             }
             s.Value.Clear();
         }
