@@ -4,10 +4,18 @@ using UnityEngine;
 
 public class DestroyEvent : IEvent
 {
-    FieldObject target;
+    private FieldObject target;
+    public FieldObject Target
+    {
+        get
+        {
+            return target;
+        }
+    }
 
     public DestroyEvent(FieldObject target)
     {
         this.target = target;
     }
+
 }

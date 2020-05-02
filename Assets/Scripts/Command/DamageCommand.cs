@@ -20,7 +20,14 @@ public class DamageCommand : ICommand
             return;
         }
 
-        target.HP -= damageInfo.Damage;
+        if (target.HP <= 0)
+        {
+            OrbitoEvent.EventDispatcher.Notify(new DestroyEvent(target));
+        }
+        else
+        {
+            target.HP -= damageInfo.Damage;
+        }
     }
     public void Dispose()
     {

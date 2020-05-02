@@ -2,17 +2,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlanetBehaviour
+public class PlanetBehaviour : IEventListener
 {
     Planet planet;
     Transform planetTransform;
 
-    PlanetBehaviour(Planet planet)
+    public PlanetBehaviour(Planet planet)
     {
         this.planet = planet;
         planetTransform = planet.transform;
+        OrbitoEvent.EventDispatcher.AddListener(this);
     }
 
+    ~PlanetBehaviour(){
+        OrbitoEvent.EventDispatcher.RemoveListener(this);
+    }
     public void MoveFront()
     {
         planetTransform.Translate(0, planet.MoveSpeed * Time.deltaTime, 0);
@@ -20,8 +24,8 @@ public class PlanetBehaviour
 
     public void Destroy()
     {
-        planet.gameObject.SetActive(false);
-        Debug.Log("Destroy");
+        UnityObjectPool planetObjectPool = UnityObjectPool.GetOrCreate("Planet");
+        planetObjectPool.Return(planet.GetComponent<PooledUnityObject>());
     }
 
     public void Rotate(Vector3 center)
@@ -44,6 +48,22 @@ public class PlanetBehaviour
         {
             planet.Resources -= resourceAmount;
             Debug.Log(planet.Resources);
+        }
+    }
+
+    void IEventListener.OnEvent(IEvent e)
+    {
+        if(e is DestroyEvent de)
+        {
+            if (de.Target == planet)
+            {
+                if(planet.Type != PlanetType.FloatingMatter)
+                {
+                    return;
+                }
+
+                Destroy();
+            }
         }
     }
 }
