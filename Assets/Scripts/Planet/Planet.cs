@@ -36,13 +36,6 @@ public class Planet : FieldObject
         private set;
     }
 
-    public enum Size
-    {
-        small,
-        medium,
-        big
-    }
-
     private bool selected;
 
     public bool Selectable;
@@ -57,8 +50,17 @@ public class Planet : FieldObject
 
     private ResourceGrade grade;
 
-    private void initializeResource()
+    private void Awake()
     {
+        // Get Controller and Behaviour by something.
+        // Json 데이터가 준비되면 Json을 통해서 받아올 것
+        // Controller = ?;
+        Behaviour = new PlanetBehaviour(this);
+
+        Type = PlanetType.FloatingMatter;
+        grade = ResourceGrade.A;
+        HP = 10;
+
         // 자원 등급에 맞게 자원 초기화
         if (grade == ResourceGrade.A)
         {
@@ -76,18 +78,5 @@ public class Planet : FieldObject
         {
             Resources = Random.Range(0, 20);
         }
-    }
-
-    private void Awake()
-    {
-        // Get Controller and Behaviour by something.
-        // Json 데이터가 준비되면 Json을 통해서 받아올 것
-        // Controller = ?;
-        // Behaviour = ?;
-
-        Type = PlanetType.Big;
-        grade = ResourceGrade.A;
-
-        initializeResource();
     }
 }
