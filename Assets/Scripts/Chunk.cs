@@ -19,7 +19,7 @@ public class Chunk
             Seed = position.magnitude;
             Random.InitState((int)Seed);
             Difficulty = (ChunkDifficulty)(int)(position.magnitude/MapSize * (int)ChunkDifficulty.MAX * Random.value);
-            Debug.Log("New Chunk : "+Position+", and difficulty : "+Difficulty);
+            // Debug.Log("New Chunk : "+Position+", and difficulty : "+Difficulty);
             Reset();
             Spawn();
         }

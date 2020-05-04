@@ -32,7 +32,7 @@ public class ChunkManager : Singleton<ChunkManager>, IUpdatable
         {
             for (int j = 0; j < ChunkRowSize; j++)
             {
-                Debug.Log(new Vector3(Width*(i-((ChunkColumnSize-1)/2)), Height*(j-((ChunkRowSize-1)/2))));
+                // Debug.Log(new Vector3(Width*(i-((ChunkColumnSize-1)/2)), Height*(j-((ChunkRowSize-1)/2))));
                 ChunkList.Add(new Chunk(new Vector3(Width*(i-((ChunkColumnSize-1)/2)), Height*(j-((ChunkRowSize-1)/2)))));
             }
         }
