@@ -55,7 +55,10 @@ public class Chunk
 
         foreach (var target in ChunkInitSpawn.Targets)
         {
-                SpawnedObjDict[target.TargetPoolName].Add(UnityObjectPool.GetOrCreate(target.TargetPoolName).Instantiate(GlobalPos(target.LocalPosition), target.Rotation));
+                SpawnedObjDict[target.TargetPoolName].Add(
+                    UnityObjectPool.GetOrCreate(target.TargetPoolName).
+                        Instantiate(GlobalPos(target.LocalPosition), target.Rotation)
+                    );
         }
         return;
     }

@@ -11,7 +11,6 @@ public class ChunkInitSpawn
 public struct SpawnStruct
 {
     public string TargetPoolName;
-    // position 을 절대값으로 할지 아니면 비율로 할지 고민입니다.
     public Vector3 LocalPosition;
     public Quaternion Rotation;
 }
