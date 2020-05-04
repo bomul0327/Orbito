@@ -18,27 +18,24 @@ using Debug = UnityEngine.Debug;
 /// </summary>
 public class SoundManager : Singleton<SoundManager>
 {
-    const int maxChannelNum = 21, BattleSoundChannelIndex = 0, EventSoundChannelIndex = 10,
+    const int MaxChannelNum = 21, BattleSoundChannelIndex = 0, EventSoundChannelIndex = 10,
              EnvironmentSoundChannelIndex = 15, BGMChannelIndex = 20;
 
-    string soundPath = System.IO.Path.Combine(Application.streamingAssetsPath, "Sounds");
+    string SoundPath = System.IO.Path.Combine(Application.streamingAssetsPath, "Sounds");
     FMOD.System system;
-    static RESULT result; DSP_TYPE typeTemp; Sound soundTemp; string strTemp;
+    static RESULT result; DSP_TYPE TypeTemp; Sound SoundTemp; string StrTemp;
     ChannelGroup MasterChannelGroup, SFXChannelGroup, BattleSoundChannelGroup, EventSoundChannelGroup, 
-            EnvironmentSoundChannelGroup, BGMChannelGroup;
-    Channel[] channelArr;
-    DSP DSPTemp, PitchshiftDSP;
-    List<DSP> DSPList;
-    List<DSPConnection> DSPConnectionsList;
-    Dictionary<string, Sound> soundDict;
-    string currentBGMName = "null";
+            EnvironmentSoundChannelGroup, BGMChannelGroup, Reverb;
+    Channel[] ChannelArr;
+    DSP DSPTemp1, DSPTemp2;
+    DSPConnection DSPConnectionTemp;
+    Dictionary<string, Sound> SoundDict;
+    string CurrentBGMName = "null";
     
     void Start()
     {
-        soundDict = new Dictionary<string, Sound>();
-        channelArr = new Channel[maxChannelNum];
-        DSPConnectionsList = new List<DSPConnection>();
-        DSPList = new List<DSP>();
+        SoundDict = new Dictionary<string, Sound>();
+        ChannelArr = new Channel[MaxChannelNum];
 
         //@ System 초기설정 part입니다.
 
@@ -47,7 +44,7 @@ public class SoundManager : Singleton<SoundManager>
         
         // 현재 MaxChannel 개수는 임의로 넣었습니다. 아직 도입 과정이라 channel이 몇개 필요할지 모르겠네요.
         // 나머지는 기본값입니다.
-        result = system.init(maxChannelNum, INITFLAGS.VOL0_BECOMES_VIRTUAL | INITFLAGS.PROFILE_METER_ALL, System.IntPtr.Zero);
+        result = system.init(MaxChannelNum, INITFLAGS.VOL0_BECOMES_VIRTUAL | INITFLAGS.PROFILE_METER_ALL, System.IntPtr.Zero);
         Error(result); 
 
         //@ Channel 초기설정 part입니다.
@@ -69,6 +66,9 @@ public class SoundManager : Singleton<SoundManager>
         result = system.createChannelGroup("BGM", out BGMChannelGroup);
         Error(result); 
 
+        result = system.createChannelGroup("Reverb", out Reverb);
+        Error(result); 
+
         result = MasterChannelGroup.addGroup(SFXChannelGroup);
         Error(result); 
 
@@ -84,41 +84,75 @@ public class SoundManager : Singleton<SoundManager>
         result = SFXChannelGroup.addGroup(EnvironmentSoundChannelGroup);
         Error(result); 
 
-        for (int i = 0 ; i < maxChannelNum; i++)
+        for (int i = 0 ; i < MaxChannelNum; i++)
         {
-            result = system.getChannel(i, out channelArr[i]);
+            result = system.getChannel(i, out ChannelArr[i]);
             Error(result); 
         }
 
         //@ DSP 초기설정 part입니다.
-        result = system.createDSPByType(DSP_TYPE.PITCHSHIFT, out PitchshiftDSP);
+        result = system.createDSPByType(DSP_TYPE.PITCHSHIFT, out DSPTemp1);
         Error(result); 
-        result = MasterChannelGroup.addDSP(CHANNELCONTROL_DSP_INDEX.HEAD, PitchshiftDSP);
-        Error(result); 
-
-        result = system.createDSPByType(DSP_TYPE.PITCHSHIFT, out PitchshiftDSP);
-        Error(result); 
-        result = SFXChannelGroup.addDSP(CHANNELCONTROL_DSP_INDEX.HEAD, PitchshiftDSP);
+        result = MasterChannelGroup.addDSP(CHANNELCONTROL_DSP_INDEX.TAIL, DSPTemp1);
         Error(result); 
 
-        result = system.createDSPByType(DSP_TYPE.PITCHSHIFT, out PitchshiftDSP);
+        result = system.createDSPByType(DSP_TYPE.PITCHSHIFT, out DSPTemp1);
         Error(result); 
-        result = BattleSoundChannelGroup.addDSP(CHANNELCONTROL_DSP_INDEX.HEAD, PitchshiftDSP);
+        result = SFXChannelGroup.addDSP(CHANNELCONTROL_DSP_INDEX.TAIL, DSPTemp1);
         Error(result); 
 
-        result = system.createDSPByType(DSP_TYPE.PITCHSHIFT, out PitchshiftDSP);
+        result = system.createDSPByType(DSP_TYPE.PITCHSHIFT, out DSPTemp1);
+        Error(result); 
+        result = BattleSoundChannelGroup.addDSP(CHANNELCONTROL_DSP_INDEX.TAIL, DSPTemp1);
+        Error(result); 
+
+        result = system.createDSPByType(DSP_TYPE.PITCHSHIFT, out DSPTemp1);
         Error(result);
-        result = EnvironmentSoundChannelGroup.addDSP(CHANNELCONTROL_DSP_INDEX.HEAD, PitchshiftDSP);
+        result = EnvironmentSoundChannelGroup.addDSP(CHANNELCONTROL_DSP_INDEX.TAIL, DSPTemp1);
         Error(result); 
 
-        result = system.createDSPByType(DSP_TYPE.PITCHSHIFT, out PitchshiftDSP);
+        result = system.createDSPByType(DSP_TYPE.PITCHSHIFT, out DSPTemp1);
         Error(result); 
-        result = EventSoundChannelGroup.addDSP(CHANNELCONTROL_DSP_INDEX.HEAD, PitchshiftDSP);
+        result = EventSoundChannelGroup.addDSP(CHANNELCONTROL_DSP_INDEX.TAIL, DSPTemp1);
         Error(result); 
 
-        result = system.createDSPByType(DSP_TYPE.PITCHSHIFT, out PitchshiftDSP);
+        result = system.createDSPByType(DSP_TYPE.PITCHSHIFT, out DSPTemp1);
         Error(result); 
-        result = BGMChannelGroup.addDSP(CHANNELCONTROL_DSP_INDEX.HEAD, PitchshiftDSP);
+        result = BGMChannelGroup.addDSP(CHANNELCONTROL_DSP_INDEX.TAIL, DSPTemp1);
+        Error(result); 
+
+        // Reverb 만드는 part입니다.
+        result = system.createDSPByType(DSP_TYPE.CONVOLUTIONREVERB, out DSPTemp1);
+        Error(result); 
+        result = Reverb.addDSP(CHANNELCONTROL_DSP_INDEX.TAIL, DSPTemp1);
+        Error(result); 
+            // Reverb Channel에 Impulse Response를 넣어주는 과정입니다.
+        string filePath = System.IO.Path.Combine(SoundPath, "ImpulseResponse.wav");
+        result = system.createSound(filePath, MODE.DEFAULT | MODE.OPENONLY, out SoundTemp);
+        Error(result); 
+        SOUND_FORMAT ImpulseFormat;
+        SOUND_TYPE ImpulseType;
+        int ImpulseBits, ImpulseChannels;
+        result = SoundTemp.getFormat(out ImpulseType, out ImpulseFormat, out ImpulseChannels, out ImpulseBits);
+        Error(result); 
+        uint ImpulseLength;
+        SoundTemp.getLength(out ImpulseLength, TIMEUNIT.PCM);
+        Error(result); 
+
+        // Doing, 현재 에러납니다.
+        // uint ImpulseDataLength = (uint)ImpulseLength * (uint)ImpulseChannels + 1;
+        // byte[] ImpulseData = new byte[ImpulseDataLength];
+        // ImpulseData[0] = (byte)ImpulseChannels;
+        // uint ImpulseDataRead;
+        // System.IntPtr pointer = new System.IntPtr(ImpulseData[1]);
+        // result = SoundTemp.readData(pointer, ImpulseDataLength - 1, out ImpulseDataRead);
+        // Error(result); 
+        // result = DSPTemp1.setParameterData((int)DSP_CONVOLUTION_REVERB.IR, ImpulseData);
+        // Error(result); 
+        // result = DSPTemp1.setParameterFloat((int)DSP_CONVOLUTION_REVERB.DRY, -80.0f);
+        // Error(result); 
+
+        SoundTemp.release();
         Error(result); 
 
         //@ Sound 초기설정 part입니다.
@@ -126,14 +160,31 @@ public class SoundManager : Singleton<SoundManager>
     }
     void OnDestroy()
     {
-        foreach (var s in soundDict)
+        foreach (var s in SoundDict)
         {
             result = s.Value.release();
             Error(result); 
         }
 
-        result = MasterChannelGroup.release();
+        result = MasterChannelGroup.getDSP(CHANNELCONTROL_DSP_INDEX.TAIL, out DSPTemp1);
         Error(result); 
+        result = MasterChannelGroup.removeDSP(DSPTemp1);
+        Error(result); 
+        // MasterChannelGroup은 에러가 나네요 왜인지 모르겠습니다.
+        // result = MasterChannelGroup.release();
+        // Error(result); 
+        result = DSPTemp1.release();
+        Error(result); 
+
+        result = Reverb.getDSP(CHANNELCONTROL_DSP_INDEX.TAIL, out DSPTemp1);
+        Error(result); 
+        result = Reverb.removeDSP(DSPTemp1);
+        Error(result); 
+        result = Reverb.release();
+        Error(result); 
+        result = DSPTemp1.release();
+        Error(result); 
+
         result = SFXChannelGroup.release();
         Error(result); 
         result = BattleSoundChannelGroup.release();
@@ -142,6 +193,7 @@ public class SoundManager : Singleton<SoundManager>
         Error(result); 
         result = EnvironmentSoundChannelGroup.release();
         Error(result); 
+
         result = system.close();
         Error(result); 
         result = system.release();
@@ -159,7 +211,12 @@ public class SoundManager : Singleton<SoundManager>
     {
         if (Input.GetKeyDown(KeyCode.P))
         {
-            PlaySFX("LaserSample1.wav", SFXEnum.BattleSound);
+            Play("LaserSample1.wav", SoundPlayInfo.One ,SFXEnum.BattleSound);
+        }
+
+        if (Input.GetKeyDown(KeyCode.O))
+        {
+            Play("LaserSample1.wav", SoundPlayInfo.Default ,SFXEnum.BattleSound);
         }
 
         if (Input.GetKeyDown(KeyCode.B))
@@ -171,34 +228,32 @@ public class SoundManager : Singleton<SoundManager>
         {
             Load("LaserSample1.wav", true);
         }
-
     }
 
     /// <summary>
     /// 2D SFX사운드를 발생시킵니다.
     /// </summary>
     /// <param name="audioName">대상 audioFile 이름</param>
-    /// <param name="playVolume">실행시킬 Volume값(0~1)</param>
-    /// <param name="playPitch">실행시킬 Pitch값; Default : 1</param>
-    /// <param name="playSpeed">실행시킬 Speed값; Default : 1</param>
-    public void PlaySFX(string audioName, SFXEnum SFXEnum = SFXEnum.SFX, float playVolume = 1.0f, float playPitch = 1.0f, float playSpeed = 1.0f)
+    /// <param name="SI">{PlayVolume, PlayPitch, PlaySpeed, PlayReverb}</param>
+    /// <param name="SFXEnum">실행시킬 Channel Group</param>
+    public void Play(string audioName, SoundPlayInfo SI, SFXEnum SFXEnum = SFXEnum.SFX)
     {
         int channelIndex;
         
-        if (!soundDict.ContainsKey(audioName))
+        if (!SoundDict.ContainsKey(audioName))
         {
             Debug.LogError("Load the sound file before play.");
             return;
         } else 
         {
-            for (channelIndex =0 ; channelIndex < maxChannelNum ; channelIndex++)
+            for (channelIndex =0 ; channelIndex < MaxChannelNum ; channelIndex++)
             {
-                channelArr[channelIndex].isPlaying(out bool b);
+                ChannelArr[channelIndex].isPlaying(out bool b);
                 if (!b) break;
             }
         }
 
-        if (channelIndex == maxChannelNum)
+        if (channelIndex == MaxChannelNum)
         {
             Debug.LogError("There is no extra SFX channel now.");
             return;
@@ -207,34 +262,41 @@ public class SoundManager : Singleton<SoundManager>
             switch (SFXEnum)
             {
                 case SFXEnum.BattleSound :
-                    result = system.playSound(soundDict[audioName], BattleSoundChannelGroup, true, out channelArr[channelIndex]);
+                    result = system.playSound(SoundDict[audioName], BattleSoundChannelGroup, true, out ChannelArr[channelIndex]);
                     Error(result); 
                     break;
                 case SFXEnum.EventSound :
-                    result = system.playSound(soundDict[audioName], EventSoundChannelGroup, true, out channelArr[channelIndex]);
+                    result = system.playSound(SoundDict[audioName], EventSoundChannelGroup, true, out ChannelArr[channelIndex]);
                     Error(result); 
                     break;
                 case SFXEnum.EnvironmentSound :
-                    result = system.playSound(soundDict[audioName], EnvironmentSoundChannelGroup, true, out channelArr[channelIndex]);
+                    result = system.playSound(SoundDict[audioName], EnvironmentSoundChannelGroup, true, out ChannelArr[channelIndex]);
                     Error(result); 
                     break;
                 case SFXEnum.SFX :
-                    result = system.playSound(soundDict[audioName], SFXChannelGroup, true, out channelArr[channelIndex]);
+                    result = system.playSound(SoundDict[audioName], SFXChannelGroup, true, out ChannelArr[channelIndex]);
                     Error(result); 
                     break;
                     
             }
 
-            result = system.createDSPByType(DSP_TYPE.PITCHSHIFT, out PitchshiftDSP);
+            result = system.createDSPByType(DSP_TYPE.PITCHSHIFT, out DSPTemp1);
             Error(result); 
-            result = channelArr[channelIndex].addDSP(CHANNELCONTROL_DSP_INDEX.HEAD, PitchshiftDSP);
+            result = ChannelArr[channelIndex].addDSP(CHANNELCONTROL_DSP_INDEX.TAIL, DSPTemp1);
             Error(result); 
+
+            result = Reverb.getDSP(CHANNELCONTROL_DSP_INDEX.TAIL, out DSPTemp1);
+            Error(result); 
+            result = ChannelArr[channelIndex].getDSP(CHANNELCONTROL_DSP_INDEX.TAIL, out DSPTemp2);
+            Error(result); 
+            result = DSPTemp1.addInput(DSPTemp2);
         
-            SetVolume(audioName, playVolume);
-            SetPitch(audioName, playPitch);
-            SetSpeed(audioName, playSpeed);
+            SetVolume(audioName, SI.Volume);
+            SetPitch(audioName, SI.Pitch);
+            SetSpeed(audioName, SI.Speed);
+            SetReverb(audioName, SI.Reverb);
             
-            result = channelArr[channelIndex].setPaused(false);
+            result = ChannelArr[channelIndex].setPaused(false);
             Error(result); 
         }
     }
@@ -247,17 +309,17 @@ public class SoundManager : Singleton<SoundManager>
     {
         Load(audioName, false);
         // Todo : Fade in Fade out 기능이 추가되어야 합니다.
-        result = system.playSound(soundDict[audioName], BGMChannelGroup, true, out channelArr[BGMChannelIndex]);
+        result = system.playSound(SoundDict[audioName], BGMChannelGroup, true, out ChannelArr[BGMChannelIndex]);
         Error(result); 
 
-        if (!currentBGMName.Equals("null"))
+        if (!CurrentBGMName.Equals("null"))
         {
-            UnLoad(currentBGMName);
+            UnLoad(CurrentBGMName);
         }
 
-        currentBGMName = audioName;
+        CurrentBGMName = audioName;
 
-        channelArr[maxChannelNum-1].setPaused(false);
+        ChannelArr[MaxChannelNum-1].setPaused(false);
     }
 
     /// <summary>
@@ -379,9 +441,9 @@ public class SoundManager : Singleton<SoundManager>
     {
         foreach (var c in FindChannelOfSound(audioName))
         {
-            result = c.getDSP(CHANNELCONTROL_DSP_INDEX.HEAD, out DSPTemp);
+            result = c.getDSP(CHANNELCONTROL_DSP_INDEX.TAIL, out DSPTemp1);
             Error(result); 
-            result = DSPTemp.setParameterFloat(0, playPitch);
+            result = DSPTemp1.setParameterFloat(0, playPitch);
             Error(result); 
         }
     }
@@ -393,9 +455,9 @@ public class SoundManager : Singleton<SoundManager>
     /// <param name="playPitch">원하는 Pitch in Range[0.5~2]</param>
     public void SetPitch(ChannelGroup channelGroup, float playPitch)
     {
-        result = channelGroup.getDSP(CHANNELCONTROL_DSP_INDEX.HEAD, out DSPTemp);
+        result = channelGroup.getDSP(CHANNELCONTROL_DSP_INDEX.TAIL, out DSPTemp1);
         Error(result); 
-        result = DSPTemp.setParameterFloat(0, playPitch);
+        result = DSPTemp1.setParameterFloat(0, playPitch);
         Error(result); 
     }
     
@@ -414,15 +476,26 @@ public class SoundManager : Singleton<SoundManager>
     }
 
     /// <summary>
-    /// 해당 소리의 속도를 조절합니다.
+    /// 해당 소리의 속도를 조절합니다.(미완성입니다)
     /// </summary>
     /// <param name="audioName">대상 audioFile 이름</param>
     /// <param name="playSpeed">상대 배율값입니다. Default : 1, Range[0.01~100]</param>
     public void SetSpeed(ChannelGroup channelGroup, float playSpeed)
     {
+        // 여기 미완성 입니다.
         SetPitch(channelGroup, 1/playSpeed);
         // channelGroup에는 setFrequency가 없네요?;;
         // channelGroup.setFrequency(44100*playSpeed);
+    }
+
+    public void SetReverb(string audioName, float playReverb)
+    {
+        foreach (var c in FindChannelOfSound(audioName))
+        {
+            c.getDSP(CHANNELCONTROL_DSP_INDEX.HEAD, out DSPTemp1);
+            DSPTemp1.getOutput(1, out DSPTemp1, out DSPConnectionTemp);
+            DSPConnectionTemp.setMix(playReverb);
+        }
     }
 
     /// <summary>
@@ -442,18 +515,18 @@ public class SoundManager : Singleton<SoundManager>
             mode = mode | soundSource.Modes[i];
         }
 
-        // 아직 폴더구조가 정리가 안된 상태에서의 soundPath입니다.
-        string filePath = System.IO.Path.Combine(soundPath, soundSource.Path);
+        // 아직 폴더구조가 정리가 안된 상태에서의 SoundPath입니다.
+        string filePath = System.IO.Path.Combine(SoundPath, soundSource.Path);
         if (!stayOnMemory)
         {
-            result = system.createStream(filePath, mode, out soundTemp);
+            result = system.createStream(filePath, mode, out SoundTemp);
             if (Error(result))
             {
                 Debug.Log(audioName + "을(를) 불러오지 못했습니다.");
             }
             else
             {
-                soundDict.Add(audioName, soundTemp);
+                SoundDict.Add(audioName, SoundTemp);
             }
         }
         else
@@ -463,14 +536,14 @@ public class SoundManager : Singleton<SoundManager>
                 // Todo 메모리 최적화시에 필요한 부분입니다.
             } else
             {
-                result = system.createSound(filePath, mode, out soundTemp);
+                result = system.createSound(filePath, mode, out SoundTemp);
                 if (Error(result))
                 {
                     Debug.LogWarning(audioName + "을(를) 불러오지 못했습니다.");
                 }
                 else
                 {
-                    soundDict.Add(audioName, soundTemp);
+                    SoundDict.Add(audioName, SoundTemp);
                 }
             }
         }
@@ -484,15 +557,15 @@ public class SoundManager : Singleton<SoundManager>
     /// <returns></returns>
     public void UnLoad(string audioName)
     {
-        if (soundDict.ContainsKey(audioName))
+        if (SoundDict.ContainsKey(audioName))
         {
-            result = soundDict[audioName].release();
+            result = SoundDict[audioName].release();
             if(Error(result))
             {
                 Debug.LogWarning(audioName + "을(를) 정상적으로 UnLoad하지 못했습니다.");
             } else
             {
-                soundDict.Remove(audioName);
+                SoundDict.Remove(audioName);
             }
         }
         else
@@ -505,7 +578,7 @@ public class SoundManager : Singleton<SoundManager>
     /// <param name="audioName">대상 audioFile 이름</param>
     public void LoopOn(string audioName)
     {
-        result = soundDict[audioName].setMode(MODE.LOOP_NORMAL);
+        result = SoundDict[audioName].setMode(MODE.LOOP_NORMAL);
         Error(result);
     }
 
@@ -515,7 +588,7 @@ public class SoundManager : Singleton<SoundManager>
     /// <param name="audioName">대상 audioFile 이름</param>
     public void LoopOff(string audioName)
     {
-        result = soundDict[audioName].setMode(MODE.LOOP_OFF);
+        result = SoundDict[audioName].setMode(MODE.LOOP_OFF);
         Error(result); 
     }
 
@@ -527,10 +600,10 @@ public class SoundManager : Singleton<SoundManager>
     List<Channel> FindChannelOfSound(string audioName)
     {
         List<Channel> channelList = new List<Channel>();
-        foreach(var c in channelArr)
+        foreach(var c in ChannelArr)
         {
-            c.getCurrentSound(out soundTemp);
-            if (soundTemp.Equals(soundDict[audioName]))
+            c.getCurrentSound(out SoundTemp);
+            if (SoundTemp.Equals(SoundDict[audioName]))
             {
                 channelList.Add(c);
             }
@@ -544,14 +617,14 @@ public class SoundManager : Singleton<SoundManager>
     public void PrintInfo()
     {
         ChannelGroup CGTemp;
-        Debug.Log("The number of channel is " + maxChannelNum);
+        Debug.Log("The number of channel is " + MaxChannelNum);
         Debug.Log("The BattleSound channels are from " + BattleSoundChannelIndex + " to " + (EventSoundChannelIndex-1) );
         Debug.Log("The EventSound channels are from " + EventSoundChannelIndex + " to " + (EnvironmentSoundChannelIndex-1) );
         Debug.Log("The EnvironmentSound channels are from " + EnvironmentSoundChannelIndex + " to " + (BGMChannelIndex-1) );
         Debug.Log("The BGM channels is " + BGMChannelIndex);
         Debug.Log("------------------------------------");
         Debug.Log("Currently these sounds are in memory");
-        foreach (var s in soundDict)
+        foreach (var s in SoundDict)
         {
             Debug.Log(s.Key);
             s.Value.getMode(out MODE mode);
@@ -560,58 +633,63 @@ public class SoundManager : Singleton<SoundManager>
         Debug.Log("------------------------------------");
         Debug.Log("Currently playing channels are");
         int i = 0;
-        foreach (var c in channelArr)
+        foreach (var c in ChannelArr)
         {
             bool b;
             c.getIndex(out i);
             c.isPlaying(out b);
             if (b)
             {
-                c.getCurrentSound(out soundTemp);
+                c.getCurrentSound(out SoundTemp);
                 c.getNumDSPs(out int numdsp);
-                soundTemp.getName(out strTemp, 30);
-                Debug.Log("On "+i+" channel the "+strTemp+" is playing. And number of DSP is "+numdsp);
+                SoundTemp.getName(out StrTemp, 30);
+                Debug.Log("On "+i+" channel the "+StrTemp+" is playing. And number of DSP is "+numdsp);
                 c.getChannelGroup(out CGTemp);
-                CGTemp.getName(out strTemp, 30);
-                Debug.Log("ChannelGroup which this channel belongs to is "+strTemp);
+                CGTemp.getName(out StrTemp, 30);
+                Debug.Log("ChannelGroup which this channel belongs to is "+StrTemp);
                 Debug.Log("--------List of DSPs in this channel");
                 for (int j = 0 ; j < numdsp ; j++)
                 {
-                    c.getDSP(j, out DSPTemp);
-                    DSPTemp.getType(out typeTemp);
-                    Debug.Log(j+"th DSP's type is "+typeTemp);
+                    c.getDSP(j, out DSPTemp1);
+                    DSPTemp1.getType(out TypeTemp);
+                    Debug.Log(j+"th DSP's type is "+TypeTemp);
                 }
             }
         }
         Debug.Log("------------------------------------");
         Debug.Log("Currently structed channelGroups are");
-        MasterChannelGroup.getName(out strTemp, 30);
-        Debug.Log(strTemp);        
-        SFXChannelGroup.getName(out strTemp, 30);
-        Debug.Log(strTemp);        
-        BGMChannelGroup.getName(out strTemp, 30);
-        Debug.Log(strTemp);        
-        BattleSoundChannelGroup.getName(out strTemp, 30);
-        Debug.Log(strTemp);        
-        EventSoundChannelGroup.getName(out strTemp, 30);
-        Debug.Log(strTemp);        
-        EnvironmentSoundChannelGroup.getName(out strTemp, 30);
-        Debug.Log(strTemp);
-        BattleSoundChannelGroup.getParentGroup(out CGTemp);
-        CGTemp.getName(out strTemp, 30);        
-        Debug.Log("BattleChannelGroup's parrent ChannelGroup is "+strTemp);
-        EventSoundChannelGroup.getParentGroup(out CGTemp);
-        CGTemp.getName(out strTemp, 30);        
-        Debug.Log("EventChannelGroup's parrent ChannelGroup is "+strTemp);
-        EnvironmentSoundChannelGroup.getParentGroup(out CGTemp);
-        CGTemp.getName(out strTemp, 30);        
-        Debug.Log("EnvironmentChannelGroup's parrent ChannelGroup is "+strTemp);
+        MasterChannelGroup.getName(out StrTemp, 30);
+        Debug.Log(StrTemp);        
+
+        SFXChannelGroup.getName(out StrTemp, 30);
+        Debug.Log(StrTemp);        
         SFXChannelGroup.getParentGroup(out CGTemp);
-        CGTemp.getName(out strTemp, 30);        
-        Debug.Log("SFXChannelGroup's parrent ChannelGroup is "+strTemp);
+        CGTemp.getName(out StrTemp, 30);        
+        Debug.Log("SFXChannelGroup's parrent ChannelGroup is "+StrTemp);
+
+        BGMChannelGroup.getName(out StrTemp, 30);
+        Debug.Log(StrTemp);        
         BGMChannelGroup.getParentGroup(out CGTemp);
-        CGTemp.getName(out strTemp, 30);        
-        Debug.Log("BGMChannelGroup's parrent ChannelGroup is "+strTemp);
+        CGTemp.getName(out StrTemp, 30);        
+        Debug.Log("BGMChannelGroup's parrent ChannelGroup is "+StrTemp);
+
+        BattleSoundChannelGroup.getName(out StrTemp, 30);
+        Debug.Log(StrTemp);        
+        BattleSoundChannelGroup.getParentGroup(out CGTemp);
+        CGTemp.getName(out StrTemp, 30);        
+        Debug.Log("BattleChannelGroup's parrent ChannelGroup is "+StrTemp);
+
+        EventSoundChannelGroup.getName(out StrTemp, 30);
+        Debug.Log(StrTemp);        
+        EventSoundChannelGroup.getParentGroup(out CGTemp);
+        CGTemp.getName(out StrTemp, 30);        
+        Debug.Log("EventChannelGroup's parrent ChannelGroup is "+StrTemp);
+
+        EnvironmentSoundChannelGroup.getName(out StrTemp, 30);
+        Debug.Log(StrTemp);
+        EnvironmentSoundChannelGroup.getParentGroup(out CGTemp);
+        CGTemp.getName(out StrTemp, 30);        
+        Debug.Log("EnvironmentChannelGroup's parrent ChannelGroup is "+StrTemp);
     }
 
     public enum SFXEnum
@@ -627,4 +705,21 @@ public class SoundManager : Singleton<SoundManager>
         if (result != RESULT.OK) { Debug.LogAssertionFormat("FMOD error! {0} : {1}", result, FMOD.Error.String(result)); return true;}
         else { return false; }
     }
+}
+
+public struct SoundPlayInfo
+{
+    public SoundPlayInfo(float Volume, float Pitch, float Speed, float Reverb)
+    {
+        this.Volume = Volume;
+        this.Pitch = Pitch;
+        this.Speed = Speed;
+        this.Reverb = Reverb;
+    }
+    public float Volume;
+    public float Pitch;
+    public float Speed;
+    public float Reverb;
+    public static SoundPlayInfo Default = new SoundPlayInfo(1, 1, 1, 0);
+    public static SoundPlayInfo One = new SoundPlayInfo(1, 1, 1, 1);
 }
