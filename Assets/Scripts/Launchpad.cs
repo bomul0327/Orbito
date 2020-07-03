@@ -20,7 +20,11 @@ public class Launchpad
     /// <summary>
     /// 현재 사용중인 Spec 이름.
     /// </summary>
-    private string Name;
+    public string Name
+    {
+        get;
+        private set;
+    }
 
     /// <summary>
     /// 발사대가 이미 건조 되어 활성화 되어 있는가?
@@ -92,5 +96,7 @@ public class Launchpad
 
         Debug.Log($"LaunchpadBuildSuccess::Build launchpad '{Name}'.");
     }
+
+    
 
 }
