@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 기지
+/// Player의 Base기지 기능들이 구현된 클래스. 
+/// 자원 보관, Recipe&Blueprint 관리 및 제조, 발사대 건조 등을 수행할 수 있습니다.
 /// </summary>
 public class Base
 {
@@ -14,11 +15,25 @@ public class Base
     public static Dictionary<Item, Item[]> BlueprintRecipe = new Dictionary<Item, Item[]>();
 
     //거점의 창고
-    //public Inventory BaseInventory;
+    public Inventory BaseInventory;
+
+    //거점의 발사대
+    public Launchpad Launchpad;
+
 
     //정박중인 정찰선
     public Character player = null;
-    
+
+
+    public Base()
+    {
+        BaseInventory = new Inventory();
+        
+        //발사대를 생성합니다.
+        Launchpad = new Launchpad("Test_No_Requirements");
+
+    }
+ 
     /// <summary>
     /// 정찰선을 기지에 정박시킵니다
     /// </summary>
@@ -190,10 +205,12 @@ public class Base
     }
 
     /// <summary>
-    /// 발사대 건조
+    /// 발사대를 건조를 시도합니다. 발사대 건조 조건을 만족하지 못하면 실패합니다.
     /// </summary>
-    public void BuildLauncher()
+    public void BuildLaunchpad()
     {
-
+        bool buildSuccess = Launchpad.TryBuild(BaseInventory);
+        
+        //발사대 건조 성공 / 또는 실패시, Base에서의 작업 수행.
     }
 }

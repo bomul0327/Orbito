@@ -1,0 +1,17 @@
+  [
+    {
+        "Name": "Test_No_Requirements",
+        "Items": "{}",
+        "Resource": 0
+    },
+    {
+        "Name": "Level1",
+        "Items": "{'1':1,'2':2,'3':3}",
+        "Resource": 120
+    },
+    {
+        "Name": "Level2",
+        "Items": "{'1':1, '2':2, '3':3}",
+        "Resource": 1000
+    }
+]

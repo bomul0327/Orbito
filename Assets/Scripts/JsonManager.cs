@@ -15,6 +15,8 @@ public static class JsonManager
     public static Dictionary<string, SoundSourcePath> SoundDict = new Dictionary<string, SoundSourcePath>();
     public static Dictionary<string, ObjectPoolSpec> PoolSpecDict = new Dictionary<string, ObjectPoolSpec>();
     public static Dictionary<string, ChunkInitSpawn> ChunkDict = new Dictionary<string, ChunkInitSpawn>();
+    public static Dictionary<string, LaunchpadSpec> LaunchpadSpecDict = new Dictionary<string, LaunchpadSpec>();
+
     private static string jsonPath = System.IO.Path.Combine(Application.streamingAssetsPath, "JsonFiles");
 
     static JsonManager()
@@ -22,6 +24,7 @@ public static class JsonManager
         ReadSoundSourcePaths("SoundSourcePath.json");
         ReadObjectPoolSpecs("ObjectPoolSpecs.json");
         ReadChunkInitSpawns("ChunkInitSpawn.json");
+        ReadLaunchpadSpec("LaunchpadSpecs.json");
     }
     public static void ReadSoundSourcePaths(string fileName)
     {
@@ -103,6 +106,44 @@ public static class JsonManager
             return null;
         }
     }
+
+    /// <summary>
+    /// Launchpad의 Spec 파일을 로드합니다.
+    /// </summary>
+    /// <param name="fileName">로드할 Json 파일명.</param>
+    public static void ReadLaunchpadSpec(string fileName)
+    {
+        string filePath = Path.Combine(jsonPath, fileName);
+        string dataAsjson = File.ReadAllText(filePath);
+        var data = JsonConvert.DeserializeObject<List<JObject>>(dataAsjson);
+
+        foreach (JObject ob in data)
+        {
+            LaunchpadSpec launchpadSpec = new LaunchpadSpec(ob);
+
+            LaunchpadSpecDict.Add(launchpadSpec.Name, launchpadSpec);
+        }
+
+    }
+
+    /// <summary>
+    /// 주어진 이름의 Launchpad의 Spec 정보를 반환합니다.
+    /// </summary>
+    /// <param name="assetName">로드할 Spec 이름.</param>
+    /// <returns></returns>
+    public static LaunchpadSpec GetLaunchpadSpec(string assetName)
+    {
+        if (LaunchpadSpecDict.ContainsKey(assetName))
+        {
+            return LaunchpadSpecDict[assetName];
+        }
+        else
+        {
+            Debug.LogError("LaunchpadSpecLoadError::There is no " + assetName + "'s PoolSpec");
+            return null;
+        }
+    }
+
 
     public static void ReadChunkInitSpawns(string fileName)
     {
